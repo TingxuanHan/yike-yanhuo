@@ -1,0 +1,395 @@
+import { setTimeout as delay } from "node:timers/promises";
+import {
+  CATEGORIES,
+  completeCategories,
+  emptyUsage,
+  type Facility,
+  type LngLat,
+  type Provider,
+  type SearchResult,
+  type Travel,
+  type Usage,
+  type XY,
+} from "../shared/types.js";
+import { distance, pointKey, toGeo, toLocal, validGeo } from "../core/geo.js";
+import { QuotaLedger } from "./quota.js";
+
+export class ServiceError extends Error {
+  constructor(
+    message: string,
+    public code = 502,
+  ) {
+    super(message);
+  }
+}
+export interface BaiduOptions {
+  ak: string;
+  routeQps?: number;
+  maxRoutePairs?: number;
+  maxSearchPages?: number;
+  dailyRouteLimit?: number;
+  dailySearchLimit?: number;
+  timeoutMs?: number;
+  fetcher?: typeof fetch;
+  wait?: (ms: number, signal?: AbortSignal) => Promise<void>;
+  now?: () => number;
+  ledger?: QuotaLedger;
+}
+type Reply = {
+  status: number | string;
+  result?: unknown;
+  results?: unknown;
+  total?: number;
+};
+export class BaiduGateway {
+  readonly routeQps: number;
+  readonly maxRoutePairs: number;
+  readonly maxSearchPages: number;
+  private fetcher: typeof fetch;
+  private wait: (ms: number, signal?: AbortSignal) => Promise<void>;
+  private now: () => number;
+  private next = new Map<string, number>();
+  private ledger: QuotaLedger;
+  private cache = new Map<string, { expires: number; value: Reply }>();
+  constructor(private options: BaiduOptions) {
+    this.routeQps = Math.max(
+      1,
+      Math.min(50, Math.floor(options.routeQps ?? 3)),
+    );
+    this.maxRoutePairs = options.maxRoutePairs ?? 300;
+    this.maxSearchPages = Math.max(1, Math.min(3, options.maxSearchPages ?? 1));
+    this.fetcher = options.fetcher ?? fetch;
+    this.wait =
+      options.wait ?? ((ms, signal) => delay(ms, undefined, { signal }));
+    this.now = options.now ?? Date.now;
+    this.ledger =
+      options.ledger ??
+      new QuotaLedger(
+        {
+          route: options.dailyRouteLimit ?? 1200,
+          search: options.dailySearchLimit ?? 80,
+          other: 50,
+          map: 500,
+        },
+        undefined,
+        this.now,
+      );
+  }
+  async call(
+    path: string,
+    params: Record<string, string>,
+    usage: Usage,
+    kind: "route" | "search" | "other",
+    cost = 1,
+    signal?: AbortSignal,
+  ): Promise<Reply> {
+    if (!this.options.ak)
+      throw new ServiceError(
+        "尚未配置百度地图服务端 AK，请先配置或使用模拟街区。",
+        503,
+      );
+    const allowed = [
+      "/place/v3/around",
+      "/routematrix/v2/walking",
+      "/geocoding/v3/",
+      "/geoconv/v2/",
+    ];
+    if (!allowed.includes(path))
+      throw new ServiceError("不支持的地图服务", 400);
+    const cacheKey = `${path}?${new URLSearchParams(params)}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached && cached.expires > this.now()) {
+      usage.cacheHits++;
+      return structuredClone(cached.value);
+    }
+    const url = new URL(path, "https://api.map.baidu.com");
+    url.search = new URLSearchParams({
+      ...params,
+      output: "json",
+      ak: this.options.ak,
+    }).toString();
+    for (let attempt = 0; attempt < 2; attempt++) {
+      signal?.throwIfAborted();
+      if (kind === "route" && usage.routePairs + cost > this.maxRoutePairs)
+        throw new ServiceError(
+          "步行测时已达到本次预算，请调整采样后重试。",
+          429,
+        );
+      const qps = kind === "route" ? this.routeQps : 3;
+      const start = Math.max(this.now(), this.next.get(kind) ?? 0);
+      this.next.set(kind, start + Math.ceil((cost / qps) * 1000) + 50);
+      await this.wait(Math.max(0, start - this.now()), signal);
+      signal?.throwIfAborted();
+      try {
+        await this.ledger.take(kind, cost);
+      } catch (error) {
+        throw new ServiceError(
+          error instanceof Error ? error.message : "调用预算不可用。",
+          429,
+        );
+      }
+      usage.requests++;
+      if (kind === "route") usage.routePairs += cost;
+      if (kind === "search") usage.searchRequests++;
+      try {
+        const timed = AbortSignal.timeout(this.options.timeoutMs ?? 12000);
+        const response = await this.fetcher(url, {
+          signal: signal ? AbortSignal.any([signal, timed]) : timed,
+          redirect: "error",
+        });
+        if (!response.ok) {
+          await response.body?.cancel();
+          if (
+            attempt === 0 &&
+            (response.status === 429 || response.status >= 500)
+          ) {
+            usage.retries++;
+            await this.wait(800, signal);
+            continue;
+          }
+          throw new ServiceError(
+            `地图服务暂不可用（HTTP ${response.status}），请稍后重试。`,
+          );
+        }
+        const text = await response.text();
+        if (text.length > 2_000_000)
+          throw new ServiceError("地图服务返回数据过大，请缩小查询范围。");
+        const result = JSON.parse(text) as Reply;
+        if (!result || Number(result.status) !== 0)
+          throw new ServiceError(
+            `百度服务返回错误（${Number.isFinite(Number(result?.status)) ? Number(result.status) : "未知"}），请核对 AK、服务权限及配额。`,
+          );
+        if (this.cache.size >= 128)
+          this.cache.delete(this.cache.keys().next().value!);
+        this.cache.set(cacheKey, {
+          expires: this.now() + 120_000,
+          value: result,
+        });
+        return structuredClone(result);
+      } catch (error) {
+        signal?.throwIfAborted();
+        if (error instanceof ServiceError) throw error;
+        if (attempt === 0) {
+          usage.retries++;
+          await this.wait(800, signal);
+          continue;
+        }
+        throw new ServiceError(
+          "地图服务连接超时或响应无效，请检查网络后重试。",
+        );
+      }
+    }
+    throw new ServiceError("地图服务未返回结果，请重试。");
+  }
+  async geocode(
+    address: string,
+    signal?: AbortSignal,
+  ): Promise<{ geo: LngLat; precise: boolean; confidence: number | null }> {
+    const reply = await this.call(
+      "/geocoding/v3/",
+      { address, ret_coordtype: "bd09ll" },
+      emptyUsage(),
+      "other",
+      1,
+      signal,
+    );
+    const result = reply.result as {
+      location?: LngLat;
+      precise?: number;
+      confidence?: number;
+    };
+    if (!validGeo(result?.location))
+      throw new ServiceError(
+        "没有找到这个地址，请补充城市、街道和门牌号。",
+        404,
+      );
+    return {
+      geo: result.location,
+      precise: result.precise === 1,
+      confidence: Number.isFinite(result.confidence)
+        ? result.confidence!
+        : null,
+    };
+  }
+  async convert(
+    point: LngLat,
+    from: 1 | 3,
+    signal?: AbortSignal,
+  ): Promise<LngLat> {
+    const reply = await this.call(
+      "/geoconv/v2/",
+      { coords: `${point.lng},${point.lat}`, model: from === 1 ? "2" : "1" },
+      emptyUsage(),
+      "other",
+      1,
+      signal,
+    );
+    const result = (reply.result as { x: number; y: number }[])?.[0];
+    const output = { lng: result?.x, lat: result?.y };
+    if (!validGeo(output))
+      throw new ServiceError("坐标转换失败，请换一个位置。");
+    return output;
+  }
+}
+
+export function parseTravel(value: unknown, samePoint = false): Travel {
+  if (samePoint) return { status: "ok", seconds: 0, meters: 0 };
+  const r = value as
+    | { duration?: { value?: number }; distance?: { value?: number } }
+    | undefined;
+  const seconds = r?.duration?.value;
+  const meters = r?.distance?.value;
+  if (
+    typeof seconds !== "number" ||
+    typeof meters !== "number" ||
+    !Number.isFinite(seconds) ||
+    !Number.isFinite(meters) ||
+    seconds <= 0 ||
+    meters <= 0
+  )
+    return { status: "unknown", reason: "未返回有效步行路线" };
+  return { status: "ok", seconds, meters };
+}
+
+export class BaiduProvider implements Provider {
+  mode = "baidu" as const;
+  usage = emptyUsage();
+  private routes = new Map<string, Travel>();
+  constructor(
+    private gateway: BaiduGateway,
+    private origin: LngLat,
+  ) {}
+  async search(
+    center: XY,
+    radius: number,
+    signal?: AbortSignal,
+  ): Promise<SearchResult> {
+    const complete = completeCategories(false);
+    const warnings: string[] = [];
+    const facilities: Facility[] = [];
+    const geo = toGeo(center, this.origin);
+    for (const category of CATEGORIES) {
+      let rawCount = 0;
+      let invalidCount = 0;
+      let total: number | undefined;
+      for (let page = 0; page < this.gateway.maxSearchPages; page++) {
+        const reply = await this.gateway.call(
+          "/place/v3/around",
+          {
+            query: category.query,
+            location: `${geo.lat},${geo.lng}`,
+            radius: String(radius),
+            radius_limit: "true",
+            coord_type: "3",
+            scope: "1",
+            page_num: String(page),
+            page_size: "10",
+          },
+          this.usage,
+          "search",
+          1,
+          signal,
+        );
+        const results = Array.isArray(reply.results)
+          ? (reply.results as {
+              uid?: string;
+              name?: string;
+              location?: LngLat;
+              address?: string;
+            }[])
+          : [];
+        if (!Array.isArray(reply.results)) invalidCount++;
+        total =
+          typeof reply.total === "number" &&
+          Number.isFinite(reply.total) &&
+          reply.total >= 0
+            ? reply.total
+            : undefined;
+        rawCount += results.length;
+        for (const p of results) {
+          if (!p.name || !validGeo(p.location)) {
+            invalidCount++;
+            continue;
+          }
+          const point = toLocal(p.location, this.origin);
+          if (distance(center, point) > radius + 5) {
+            invalidCount++;
+            continue;
+          }
+          facilities.push({
+            id: `${category.id}:${p.uid ?? `${p.name}:${pointKey(point)}`}`,
+            uid: p.uid,
+            name: p.name,
+            category: category.id,
+            point,
+            geo: p.location,
+            address: p.address ?? "",
+          });
+        }
+        if (total !== undefined && rawCount >= total) break;
+        if (results.length < 10) break;
+      }
+      complete[category.id] =
+        total !== undefined &&
+        total < 150 &&
+        rawCount >= total &&
+        invalidCount === 0;
+      if (!complete[category.id])
+        warnings.push(
+          `${category.label}检索结果可能不完整，相关空白点仅标为待核查。`,
+        );
+    }
+    warnings.push(
+      "设施类别按检索关键词映射，是否营业、开放及实际入口仍需核验；检索完成不代表地图收录了所有设施。",
+    );
+    return { facilities, complete, warnings, radiusMeters: radius };
+  }
+  async route(
+    origin: XY,
+    destinations: XY[],
+    signal?: AbortSignal,
+  ): Promise<Travel[]> {
+    const originGeo = toGeo(origin, this.origin);
+    const routeKey = (p: XY) => `${pointKey(origin)}>${pointKey(p)}`;
+    const distinct = [
+      ...new Map(destinations.map((p) => [routeKey(p), p])).values(),
+    ];
+    const pending: XY[] = [];
+    for (const p of distinct) {
+      if (distance(p, origin) < 0.01)
+        this.routes.set(routeKey(p), parseTravel(undefined, true));
+      else if (!this.routes.has(routeKey(p))) pending.push(p);
+    }
+    const size = Math.min(50, this.gateway.routeQps);
+    for (let i = 0; i < pending.length; i += size) {
+      const batch = pending.slice(i, i + size);
+      const coordinates = batch.map((p) => {
+        const g = toGeo(p, this.origin);
+        return `${g.lat},${g.lng}`;
+      });
+      const reply = await this.gateway.call(
+        "/routematrix/v2/walking",
+        {
+          origins: `${originGeo.lat},${originGeo.lng}`,
+          destinations: coordinates.join("|"),
+          coord_type: "bd09ll",
+        },
+        this.usage,
+        "route",
+        batch.length,
+        signal,
+      );
+      const result = Array.isArray(reply.result) ? reply.result : [];
+      batch.forEach((p, j) =>
+        this.routes.set(routeKey(p), parseTravel(result[j])),
+      );
+    }
+    return destinations.map(
+      (p) =>
+        this.routes.get(routeKey(p)) ?? {
+          status: "unknown",
+          reason: "路线结果缺失",
+        },
+    );
+  }
+}
