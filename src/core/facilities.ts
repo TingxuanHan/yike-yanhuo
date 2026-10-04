@@ -1,30 +1,69 @@
-import { distance } from './geo.js';
-import type { Category, Completeness, Facility, Gap, XY } from '../shared/types.js';
+import { distance } from "./geo.js";
+import type {
+  Category,
+  Completeness,
+  Facility,
+  Gap,
+  XY,
+} from "../shared/types.js";
 
 export function deduplicate(facilities: Facility[]): Facility[] {
-  const normalized = (name: string) => name.normalize('NFKC').toLowerCase().replace(/[\s·•（）()\-]/gu, '');
+  const normalized = (name: string) =>
+    name
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/[\s·•（）()\-]/gu, "");
   const output: Facility[] = [];
   for (const facility of facilities) {
-    const duplicate = output.some(p => p.category === facility.category && (
-      (p.uid && facility.uid ? p.uid === facility.uid : false) ||
-      ((!p.uid || !facility.uid) && normalized(p.name) === normalized(facility.name) && distance(p.point, facility.point) <= 30)
-    ));
+    const duplicate = output.some(
+      (p) =>
+        p.category === facility.category &&
+        ((p.uid && facility.uid ? p.uid === facility.uid : false) ||
+          ((!p.uid || !facility.uid) &&
+            normalized(p.name) === normalized(facility.name) &&
+            distance(p.point, facility.point) <= 30)),
+    );
     if (!duplicate) output.push(facility);
   }
   return output;
 }
 
-export function findGaps(points: XY[], center: XY, facilities: Facility[], complete: Completeness, searchRadius: number): Gap[] {
+export function findGaps(
+  points: XY[],
+  center: XY,
+  facilities: Facility[],
+  complete: Completeness,
+  searchRadius: number,
+): Gap[] {
   const gaps: Gap[] = [];
   for (const point of points) {
-    for (const category of ['market', 'pharmacy', 'school'] as const) {
-      if (facilities.some(p => p.category === category && distance(point, p.point) <= 1000)) continue;
-      const fullySearched = complete[category] && distance(point, center) + 1000 <= searchRadius;
-      gaps.push({ point, category, status: fullySearched ? 'missing' : 'unknown' });
+    for (const category of ["market", "pharmacy", "school"] as const) {
+      if (
+        facilities.some(
+          (p) => p.category === category && distance(point, p.point) <= 1000,
+        )
+      )
+        continue;
+      const fullySearched =
+        complete[category] && distance(point, center) + 1000 <= searchRadius;
+      gaps.push({
+        point,
+        category,
+        status: fullySearched ? "missing" : "unknown",
+      });
     }
   }
   return gaps;
 }
-export function facilityCount(facilities: Facility[], category: Category, minutes: number): number {
-  return facilities.filter(p => p.category === category && p.travel?.status === 'ok' && p.travel.seconds <= minutes * 60).length;
+export function facilityCount(
+  facilities: Facility[],
+  category: Category,
+  minutes: number,
+): number {
+  return facilities.filter(
+    (p) =>
+      p.category === category &&
+      p.travel?.status === "ok" &&
+      p.travel.seconds <= minutes * 60,
+  ).length;
 }

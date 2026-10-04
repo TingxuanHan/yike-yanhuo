@@ -4,7 +4,9 @@
   "private": true,
   "description": "15分钟生活圈智能体检与规划助手",
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.server.json",

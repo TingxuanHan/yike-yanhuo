@@ -1,0 +1,109 @@
+import { test, expect } from "@playwright/test";
+import { readFile } from "node:fs/promises";
+
+test("desktop analysis, local filtering, report export and no browser errors", async ({
+  page,
+}, info) => {
+  const errors: string[] = [];
+  let analyses = 0;
+  page.on("pageerror", (e) => errors.push(e.message));
+  page.on("request", (req) => {
+    if (req.method() === "POST" && req.url().endsWith("/api/analyses"))
+      analyses++;
+  });
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "看看附近的生活" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "开始体检", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "重新体检", exact: true }),
+  ).toBeEnabled();
+  await expect(page.locator(".map-legend")).toBeVisible();
+  await page.screenshot({
+    path: info.outputPath("desktop.png"),
+    fullPage: true,
+  });
+  await page
+    .getByRole("group", { name: "查看步行时长" })
+    .getByRole("button", { name: "5 分钟", exact: true })
+    .click();
+  await page
+    .locator(".category-option")
+    .filter({ hasText: "药店" })
+    .getByRole("checkbox")
+    .uncheck();
+  expect(analyses).toBe(1);
+  await page.getByRole("button", { name: "体检报告", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "1公里设施覆盖核查" }),
+  ).toBeVisible();
+  const downloaded = page.waitForEvent("download");
+  await page.getByRole("button", { name: "导出数据", exact: true }).click();
+  const download = await downloaded;
+  const output = info.outputPath("export.json");
+  await download.saveAs(output);
+  const result = JSON.parse(await readFile(output, "utf8"));
+  expect(result.mode).toBe("demo");
+  expect(result.contours).toHaveLength(3);
+  expect(result).not.toHaveProperty("ak");
+  await page.emulateMedia({ media: "print" });
+  await expect(page.locator(".control-panel")).toBeHidden();
+  await expect(page.locator(".report-document")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("mobile workbench fits viewport and handles a changed center", async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.getByLabel("选择一个起点").selectOption("1");
+  await page.getByRole("button", { name: "开始体检", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "重新体检", exact: true }),
+  ).toBeEnabled();
+  await page.getByRole("button", { name: /设施筛选与核查点/ }).click();
+  await page.getByLabel("显示设施覆盖核查点").check();
+  await page.screenshot({
+    path: info.outputPath("mobile.png"),
+    fullPage: true,
+  });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.getByRole("button", { name: "体检报告", exact: true }).click();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("missing configuration and server failure offer recovery without losing input", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "百度地图", exact: true }).click();
+  await expect(page.getByText("真实地图服务尚未就绪")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "开始体检", exact: true }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "模拟街区", exact: true }).click();
+  await page.route("**/api/analyses", (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "测试服务暂不可用，请重试。" }),
+    }),
+  );
+  await page.getByRole("button", { name: "开始体检", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("请重试");
+  await page.unroute("**/api/analyses");
+  await page.getByRole("button", { name: "开始体检", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "重新体检", exact: true }),
+  ).toBeEnabled();
+});
