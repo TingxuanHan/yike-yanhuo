@@ -107,3 +107,34 @@ test("missing configuration and server failure offer recovery without losing inp
     page.getByRole("button", { name: "重新体检", exact: true }),
   ).toBeEnabled();
 });
+test("map permission rejection shows recovery without vendor dialogs or a blank map", async ({
+  page,
+}) => {
+  let dialogs = 0;
+  const errors: string[] = [];
+  page.on("dialog", async (dialog) => {
+    dialogs++;
+    await dialog.dismiss();
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.route("**/api/config", (route) =>
+    route.fulfill({
+      json: { mapConfigured: true, baiduConfigured: true, version: "0.1.0" },
+    }),
+  );
+  await page.route("**/api/map-sdk/api?*", (route) =>
+    route.fulfill({ status: 503, json: { error: "地图底图服务未启用。" } }),
+  );
+  await page.goto("/");
+  await page.getByRole("button", { name: "百度地图", exact: true }).click();
+  await page.getByText("直接输入地图坐标", { exact: true }).click();
+  await page.getByLabel("经度", { exact: true }).fill("121.5");
+  await page.getByLabel("纬度", { exact: true }).fill("31.2");
+  await page.getByRole("button", { name: "使用这个点", exact: true }).click();
+  await expect(page.getByText("地图暂未加载", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "重新加载底图" }),
+  ).toBeEnabled();
+  expect(dialogs).toBe(0);
+  expect(errors).toEqual([]);
+});
