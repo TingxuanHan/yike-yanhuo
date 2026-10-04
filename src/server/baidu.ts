@@ -22,6 +22,35 @@ export class ServiceError extends Error {
     super(message);
   }
 }
+function upstreamError(status: unknown, path: string): ServiceError {
+  const code = Number(status);
+  const service =
+    {
+      "/geocoding/v3/": "地理编码",
+      "/geoconv/v2/": "坐标转换",
+      "/place/v3/around": "地点检索",
+      "/routematrix/v2/walking": "批量算路（步行）",
+    }[path] ?? "对应";
+  const guidance: Record<number, string> = {
+    3: "权限校验失败，请核对服务端应用类型和访问限制。",
+    5: "AK 无效，请核对本地服务端配置。",
+    203: "应用类型不匹配，请为服务端接口使用服务端类型的 AK。",
+    210: "IP 校验失败，请核对服务端应用允许的出口 IP。",
+    211: "签名校验失败，当前接入方式需要使用 IP 白名单校验。",
+    220: "Referer 校验失败，请核对应用类型及域名限制。",
+    240: `${service}服务未启用，请在百度地图控制台的服务端应用中勾选该服务并保存。`,
+    4: "服务配额校验失败，已停止请求；请先核对控制台剩余额度。",
+    301: "服务累计配额已用完，已停止请求；请先核对控制台额度。",
+    302: "服务当日配额已用完，已停止请求；请等待额度恢复。",
+    401: "服务并发超限，已停止请求；请降低调用频率后重试。",
+    402: "服务并发超限，已停止请求；请降低调用频率后重试。",
+  };
+  const label = Number.isFinite(code) ? code : "未知";
+  return new ServiceError(
+    `百度服务错误（${label}）：${guidance[code] ?? "请核对 AK、服务权限及配额。"}`,
+    [4, 301, 302, 401, 402].includes(code) ? 429 : 502,
+  );
+}
 export interface BaiduOptions {
   ak: string;
   routeQps?: number;
@@ -156,9 +185,7 @@ export class BaiduGateway {
           throw new ServiceError("地图服务返回数据过大，请缩小查询范围。");
         const result = JSON.parse(text) as Reply;
         if (!result || Number(result.status) !== 0)
-          throw new ServiceError(
-            `百度服务返回错误（${Number.isFinite(Number(result?.status)) ? Number(result.status) : "未知"}），请核对 AK、服务权限及配额。`,
-          );
+          throw upstreamError(result?.status, path);
         if (this.cache.size >= 128)
           this.cache.delete(this.cache.keys().next().value!);
         this.cache.set(cacheKey, {
@@ -185,6 +212,12 @@ export class BaiduGateway {
     address: string,
     signal?: AbortSignal,
   ): Promise<{ geo: LngLat; precise: boolean; confidence: number | null }> {
+    address = address.trim();
+    if (address.length < 2 || Buffer.byteLength(address, "utf8") > 128)
+      throw new ServiceError(
+        "地址需至少2个字符，且不超过128字节（约42个汉字）；请精简到城市、道路和门牌号。",
+        400,
+      );
     const reply = await this.call(
       "/geocoding/v3/",
       { address, ret_coordtype: "bd09ll" },

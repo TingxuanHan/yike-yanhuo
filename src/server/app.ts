@@ -262,13 +262,9 @@ export function createApp(
       }
       if (method === "POST" && url.pathname === "/api/geocode") {
         const body = await readJson(req);
-        if (
-          typeof body.address !== "string" ||
-          body.address.trim().length < 2 ||
-          body.address.length > 160
-        )
-          throw new ServiceError("请输入2至160字的地址。", 400);
-        return json(res, 200, await gateway.geocode(body.address.trim()));
+        if (typeof body.address !== "string")
+          throw new ServiceError("请输入社区名称或详细地址。", 400);
+        return json(res, 200, await gateway.geocode(body.address));
       }
       if (method === "POST" && url.pathname === "/api/convert") {
         const body = await readJson(req);

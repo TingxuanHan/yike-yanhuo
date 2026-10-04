@@ -4,6 +4,7 @@ import {
   BaiduGateway,
   BaiduProvider,
   parseTravel,
+  ServiceError,
 } from "../src/server/baidu.js";
 import { emptyUsage } from "../src/shared/types.js";
 
@@ -172,4 +173,58 @@ test("upstream text cannot leak the AK through a service error", async () => {
     (error) =>
       error instanceof Error && !error.message.includes("private-test-key"),
   );
+});
+test("geocoding validates UTF-8 bytes before spending quota and accepts 128 bytes", async () => {
+  let calls = 0;
+  let sentAddress = "";
+  const client = new BaiduGateway({
+    ak: "test-only",
+    wait: noWait,
+    fetcher: async (input) => {
+      calls++;
+      sentAddress = new URL(String(input)).searchParams.get("address")!;
+      return response({
+        status: 0,
+        result: { location: { lng: 121.5, lat: 31.2 } },
+      });
+    },
+  });
+  for (const address of [" ", "中", "中".repeat(43), "a".repeat(129)]) {
+    await assert.rejects(
+      client.geocode(address),
+      (error) => error instanceof ServiceError && error.code === 400,
+    );
+  }
+  assert.equal(calls, 0);
+  const accepted = "中".repeat(42) + "12";
+  await client.geocode("  " + accepted + "  ");
+  assert.equal(calls, 1);
+  assert.equal(sentAddress, accepted);
+});
+test("permission and quota failures have safe actionable guidance without retrying", async () => {
+  for (const [status, message, http] of [
+    [240, "地理编码服务未启用", 502],
+    [210, "IP 校验失败", 502],
+    [302, "当日配额已用完", 429],
+    [401, "并发超限", 429],
+  ] as const) {
+    let calls = 0;
+    const client = new BaiduGateway({
+      ak: "secret-test-value",
+      wait: noWait,
+      fetcher: async () => {
+        calls++;
+        return response({ status, message: "secret-test-value" });
+      },
+    });
+    await assert.rejects(
+      client.geocode("测试地址"),
+      (error) =>
+        error instanceof ServiceError &&
+        error.code === http &&
+        error.message.includes(message) &&
+        !error.message.includes("secret-test-value"),
+    );
+    assert.equal(calls, 1);
+  }
 });
