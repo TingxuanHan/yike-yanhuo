@@ -17,6 +17,14 @@
 
 创建完成后，把对应 AK 填入本地 `.env`。服务端密钥不写入浏览器代码、README、截图或版本历史。不要把服务端 AK 填入 `VITE_` 前缀环境变量。
 
+**创建应用后还需要勾选服务。** 浏览器端应用开启 JavaScript API；服务端应用开启地点检索、批量算路（步行）、地理编码、坐标转换。错误码240表示对应服务未启用，应修改应用服务权限后保存，不需要反复发送同一请求。
+
+本轮两个应用均遇到服务被禁用提示，请分别检查。地图权限预检会缓存两分钟；改完权限后重启项目服务或等待缓存过期，再进行一次验证。
+
+项目使用 JSAPI 4.0 的官方代理机制：网页只访问本项目的地图代理路径，服务端追加浏览器 AK 和 `BMAP_PROXY_URL` 请求头。`/api/config` 只返回是否配置的布尔值，不返回任何 AK。
+
+本地开发白名单应覆盖 `http://127.0.0.1:5173`，生产预览覆盖 `http://127.0.0.1:8787`；具体填写格式按百度控制台提示。新增正式域名后同步更新白名单与 `PUBLIC_ORIGIN`。
+
 ## 是否付费
 
 官方权益表列出了个人开发者的免费日配额：
@@ -48,4 +56,5 @@
 - [批量算路概览](https://lbs.baidu.com/docs/webapi?title=routematrix%2Froutchtout)
 - [配额流量包](https://lbsyun.baidu.com/cashier/quota?from=privilege)
 - [技术服务授权](https://lbs.baidu.com/cashier/auth)
-
+- [JSAPI代理保护AK](https://lbs.baidu.com/docs/jsapi?title=jsapi4/guide/concepts/proxy)
+- [错误码与服务开通](https://lbs.baidu.com/faq/details?id=2273&title=2484)
