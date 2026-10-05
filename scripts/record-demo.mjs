@@ -127,6 +127,33 @@ try {
     "查看设施覆盖核查、提示与调用统计，再安排现场确认。",
     4300,
   );
+  await page.getByText("记录或导入核查", { exact: true }).click();
+  const review = page.getByRole("region", { name: "设施核查", exact: true });
+  await review
+    .getByRole("combobox", { name: "核查结论", exact: true })
+    .selectOption("closed");
+  await review.getByLabel("来源名称", { exact: true }).fill("模拟社区核查记录");
+  await review.getByLabel("来源内编号", { exact: true }).fill("DEMO-01");
+  await review
+    .getByLabel("核查时间（本地时间）", { exact: true })
+    .fill("2026-10-05T10:00");
+  await review
+    .getByLabel("核查依据", { exact: true })
+    .fill("演示记录：暂停开放；仅用于展示功能，不代表真实社区。");
+  await review.scrollIntoViewIfNeeded();
+  await caption(
+    "记录设施核查依据",
+    "填写来源、编号、时间和依据；这里使用模拟记录，不是上海实地核验。",
+    5500,
+  );
+  await review.getByRole("button", { name: "记录核查", exact: true }).click();
+  await page.locator(".facility-chart").scrollIntoViewIfNeeded();
+  await caption(
+    "核查影响统计，也可以撤销",
+    "停用、待核查和来源冲突的设施暂不计入数量与覆盖；核查记录可导出并随报告保存。",
+    5500,
+  );
+  await review.getByRole("button", { name: "撤销上一次核查" }).click();
   const downloaded = page.waitForEvent("download");
   await page.getByRole("button", { name: "导出数据", exact: true }).click();
   await (await downloaded).saveAs(".cache/video-export.json");
@@ -145,8 +172,8 @@ try {
     "道路与桥梁会改变步行范围。画面仍为人工构造的对照场景。",
     5500,
   );
-  const saved = await readFile(".cache/live-result.json", "utf8").catch(
-    () => null,
+  const saved = await readFile(".cache/refined-result.json", "utf8").catch(() =>
+    readFile(".cache/live-result.json", "utf8").catch(() => null),
   );
   if (saved) {
     const report = parseResultFile(saved);
@@ -161,7 +188,7 @@ try {
     await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
     await caption(
       "08  打开上海已保存的体检",
-      "现在是2026年10月5日的百度接口历史结果；回放不重新检索或测时，入口尚未现场核验。",
+      "上海局部加密结果：177个测时点，设施复用原记录；回放不重新调用接口，入口尚未现场核验。",
       6500,
     );
     await page.locator(".coverage-chart").scrollIntoViewIfNeeded();
@@ -180,8 +207,8 @@ try {
   }
   await caption(
     "按证据继续改进",
-    "24点API对照中，15分钟加密轮廓一致率95.8%；5分钟仍有误差。入口和设施需继续现场核验。",
-    6500,
+    "新24点上，5分钟一致数20→21，漏判4→2、误判0→1。改善有限，入口、设施与第二来源仍待核验。",
+    7000,
   );
   if (realRequests)
     throw new Error("Unexpected real-service request while recording");
