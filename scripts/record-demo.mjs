@@ -136,7 +136,7 @@ try {
   );
   await caption(
     "首版可运行，真实案例继续核验",
-    "上海四平路街道为候选案例；需先开启地图应用服务，再验证实际入口与设施。",
+    "上海四平路街道首轮接口分析已通过；完整底图、实际入口与设施仍待独立核验。",
     5500,
   );
   if (errors.length) throw new Error("Browser errors while recording");
