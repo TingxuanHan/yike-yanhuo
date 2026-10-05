@@ -1,4 +1,5 @@
 import { distance } from "./geo.js";
+import { usableFacility } from "../shared/facility-review.js";
 import type {
   Category,
   Completeness,
@@ -36,10 +37,11 @@ export function findGaps(
   searchRadius: number,
 ): Gap[] {
   const gaps: Gap[] = [];
+  const usable = facilities.filter(usableFacility);
   for (const point of points) {
     for (const category of ["market", "pharmacy", "school"] as const) {
       if (
-        facilities.some(
+        usable.some(
           (p) => p.category === category && distance(point, p.point) <= 1000,
         )
       )
@@ -63,6 +65,7 @@ export function facilityCount(
   return facilities.filter(
     (p) =>
       p.category === category &&
+      usableFacility(p) &&
       p.travel?.status === "ok" &&
       p.travel.seconds <= minutes * 60,
   ).length;

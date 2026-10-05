@@ -1,5 +1,6 @@
 import polygonClipping from "polygon-clipping";
 import { distance, pointKey } from "./geo.js";
+import { usableFacility } from "../shared/facility-review.js";
 import type { AnalysisResult, Gap, MultiPolygon, XY } from "../shared/types.js";
 
 export const GAP_CATEGORIES = ["market", "pharmacy", "school"] as const;
@@ -8,6 +9,7 @@ export type CoverageStatus = "covered" | "missing" | "unknown";
 
 export function coveragePoints(result: AnalysisResult, category: GapCategory) {
   const seen = new Set<string>();
+  const facilities = result.facilities.filter(usableFacility);
   return result.samples
     .filter((sample) => {
       const key = pointKey(sample.point);
@@ -21,7 +23,7 @@ export function coveragePoints(result: AnalysisResult, category: GapCategory) {
       return true;
     })
     .map((sample) => {
-      const near = result.facilities.some(
+      const near = facilities.some(
         (p) =>
           p.category === category &&
           distance(p.point, sample.point) <=

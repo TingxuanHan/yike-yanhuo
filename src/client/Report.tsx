@@ -2,10 +2,20 @@ import { CATEGORIES, type AnalysisResult } from "../shared/types.js";
 import { facilityCount } from "../core/facilities.js";
 import { downloadJson } from "./api.js";
 import { CoverageChart, FacilityChart } from "./CoverageCharts.js";
+import { FacilityReview } from "./FacilityReview.js";
+import { REVIEW_LABELS, reviewState } from "../shared/facility-review.js";
 
 export const walkTime = (seconds: number) =>
   seconds === 0 ? "起点" : `约 ${Math.ceil(seconds / 60)} 分钟`;
-export function Report({ result }: { result: AnalysisResult }) {
+export function Report({
+  result,
+  disabled = false,
+  onReview,
+}: {
+  result: AnalysisResult;
+  disabled?: boolean;
+  onReview?: (result: AnalysisResult) => void;
+}) {
   const gaps = (category: string, status: string) =>
     result.gaps.filter((g) => g.category === category && g.status === status)
       .length;
@@ -137,6 +147,9 @@ export function Report({ result }: { result: AnalysisResult }) {
       </section>
       <section>
         <h3>设施明细</h3>
+        <p className="caption">
+          核查记录由使用者提供。“记录可用”不等于平台独立认证；核查冲突不会覆盖原始设施信息。
+        </p>
         <div className="table-scroll">
           <table>
             <thead>
@@ -145,6 +158,7 @@ export function Report({ result }: { result: AnalysisResult }) {
                 <th>类别</th>
                 <th>步行时间</th>
                 <th>地址</th>
+                <th>核查记录</th>
               </tr>
             </thead>
             <tbody>
@@ -158,12 +172,72 @@ export function Report({ result }: { result: AnalysisResult }) {
                       : "待核实"}
                   </td>
                   <td>{p.address || "未提供地址"}</td>
+                  <td className="review-cell">
+                    <span className={`review-state state-${reviewState(p)}`}>
+                      {REVIEW_LABELS[reviewState(p)]}
+                    </span>
+                    {p.evidence?.length ? (
+                      <details className="no-print">
+                        <summary>{p.evidence.length} 条依据</summary>
+                        <ul>
+                          {p.evidence.map((e, i) => (
+                            <li key={i}>
+                              <strong>
+                                {e.source} · {REVIEW_LABELS[e.status]}
+                              </strong>
+                              <span>
+                                {new Date(e.checkedAt).toLocaleString("zh-CN", {
+                                  hour12: false,
+                                })}{" "}
+                                · {e.recordId}
+                              </span>
+                              <p>{e.basis}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    ) : null}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </section>
+      {result.facilities.some((f) => f.evidence?.length) && (
+        <section className="print-only review-appendix">
+          <h3>设施核查依据</h3>
+          {result.facilities
+            .filter((f) => f.evidence?.length)
+            .map((f) => (
+              <div key={f.id}>
+                <h4>
+                  {f.name} · {REVIEW_LABELS[reviewState(f)]}
+                </h4>
+                <ul>
+                  {f.evidence!.map((e, i) => (
+                    <li key={i}>
+                      {e.source} / {e.recordId} ·{" "}
+                      {new Date(e.checkedAt).toLocaleString("zh-CN", {
+                        hour12: false,
+                      })}{" "}
+                      · {REVIEW_LABELS[e.status]}
+                      <br />
+                      {e.basis}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+        </section>
+      )}
+      {onReview && (
+        <FacilityReview
+          result={result}
+          disabled={disabled}
+          onChange={onReview}
+        />
+      )}
       <section>
         <h3>数据与方法记录</h3>
         <dl className="evidence-list">
@@ -193,7 +267,10 @@ export function Report({ result }: { result: AnalysisResult }) {
           </div>
           <div>
             <dt>结果复用</dt>
-            <dd>{result.usage.cacheHits}次短时缓存命中</dd>
+            <dd>
+              {result.usage.cacheHits}次
+              {result.derivedFrom ? "已有测时结果复用" : "短时缓存命中"}
+            </dd>
           </div>
           <div>
             <dt>本次分析耗时</dt>

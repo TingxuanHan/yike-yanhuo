@@ -4,6 +4,8 @@ import {
   type XY,
   type Travel,
 } from "./types.js";
+import { cleanEvidence } from "./facility-review.js";
+import { reconcileEvidence } from "../core/poi-evidence.js";
 
 export const MAX_RESULT_BYTES = 2_000_000;
 const categories = new Set(CATEGORIES.map((c) => c.id));
@@ -110,6 +112,16 @@ export function parseResultFile(raw: string): AnalysisResult {
         !categories.has(p.category) ||
         !point(p.point) ||
         !text(p.address, 500) ||
+        (p.evidence !== undefined &&
+          (!list(p.evidence, 30) ||
+            p.evidence.some((e: unknown) => {
+              try {
+                cleanEvidence(e);
+                return false;
+              } catch {
+                return true;
+              }
+            }))) ||
         (p.travel !== undefined && !travel(p.travel)) ||
         (p.geo !== undefined &&
           (!object(p.geo) ||
@@ -180,7 +192,7 @@ export function parseResultFile(raw: string): AnalysisResult {
     "skippedTriangles",
   ])
     if (!Number.isInteger(r.quality[key]) || r.quality[key] < 0) return fail();
-  return {
+  return reconcileEvidence({
     schemaVersion: 1,
     id: r.id,
     mode: r.mode,
@@ -213,6 +225,7 @@ export function parseResultFile(raw: string): AnalysisResult {
       ...(text(p.uid, 200) ? { uid: p.uid } : {}),
       ...(p.geo ? { geo: { lng: p.geo.lng, lat: p.geo.lat } } : {}),
       ...(p.travel ? { travel: cleanTravel(p.travel) } : {}),
+      ...(p.evidence ? { evidence: p.evidence.map(cleanEvidence) } : {}),
     })),
     complete: Object.fromEntries(
       CATEGORIES.map((c) => [c.id, r.complete[c.id]]),
@@ -263,7 +276,7 @@ export function parseResultFile(raw: string): AnalysisResult {
         "skippedTriangles",
       ].map((k) => [k, r.quality[k]]),
     ) as AnalysisResult["quality"],
-  };
+  });
 }
 function cleanTravel(value: Travel): Travel {
   return value.status === "ok"

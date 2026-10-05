@@ -13,6 +13,7 @@ import {
 } from "../shared/types.js";
 import { DEMO_CENTERS, demoFacilities } from "../core/demo.js";
 import { facilityCount } from "../core/facilities.js";
+import { usableFacility } from "../shared/facility-review.js";
 import { validGeo } from "../core/geo.js";
 import { DemoMap } from "./DemoMap.js";
 import { BaiduMap } from "./BaiduMap.js";
@@ -207,13 +208,17 @@ export function App() {
     result?.facilities ?? (mode === "demo" ? demoFacilities() : []);
   const visible = allFacilities.filter(
     (p) =>
+      usableFacility(p) &&
       categories.includes(p.category) &&
       (!result ||
         (p.travel?.status === "ok" && p.travel.seconds <= minutes * 60)),
   );
   const total =
     result?.facilities.filter(
-      (p) => p.travel?.status === "ok" && p.travel.seconds <= minutes * 60,
+      (p) =>
+        usableFacility(p) &&
+        p.travel?.status === "ok" &&
+        p.travel.seconds <= minutes * 60,
     ).length ?? 0;
   const area =
     result?.contours.find((c) => c.minutes === minutes)?.areaKm2 ?? 0;
@@ -828,7 +833,17 @@ export function App() {
             className={`report-pane ${view !== "report" ? "view-hidden" : ""}`}
             aria-label="体检报告"
           >
-            {result && <Report result={result} />}
+            {result && (
+              <Report
+                key={result.id}
+                result={result}
+                disabled={busy || locating}
+                onReview={(value) => {
+                  setResult(value);
+                  setSelected(null);
+                }}
+              />
+            )}
           </section>
           <footer className="workspace-footer no-print">
             <span>一刻烟火 · 社区步行观察</span>

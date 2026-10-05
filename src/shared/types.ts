@@ -47,6 +47,13 @@ export const CATEGORIES: {
 export type Travel =
   | { status: "ok"; seconds: number; meters: number }
   | { status: "unknown" | "unreachable"; reason: string };
+export interface FacilityEvidence {
+  source: string;
+  recordId: string;
+  checkedAt: string;
+  status: "confirmed" | "closed" | "uncertain";
+  basis: string;
+}
 export interface Facility {
   id: string;
   uid?: string;
@@ -56,6 +63,7 @@ export interface Facility {
   address: string;
   geo?: LngLat;
   travel?: Travel;
+  evidence?: FacilityEvidence[];
 }
 export interface Sample {
   point: XY;
