@@ -17,7 +17,10 @@ const port = Number(process.env.PORT ?? 8787);
 if (!Number.isInteger(port) || port < 1 || port > 65535)
   throw new Error("PORT 必须是有效端口");
 const host = process.env.HOST ?? "127.0.0.1";
-const server = createApp();
+const server = createApp({
+  ...process.env,
+  PERSONAL_DATA_PATH: process.env.PERSONAL_DATA_PATH ?? ".data/life.sqlite",
+});
 server.once("close", () => void releaseLease?.());
 server.listen(port, host, () =>
   console.log(`一刻烟火服务已启动：http://${host}:${port}`),

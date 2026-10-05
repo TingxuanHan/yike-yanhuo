@@ -4,6 +4,9 @@ dist
 .env
 .env.*
 .cache
+.data
+miniprogram/project.private.config.json
+miniprogram/shared
 test-results
 playwright-report
 materials

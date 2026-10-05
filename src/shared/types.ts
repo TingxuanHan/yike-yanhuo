@@ -141,7 +141,11 @@ export interface AnalysisResult {
   warnings: string[];
   usage: Usage;
   elapsedMs: number;
-  scenario?: { preferences: JourneyPreferences; sourceId: string; createdAt: string };
+  scenario?: {
+    preferences: JourneyPreferences;
+    sourceId: string;
+    createdAt: string;
+  };
   derivedFrom?: {
     sourceId: string;
     sourceGeneratedAt: string;

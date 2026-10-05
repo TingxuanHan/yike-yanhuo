@@ -22,6 +22,9 @@ import { post, request } from "./api.js";
 import { ResultLibrary } from "./ResultLibrary.js";
 import { QuotaPanel } from "./QuotaPanel.js";
 import { GAP_CATEGORIES, type GapCategory } from "../core/coverage.js";
+import { LifePanel } from "./LifePanel.js";
+import { personalize } from "../core/personalize.js";
+import type { PersonalPlace } from "../shared/life.js";
 
 export function App() {
   const [config, setConfig] = useState<PublicConfig | null>(null);
@@ -50,7 +53,10 @@ export function App() {
   });
   const [error, setError] = useState("");
   const [locationNote, setLocationNote] = useState("");
-  const [view, setView] = useState<"map" | "report">("map");
+  const [view, setView] = useState<"map" | "report" | "life">("map");
+  const [lifeSection, setLifeSection] = useState<
+    "places" | "preferences" | "sync"
+  >("places");
   const [showHelp, setShowHelp] = useState(false);
   const [mobileLayers, setMobileLayers] = useState(false);
   const jobId = useRef<string | null>(null);
@@ -68,6 +74,14 @@ export function App() {
       cancelled.current = true;
     };
   }, []);
+  useEffect(() => {
+    if (window.matchMedia("(max-width:760px)").matches)
+      requestAnimationFrame(() =>
+        document
+          .querySelector(".content-topbar")
+          ?.scrollIntoView({ block: "start" }),
+      );
+  }, [view]);
   const clearResult = () => {
     setResult(null);
     setReplay(false);
@@ -94,7 +108,7 @@ export function App() {
     setError("");
     setReplay(true);
     setLiveMap(false);
-    setMinutes(15);
+    setMinutes(value.scenario?.preferences.minutes ?? 15);
     setView("report");
     setShowGaps(false);
   };
@@ -168,6 +182,7 @@ export function App() {
         setProgress(job.progress);
         if (job.status === "done" && job.result) {
           setResult(job.result);
+          setMinutes(15);
           setReplay(false);
           if (window.matchMedia("(max-width:760px)").matches)
             requestAnimationFrame(() =>
@@ -203,6 +218,38 @@ export function App() {
       setError("取消请求未送达，服务端会在任务到期后停止。");
     }
     setBusy(false);
+  }
+  async function usePersonalPlace(place: PersonalPlace) {
+    setError("");
+    const p = place.position;
+    if (p.system === "demo") {
+      if (Math.abs(p.x) > 1000 || Math.abs(p.y) > 1000) {
+        setError("模拟街区起点需在中心1000米内，这个地点仍可查看大字指引。");
+        return;
+      }
+      setMode("demo");
+      choosePoint([p.x, p.y]);
+      setLabel(place.name);
+    } else {
+      setLocating(true);
+      try {
+        const position =
+          p.system === "bd09"
+            ? { lng: p.lng, lat: p.lat }
+            : (
+                await post<{ geo: LngLat }>("/api/convert", {
+                  geo: { lng: p.lng, lat: p.lat },
+                  from: p.system === "gcj02" ? 3 : 1,
+                })
+              ).geo;
+        setMode("baidu");
+        chooseGeo(position, place.name);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "位置转换失败，请重试。");
+      } finally {
+        setLocating(false);
+      }
+    }
   }
   const allFacilities =
     result?.facilities ?? (mode === "demo" ? demoFacilities() : []);
@@ -270,7 +317,10 @@ export function App() {
           </button>
         </section>
       )}
-      <main id="main-workspace" className="workspace">
+      <main
+        id="main-workspace"
+        className={`workspace ${view === "life" ? "life-view" : ""}`}
+      >
         <aside className="control-panel no-print" aria-label="体检设置">
           <div className="panel-intro">
             <p className="eyebrow">从家门口出发</p>
@@ -421,20 +471,31 @@ export function App() {
           <section className="control-section time-section">
             <h2>步行时长</h2>
             <div className="time-switch" role="group" aria-label="查看步行时长">
-              {[5, 10, 15].map((m) => (
-                <button
-                  key={m}
-                  aria-pressed={minutes === m}
-                  onClick={() => {
-                    setMinutes(m);
-                    setSelected(null);
-                  }}
-                >
-                  <strong>{m}</strong>
-                  <span>分钟</span>
-                </button>
-              ))}
+              {(result?.contours.map((c) => c.minutes) ?? [5, 10, 15]).map(
+                (m) => (
+                  <button
+                    key={m}
+                    aria-pressed={minutes === m}
+                    onClick={() => {
+                      setMinutes(m);
+                      setSelected(null);
+                    }}
+                  >
+                    <strong>{m}</strong>
+                    <span>分钟</span>
+                  </button>
+                ),
+              )}
             </div>
+            <button
+              className="text-button"
+              onClick={() => {
+                setLifeSection("preferences");
+                setView("life");
+              }}
+            >
+              自定时长、步速与出发时间 →
+            </button>
           </section>
           <button
             className="primary start-button"
@@ -579,8 +640,57 @@ export function App() {
               >
                 体检报告
               </button>
+              <button
+                aria-pressed={view === "life"}
+                onClick={() => {
+                  setLifeSection("places");
+                  setView("life");
+                }}
+              >
+                我的日常
+              </button>
             </div>
           </div>
+          <div className={view !== "life" ? "view-hidden" : ""}>
+            <LifePanel
+              result={result}
+              selected={selected}
+              centerName={label}
+              position={
+                mode === "demo"
+                  ? { system: "demo", x: point[0], y: point[1] }
+                  : geo
+                    ? { system: "bd09", ...geo }
+                    : null
+              }
+              onApply={(p) => {
+                if (result) {
+                  const next = personalize(result, p);
+                  setResult(next);
+                  setMinutes(p.minutes);
+                  setSelected(null);
+                  setView("map");
+                }
+              }}
+              onPlace={(p) => void usePersonalPlace(p)}
+              onOpen={openResult}
+              section={lifeSection}
+              onSection={setLifeSection}
+            />
+          </div>
+          {result?.scenario && view !== "life" && (
+            <p className="notice no-print">
+              个人出行试算 · {result.scenario.preferences.minutes}分钟 ·{" "}
+              {result.scenario.preferences.speedMps}米/秒 ·{" "}
+              {result.scenario.preferences.departure}出发。
+              {result.scenario.preferences.signals.enabled
+                ? "等灯采用手动假设，不是实时数据。"
+                : "未计入等灯与停歇。"}
+              {result.contours.some((c) => c.clipped)
+                ? "范围已触及采样边界。"
+                : ""}
+            </p>
+          )}
           {replay && result && (
             <div className="replay-notice no-print" role="status">
               <span>
@@ -672,22 +782,30 @@ export function App() {
                         ? "步行时间待核实"
                         : "体检后可查看步行时间"}
                   </strong>
+                  <button
+                    className="text-button"
+                    onClick={() => setView("life")}
+                  >
+                    记到私人地点簿 / 生成指引
+                  </button>
                 </div>
               )}
               {result && (
                 <div className="map-legend">
-                  <span>
-                    <i className="legend-5" />
-                    5分钟
-                  </span>
-                  <span>
-                    <i className="legend-10" />
-                    10分钟
-                  </span>
-                  <span>
-                    <i className="legend-15" />
-                    15分钟
-                  </span>
+                  {result.contours.map((c) => (
+                    <span key={c.minutes}>
+                      <i
+                        className={
+                          c.minutes <= 5
+                            ? "legend-5"
+                            : c.minutes <= 10
+                              ? "legend-10"
+                              : "legend-15"
+                        }
+                      />
+                      {c.minutes}分钟
+                    </span>
+                  ))}
                   <span className="legend-note">近似可达范围</span>
                 </div>
               )}
@@ -732,7 +850,10 @@ export function App() {
                     </strong>
                   </div>
                   <div>
-                    <span>15分钟内覆盖核查点</span>
+                    <span>
+                      {result.scenario?.preferences.minutes ?? 15}
+                      分钟内覆盖核查点
+                    </span>
                     <strong>
                       {uniqueGaps}
                       <small>个</small>

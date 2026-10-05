@@ -30,7 +30,8 @@ function travel(value: unknown): value is Travel {
         value.seconds >= 0 &&
         finite(value.meters) &&
         value.meters >= 0 &&
-        (value.recordedSeconds === undefined || (finite(value.recordedSeconds) && value.recordedSeconds >= 0))
+        (value.recordedSeconds === undefined ||
+          (finite(value.recordedSeconds) && value.recordedSeconds >= 0))
       : ["unknown", "unreachable"].includes(value.status) &&
         text(value.reason, 300))
   );
@@ -72,10 +73,22 @@ export function parseResultFile(raw: string): AnalysisResult {
   let vertices = 0;
   let scenario: AnalysisResult["scenario"];
   if (r.scenario !== undefined) {
-    if (!object(r.scenario) || !text(r.scenario.sourceId, 100) || !text(r.scenario.createdAt,50) || !Number.isFinite(Date.parse(r.scenario.createdAt))) return fail();
-    scenario = {preferences:cleanJourney(r.scenario.preferences), sourceId:r.scenario.sourceId, createdAt:r.scenario.createdAt};
+    if (
+      !object(r.scenario) ||
+      !text(r.scenario.sourceId, 100) ||
+      !text(r.scenario.createdAt, 50) ||
+      !Number.isFinite(Date.parse(r.scenario.createdAt))
+    )
+      return fail();
+    scenario = {
+      preferences: cleanJourney(r.scenario.preferences),
+      sourceId: r.scenario.sourceId,
+      createdAt: r.scenario.createdAt,
+    };
   }
-  const bands = scenario ? journeyBands(scenario.preferences.minutes) : [5,10,15];
+  const bands = scenario
+    ? journeyBands(scenario.preferences.minutes)
+    : [5, 10, 15];
   if (
     !list(r.contours, 3) ||
     r.contours.length !== bands.length ||
@@ -245,7 +258,7 @@ export function parseResultFile(raw: string): AnalysisResult {
     })),
     warnings: r.warnings,
     elapsedMs: r.elapsedMs,
-    ...(scenario ? {scenario} : {}),
+    ...(scenario ? { scenario } : {}),
     ...(r.derivedFrom
       ? {
           derivedFrom: {
@@ -289,6 +302,13 @@ export function parseResultFile(raw: string): AnalysisResult {
 }
 function cleanTravel(value: Travel): Travel {
   return value.status === "ok"
-    ? { status: "ok", seconds: value.seconds, meters: value.meters, ...(value.recordedSeconds !== undefined ? {recordedSeconds:value.recordedSeconds} : {}) }
+    ? {
+        status: "ok",
+        seconds: value.seconds,
+        meters: value.meters,
+        ...(value.recordedSeconds !== undefined
+          ? { recordedSeconds: value.recordedSeconds }
+          : {}),
+      }
     : { status: value.status, reason: value.reason };
 }

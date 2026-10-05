@@ -3,27 +3,22 @@ import { facilityCount } from "../core/facilities.js";
 import { coverageSummary } from "../core/coverage.js";
 
 export function FacilityChart({ result }: { result: AnalysisResult }) {
+  const bands = result.contours.map((c) => c.minutes);
   const data = CATEGORIES.map((c) => ({
     ...c,
-    counts: [5, 10, 15].map((m) => facilityCount(result.facilities, c.id, m)),
+    counts: bands.map((m) => facilityCount(result.facilities, c.id, m)),
   }));
-  const max = Math.max(1, ...data.map((c) => c.counts[2]));
+  const max = Math.max(1, ...data.map((c) => c.counts.at(-1)!));
   return (
     <figure className="facility-chart">
       <figcaption>各类设施的步行时间分布</figcaption>
       <div className="chart-key">
-        <span>
-          <i className="band-5" />
-          5分钟内
-        </span>
-        <span>
-          <i className="band-10" />
-          5—10分钟
-        </span>
-        <span>
-          <i className="band-15" />
-          10—15分钟
-        </span>
+        {bands.map((m, i) => (
+          <span key={m}>
+            <i className={"band-" + [5, 10, 15][i]} />
+            {i ? `${bands[i - 1]}—${m}分钟` : `${m}分钟内`}
+          </span>
+        ))}
       </div>
       {data.map((c) => (
         <div
@@ -32,13 +27,8 @@ export function FacilityChart({ result }: { result: AnalysisResult }) {
           role="img"
           aria-label={
             c.label +
-            "：5分钟内" +
-            c.counts[0] +
-            "处，10分钟内" +
-            c.counts[1] +
-            "处，15分钟内" +
-            c.counts[2] +
-            "处"
+            "：" +
+            bands.map((m, i) => `${m}分钟内${c.counts[i]}处`).join("，")
           }
         >
           <span>{c.label}</span>
@@ -54,7 +44,7 @@ export function FacilityChart({ result }: { result: AnalysisResult }) {
             ))}
           </div>
           <strong>
-            {c.counts[2]}
+            {c.counts.at(-1)}
             <small>处</small>
           </strong>
         </div>

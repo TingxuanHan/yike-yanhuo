@@ -69,7 +69,8 @@ export function applyEvidenceFile(
 }
 
 export function reconcileEvidence(result: AnalysisResult): AnalysisResult {
-  if (!result.scenario && !result.facilities.some((f) => f.evidence?.length)) return result;
+  if (!result.scenario && !result.facilities.some((f) => f.evidence?.length))
+    return result;
   const complete = { ...result.complete };
   for (const f of result.facilities)
     if (!usableFacility(f)) complete[f.category] = false;
@@ -78,7 +79,12 @@ export function reconcileEvidence(result: AnalysisResult): AnalysisResult {
     complete,
     gaps: findGaps(
       result.samples
-        .filter((s) => s.travel.status === "ok" && s.travel.seconds <= (result.scenario?.preferences.minutes ?? 15) * 60)
+        .filter(
+          (s) =>
+            s.travel.status === "ok" &&
+            s.travel.seconds <=
+              (result.scenario?.preferences.minutes ?? 15) * 60,
+        )
         .map((s) => s.point),
       result.center.point,
       result.facilities,

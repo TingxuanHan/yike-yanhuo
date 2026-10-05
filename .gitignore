@@ -4,6 +4,9 @@ dist/
 .env.*
 !.env.example
 .cache/
+.data/
+miniprogram/project.private.config.json
+miniprogram/shared/
 work/
 coverage/
 test-results/
@@ -11,4 +14,3 @@ playwright-report/
 *.log
 *.tsbuildinfo
 .DS_Store
-

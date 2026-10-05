@@ -16,7 +16,8 @@ export function coveragePoints(result: AnalysisResult, category: GapCategory) {
       if (
         seen.has(key) ||
         sample.travel.status !== "ok" ||
-        sample.travel.seconds > (result.scenario?.preferences.minutes ?? 15) * 60
+        sample.travel.seconds >
+          (result.scenario?.preferences.minutes ?? 15) * 60
       )
         return false;
       seen.add(key);

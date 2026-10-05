@@ -1,0 +1,16 @@
+{
+  "pages": ["pages/home/index"],
+  "window": {
+    "navigationBarTitleText": "一刻烟火",
+    "navigationBarBackgroundColor": "#146c5d",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f4f8f7"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "仅在你选择记录地点时，用于标记小店或常去地点的位置"
+    }
+  },
+  "requiredPrivateInfos": ["chooseLocation"],
+  "sitemapLocation": "sitemap.json"
+}

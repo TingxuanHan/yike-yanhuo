@@ -1726,3 +1726,244 @@ dd {
     display: block;
   }
 }
+
+/* Daily journeys use the existing workbench palette and large touch targets. */
+.life-panel {
+  padding: 24px;
+}
+.life-heading {
+  margin-bottom: 22px;
+}
+.life-heading h2 {
+  font-size: 27px;
+}
+.life-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.life-section {
+  background: var(--surface);
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+.life-section h3 {
+  font-size: 19px;
+}
+.life-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+.life-fields label {
+  display: grid;
+  gap: 7px;
+  color: var(--ink);
+}
+.life-fields input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #a9bdb5;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: white;
+}
+.life-fields .wide {
+  grid-column: 1/-1;
+}
+.life-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.life-actions button {
+  white-space: normal;
+}
+.life-check {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  min-height: 44px;
+}
+.signal-fields {
+  margin: 10px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-width: 0;
+}
+.personal-places {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.personal-places li {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.personal-places strong {
+  font-size: 18px;
+}
+.personal-places p {
+  margin: 3px 0;
+}
+.personal-places .life-actions {
+  flex-shrink: 0;
+  max-width: 55%;
+  margin: 0;
+}
+.assist-card {
+  border-left: 6px solid var(--green);
+  background: white;
+  padding: 30px;
+  margin: 20px 0;
+  font-size: 24px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.assist-card h2 {
+  font-size: 34px;
+  margin: 16px 0 24px;
+}
+.assist-caption {
+  font-size: 18px;
+  color: var(--green);
+}
+.assist-card dt {
+  color: var(--muted);
+  font-size: 20px;
+  margin-top: 20px;
+}
+.assist-card dd {
+  margin: 4px 0;
+  font-weight: 600;
+}
+.assist-card .card-note {
+  font-size: 18px;
+  margin-top: 26px;
+}
+.assist-card button {
+  font-size: 17px;
+}
+.sync-preview {
+  padding: 12px;
+  background: #edf5f2;
+  border-left: 3px solid var(--green);
+}
+.pair-code {
+  font-size: 19px;
+  overflow-wrap: anywhere;
+}
+.file-action {
+  display: grid;
+  gap: 6px;
+  max-width: 100%;
+}
+.file-action input {
+  max-width: 100%;
+}
+@media (max-width: 1150px) {
+  .life-layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+@media (max-width: 760px) {
+  .life-panel {
+    padding: 12px;
+  }
+  .life-section {
+    padding: 16px;
+  }
+  .life-fields {
+    grid-template-columns: 1fr;
+  }
+  .personal-places li {
+    display: block;
+  }
+  .personal-places .life-actions {
+    max-width: 100%;
+    margin-top: 12px;
+  }
+  .assist-card {
+    padding: 20px;
+    font-size: 23px;
+  }
+  .assist-card h2 {
+    font-size: 29px;
+  }
+  .content-topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+@media print {
+  body.printing-card .app-header,
+  body.printing-card .control-panel,
+  body.printing-card .map-pane,
+  body.printing-card .report-document,
+  body.printing-card .replay-notice {
+    display: none !important;
+  }
+  body.printing-card .workspace,
+  body.printing-card .workspace-content,
+  body.printing-card .life-panel {
+    display: block !important;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+  body.printing-card .assist-card {
+    display: block !important;
+    break-inside: avoid;
+    border: 2px solid #243f48;
+    margin: 0;
+  }
+}
+.life-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 22px;
+}
+.life-tabs button {
+  padding: 10px 16px;
+  background: #e8efec;
+  color: var(--ink);
+  border-radius: 8px;
+}
+.life-tabs button[aria-pressed="true"] {
+  background: var(--green);
+  color: white;
+}
+.life-layout {
+  grid-template-columns: 1fr;
+}
+.life-panel [hidden] {
+  display: none !important;
+}
+@media (max-width: 760px) {
+  .life-view .control-panel {
+    display: none;
+  }
+  .life-tabs {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .life-tabs button {
+    flex: 1;
+    padding: 10px 6px;
+  }
+}

@@ -20,6 +20,11 @@ import type {
 } from "../shared/types.js";
 import { QuotaLedger, QuotaError } from "./quota.js";
 import { createMapProxy } from "./map-proxy.js";
+import { LifeStore } from "./life-store.js";
+import { timingSafeEqual, createHash } from "node:crypto";
+import { personalize } from "../core/personalize.js";
+import { cleanJourney } from "../shared/journey.js";
+import { parseResultFile } from "../shared/result-file.js";
 
 const integer = (
   value: string | undefined,
@@ -34,6 +39,7 @@ const integer = (
 };
 async function readJson(
   req: IncomingMessage,
+  limit = 8192,
 ): Promise<Record<string, unknown>> {
   if (!req.headers["content-type"]?.startsWith("application/json"))
     throw new ServiceError("请使用 JSON 请求。", 415);
@@ -41,7 +47,7 @@ async function readJson(
   const buffers: Buffer[] = [];
   for await (const buffer of req) {
     size += buffer.length;
-    if (size > 8192) throw new ServiceError("请求内容过长。", 413);
+    if (size > limit) throw new ServiceError("请求内容过长。", 413);
     buffers.push(buffer);
   }
   try {
@@ -102,6 +108,48 @@ export function createApp(
   env: NodeJS.ProcessEnv = process.env,
   gatewayOverride?: BaiduGateway,
 ) {
+  const publicServer =
+    Boolean(env.PUBLIC_ORIGIN) ||
+    (Boolean(env.HOST) &&
+      !["localhost", "127.0.0.1", "::1"].includes(env.HOST!));
+  if (publicServer && !env.PUBLIC_ORIGIN?.startsWith("https://"))
+    throw new Error(
+      "外部部署须配置 HTTPS PUBLIC_ORIGIN，私人地点簿不能通过明文公网传输。",
+    );
+  const life = new LifeStore(env.PERSONAL_DATA_PATH);
+  const tokenOf = (req: IncomingMessage) =>
+    req.headers.authorization?.replace(/^Bearer /, "") ??
+    req.headers.cookie
+      ?.split(";")
+      .map((v) => v.trim())
+      .find((v) => v.startsWith("yike_device="))
+      ?.slice(12);
+  const limits = new Map<string, { count: number; until: number }>();
+  const rate = (key: string, max: number, window = 600_000) => {
+    for (const [k, v] of limits) if (v.until < Date.now()) limits.delete(k);
+    if (limits.size >= 1000 && !limits.has(key))
+      throw new ServiceError("当前请求较多，请稍后再试。", 429);
+    const row = limits.get(key) ?? { count: 0, until: Date.now() + window };
+    if (++row.count > max)
+      throw new ServiceError("操作过于频繁，请稍后再试。", 429);
+    limits.set(key, row);
+  };
+  const session = (
+    req: IncomingMessage,
+    res: ServerResponse,
+    value: ReturnType<LifeStore["create"]>,
+    client: unknown,
+  ) => {
+    if (client !== "mini")
+      res.setHeader(
+        "set-cookie",
+        `yike_device=${value.token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000${publicServer ? "; Secure" : ""}`,
+      );
+    return json(res, 200, {
+      snapshot: value.snapshot,
+      ...(client === "mini" ? { token: value.token } : {}),
+    });
+  };
   const browserAk = env.BAIDU_BROWSER_AK?.trim() ?? "";
   const serverAk = env.BAIDU_SERVER_AK?.trim() ?? "";
   const config: PublicConfig = {
@@ -139,7 +187,13 @@ export function createApp(
     });
   const jobs = new Map<
     string,
-    { job: Job; mode: string; controller: AbortController; expires: number }
+    {
+      job: Job;
+      mode: string;
+      owner: string;
+      controller: AbortController;
+      expires: number;
+    }
   >();
   const clientRoot = resolve("dist/client");
   const clean = () => {
@@ -177,6 +231,97 @@ export function createApp(
         return json(res, 200, { status: "ok", version: config.version });
       if (method === "GET" && url.pathname === "/api/config")
         return json(res, 200, config);
+      const peer = req.socket.remoteAddress ?? "unknown";
+      if (method === "POST" && url.pathname === "/api/life/create") {
+        rate("create:" + peer, 5, 3600_000);
+        const body = await readJson(req);
+        if (
+          publicServer ||
+          !["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(peer)
+        ) {
+          const expected = env.SPACE_INVITE_CODE;
+          const digest = (v: string) => createHash("sha256").update(v).digest();
+          if (
+            !expected ||
+            expected.length < 24 ||
+            typeof body.invite !== "string" ||
+            !timingSafeEqual(digest(body.invite), digest(expected))
+          )
+            throw new ServiceError(
+              "请填写管理员提供的创建邀请码，或使用已有设备的配对码。",
+              403,
+            );
+        }
+        return session(req, res, life.create(), body.client);
+      }
+      if (method === "POST" && url.pathname === "/api/life/redeem") {
+        rate("redeem:" + peer, 8);
+        const body = await readJson(req);
+        return session(req, res, life.redeem(body.code), body.client);
+      }
+      if (url.pathname.startsWith("/api/life")) {
+        const token = tokenOf(req);
+        const owner = life.authenticate(token);
+        if (method === "GET" && url.pathname === "/api/life")
+          return json(res, 200, life.read(owner));
+        if (url.pathname === "/api/life/reports") {
+          if (method === "GET") return json(res, 200, life.reports(owner));
+          if (method === "POST") {
+            rate("report:" + owner, 20);
+            return json(
+              res,
+              200,
+              life.saveReport(owner, (await readJson(req, 2_100_000)).result),
+            );
+          }
+        }
+        if (url.pathname.startsWith("/api/life/reports/")) {
+          const id = decodeURIComponent(
+            url.pathname.slice("/api/life/reports/".length),
+          );
+          if (method === "GET") return json(res, 200, life.report(owner, id));
+          if (method === "DELETE")
+            return json(res, 200, life.deleteReport(owner, id));
+        }
+        if (method === "PUT" && url.pathname === "/api/life") {
+          rate("write:" + owner, 120);
+          const body = await readJson(req, 250_000);
+          return json(res, 200, life.write(owner, body.revision, body.book));
+        }
+        if (method === "POST" && url.pathname === "/api/life/pair") {
+          rate("pair:" + owner, 12);
+          return json(res, 200, life.pair(owner));
+        }
+        if (method === "DELETE" && url.pathname === "/api/life/session") {
+          life.revoke(token!);
+          res.setHeader(
+            "set-cookie",
+            `yike_device=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${publicServer ? "; Secure" : ""}`,
+          );
+          return json(res, 200, { ok: true });
+        }
+        throw new ServiceError("接口不存在。", 404);
+      }
+      const owner =
+        publicServer && url.pathname.startsWith("/api/")
+          ? life.authenticate(tokenOf(req))
+          : "local";
+      if (method === "POST" && url.pathname === "/api/personalize") {
+        rate("scenario:" + peer, 20);
+        const body = await readJson(req, 2_100_000);
+        try {
+          return json(
+            res,
+            200,
+            personalize(
+              parseResultFile(JSON.stringify(body.result)),
+              cleanJourney(body.preferences),
+            ),
+          );
+        } catch (e) {
+          throw new ServiceError((e as Error).message, 400);
+        }
+      }
       if (method === "GET" && url.pathname === "/api/quota")
         return json(res, 200, await quota.snapshot());
       if (method === "GET" && url.pathname.startsWith("/api/map-sdk/")) {
@@ -231,6 +376,7 @@ export function createApp(
         jobs.set(job.id, {
           job,
           mode: input.mode,
+          owner,
           controller,
           expires: Date.now() + 10 * 60_000,
         });
@@ -273,7 +419,8 @@ export function createApp(
         (method === "GET" || method === "DELETE")
       ) {
         const item = jobs.get(url.pathname.slice("/api/analyses/".length));
-        if (!item) throw new ServiceError("这份体检已过期，请重新开始。", 404);
+        if (!item || item.owner !== owner)
+          throw new ServiceError("这份体检已过期，请重新开始。", 404);
         if (method === "DELETE") {
           item.controller.abort();
           item.job.status = "cancelled";
@@ -349,6 +496,7 @@ export function createApp(
     }
   });
   server.on("close", () => {
+    life.close();
     clearInterval(cleanup);
     for (const item of jobs.values()) item.controller.abort();
   });

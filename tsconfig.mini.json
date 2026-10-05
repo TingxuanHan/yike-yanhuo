@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "target": "ES2020",
+    "rootDir": ".cache/mini-source",
+    "outDir": "miniprogram/shared",
+    "noEmit": false,
+    "types": []
+  },
+  "include": [
+    ".cache/mini-source/life.ts",
+    ".cache/mini-source/journey.ts",
+    ".cache/mini-source/facility-review.ts"
+  ]
+}

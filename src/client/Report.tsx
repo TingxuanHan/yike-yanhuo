@@ -54,6 +54,17 @@ export function Report({
           本报告用于演示算法与操作流程，数据为人工构造，不代表上海真实社区。
         </p>
       )}
+      {result.scenario && (
+        <p className="notice">
+          个人出行试算 · {result.scenario.preferences.minutes}分钟 · 步速{" "}
+          {result.scenario.preferences.speedMps}米/秒 ·{" "}
+          {result.scenario.preferences.departure}出发（当地时间）。
+          {result.scenario.preferences.signals.enabled
+            ? "等灯采用手动时段假设，不是实时信号灯。"
+            : "尚未计入等灯与停歇。"}{" "}
+          原始路线数据时间为上方所示时间。
+        </p>
+      )}
       {result.derivedFrom && (
         <p className="notice">
           本次为局部加密复核，复用{" "}
@@ -68,7 +79,10 @@ export function Report({
       <section>
         <h3>步行可达范围</h3>
         <p>
-          以实际路线测时点生成近似范围。面积为插值估计，不作为精确规划边界。
+          {result.scenario
+            ? "以已有路线距离和个人出行偏好试算范围。"
+            : "以实际路线测时点生成近似范围。"}
+          面积为插值估计，不作为精确规划边界。
         </p>
         <div className="range-summary">
           {result.contours.map((c) => (
@@ -90,9 +104,9 @@ export function Report({
             <thead>
               <tr>
                 <th>设施类别</th>
-                <th>5分钟</th>
-                <th>10分钟</th>
-                <th>15分钟</th>
+                {result.contours.map((c) => (
+                  <th key={c.minutes}>{c.minutes}分钟</th>
+                ))}
                 <th>检索状态</th>
               </tr>
             </thead>
@@ -100,9 +114,13 @@ export function Report({
               {CATEGORIES.map((c) => (
                 <tr key={c.id}>
                   <th scope="row">{c.label}</th>
-                  {[5, 10, 15].map((m) => (
-                    <td key={m}>{facilityCount(result.facilities, c.id, m)}</td>
-                  ))}
+                  {result.contours
+                    .map((c) => c.minutes)
+                    .map((m) => (
+                      <td key={m}>
+                        {facilityCount(result.facilities, c.id, m)}
+                      </td>
+                    ))}
                   <td>
                     {result.complete[c.id] ? "返回结果已取完" : "仍需补充核查"}
                   </td>
@@ -118,7 +136,8 @@ export function Report({
       <section>
         <h3>1公里设施覆盖核查</h3>
         <p>
-          检查15分钟可达采样点周边的菜市场、药店和小学。此处“1公里”为直线距离，与步行可达范围分开计算。
+          检查{result.scenario?.preferences.minutes ?? 15}
+          分钟可达采样点周边的菜市场、药店和小学。此处“1公里”为直线距离，与步行可达范围分开计算。
         </p>
         <CoverageChart result={result} />
         <div className="table-scroll">
@@ -259,7 +278,7 @@ export function Report({
             <dd>{result.parameters.searchRadiusMeters}米</dd>
           </div>
           <div>
-            <dt>实际接口调用</dt>
+            <dt>{result.scenario ? "原始分析接口调用" : "实际接口调用"}</dt>
             <dd>
               {result.usage.requests}次 / {result.usage.routePairs}条路线 /{" "}
               {result.usage.searchRequests}次地点检索
@@ -273,7 +292,7 @@ export function Report({
             </dd>
           </div>
           <div>
-            <dt>本次分析耗时</dt>
+            <dt>{result.scenario ? "原始分析耗时" : "本次分析耗时"}</dt>
             <dd>{(result.elapsedMs / 1000).toFixed(1)}秒</dd>
           </div>
         </dl>

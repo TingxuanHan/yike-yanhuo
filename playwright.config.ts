@@ -22,6 +22,7 @@ export default defineConfig({
       PORT: "8788",
       BAIDU_SERVER_AK: "",
       BAIDU_BROWSER_AK: "",
+      PERSONAL_DATA_PATH: ":memory:",
     },
     timeout: 15000,
   },
