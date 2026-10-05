@@ -1,0 +1,161 @@
+{
+  "case": "抚顺路社区睦邻中心（待核验入口）",
+  "sourceMode": "baidu",
+  "sourceGeneratedAt": "2026-10-05T02:17:07.891Z",
+  "sourceSha256": "a88229ea7e2bed666db42bb5d8575bfa622ba34e3c12195ae0705e863bc2ac5f",
+  "plannedAt": "2026-10-05T03:10:24.477Z",
+  "measuredAt": "2026-10-05T03:11:17.894Z",
+  "status": "completed",
+  "protocol": {
+    "radiiMeters": [
+      250,
+      600,
+      1000
+    ],
+    "anglesDegrees": [
+      22.5,
+      67.5,
+      112.5,
+      157.5,
+      202.5,
+      247.5,
+      292.5,
+      337.5
+    ],
+    "angleDefinition": "东为0度，逆时针；每个半径8点",
+    "circleSpeedMetersPerSecond": 1.2,
+    "minimumTrainingSeparationMeters": 10,
+    "maximumRoutePairs": 24
+  },
+  "comparison": [
+    {
+      "model": "circle",
+      "label": "直线圆（1.2米/秒）",
+      "gridSamples": 0,
+      "minutes": 5,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 3,
+      "falseReachable": 5,
+      "missedReachable": 0,
+      "trueUnreachable": 16,
+      "agreement": 0.7916666666666666
+    },
+    {
+      "model": "circle",
+      "label": "直线圆（1.2米/秒）",
+      "gridSamples": 0,
+      "minutes": 10,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 9,
+      "falseReachable": 7,
+      "missedReachable": 0,
+      "trueUnreachable": 8,
+      "agreement": 0.7083333333333334
+    },
+    {
+      "model": "circle",
+      "label": "直线圆（1.2米/秒）",
+      "gridSamples": 0,
+      "minutes": 15,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 16,
+      "falseReachable": 8,
+      "missedReachable": 0,
+      "trueUnreachable": 0,
+      "agreement": 0.6666666666666666
+    },
+    {
+      "model": "coarse",
+      "label": "400米规则网格",
+      "gridSamples": 81,
+      "minutes": 5,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 0,
+      "falseReachable": 0,
+      "missedReachable": 3,
+      "trueUnreachable": 21,
+      "agreement": 0.875
+    },
+    {
+      "model": "coarse",
+      "label": "400米规则网格",
+      "gridSamples": 81,
+      "minutes": 10,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 8,
+      "falseReachable": 0,
+      "missedReachable": 1,
+      "trueUnreachable": 15,
+      "agreement": 0.9583333333333334
+    },
+    {
+      "model": "coarse",
+      "label": "400米规则网格",
+      "gridSamples": 81,
+      "minutes": 15,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 14,
+      "falseReachable": 0,
+      "missedReachable": 2,
+      "trueUnreachable": 8,
+      "agreement": 0.9166666666666666
+    },
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 133,
+      "minutes": 5,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 0,
+      "falseReachable": 2,
+      "missedReachable": 3,
+      "trueUnreachable": 19,
+      "agreement": 0.7916666666666666
+    },
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 133,
+      "minutes": 10,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 8,
+      "falseReachable": 0,
+      "missedReachable": 1,
+      "trueUnreachable": 15,
+      "agreement": 0.9583333333333334
+    },
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 133,
+      "minutes": 15,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 15,
+      "falseReachable": 0,
+      "missedReachable": 1,
+      "trueUnreachable": 8,
+      "agreement": 0.9583333333333334
+    }
+  ],
+  "usage": {
+    "requests": 24,
+    "routePairs": 24,
+    "searchRequests": 0,
+    "cacheHits": 0,
+    "retries": 0
+  },
+  "rate": {
+    "minimumStartIntervalMs": 1104,
+    "maximumStartsInOneSecond": 1
+  },
+  "scope": "同一百度接口的新点留出验证，非现场测量；单个候选入口，24点，不能概括所有社区或设施覆盖准确性。"
+}

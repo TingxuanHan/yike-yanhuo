@@ -16,7 +16,8 @@
     "check": "tsc --noEmit",
     "format": "prettier --write src tests scripts *.json *.ts .github/workflows/*.yml",
     "format:check": "prettier --check src tests scripts *.json *.ts .github/workflows/*.yml",
-    "demo:report": "node --import tsx scripts/demo-report.ts"
+    "demo:report": "node --import tsx scripts/demo-report.ts",
+    "benchmark:demo": "node --import tsx scripts/benchmark.ts --demo"
   },
   "dependencies": {
     "react": "19.3.0",
