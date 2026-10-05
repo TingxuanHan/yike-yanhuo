@@ -96,7 +96,7 @@ async function main() {
       }
       evidence.checks.push(check);
       console.log(JSON.stringify(check));
-      await delay(500);
+      await delay(2000);
     }
   }
   await mkdir(".cache", { recursive: true });

@@ -1,4 +1,6 @@
 import { setTimeout as delay } from "node:timers/promises";
+import { appendFile, mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 import {
   CATEGORIES,
   completeCategories,
@@ -54,6 +56,7 @@ function upstreamError(status: unknown, path: string): ServiceError {
 export interface BaiduOptions {
   ak: string;
   routeQps?: number;
+  searchIntervalMs?: number;
   maxRoutePairs?: number;
   maxSearchPages?: number;
   dailyRouteLimit?: number;
@@ -63,6 +66,7 @@ export interface BaiduOptions {
   wait?: (ms: number, signal?: AbortSignal) => Promise<void>;
   now?: () => number;
   ledger?: QuotaLedger;
+  requestLogPath?: string;
 }
 type Reply = {
   status: number | string;
@@ -72,20 +76,21 @@ type Reply = {
 };
 export class BaiduGateway {
   readonly routeQps: number;
+  readonly searchIntervalMs: number;
   readonly maxRoutePairs: number;
   readonly maxSearchPages: number;
   private fetcher: typeof fetch;
   private wait: (ms: number, signal?: AbortSignal) => Promise<void>;
   private now: () => number;
   private next = new Map<string, number>();
+  private queue: Promise<unknown> = Promise.resolve();
+  private blocked?: ServiceError;
   private ledger: QuotaLedger;
   private cache = new Map<string, { expires: number; value: Reply }>();
   constructor(private options: BaiduOptions) {
-    this.routeQps = Math.max(
-      1,
-      Math.min(50, Math.floor(options.routeQps ?? 3)),
-    );
-    this.maxRoutePairs = options.maxRoutePairs ?? 300;
+    this.routeQps = Math.max(1, Math.min(2, Math.floor(options.routeQps ?? 1)));
+    this.searchIntervalMs = Math.max(2000, options.searchIntervalMs ?? 2000);
+    this.maxRoutePairs = options.maxRoutePairs ?? 260;
     this.maxSearchPages = Math.max(1, Math.min(3, options.maxSearchPages ?? 1));
     this.fetcher = options.fetcher ?? fetch;
     this.wait =
@@ -95,8 +100,8 @@ export class BaiduGateway {
       options.ledger ??
       new QuotaLedger(
         {
-          route: options.dailyRouteLimit ?? 1200,
-          search: options.dailySearchLimit ?? 80,
+          route: options.dailyRouteLimit ?? 500,
+          search: options.dailySearchLimit ?? 12,
           other: 50,
           map: 500,
         },
@@ -112,6 +117,23 @@ export class BaiduGateway {
     cost = 1,
     signal?: AbortSignal,
   ): Promise<Reply> {
+    // Hold the queue through response parsing and retries, so slow responses
+    // cannot overlap and overdue requests cannot catch up in a burst.
+    const operation = this.queue.then(() =>
+      this.callQueued(path, params, usage, kind, cost, signal),
+    );
+    this.queue = operation.catch(() => {});
+    return operation;
+  }
+  private async callQueued(
+    path: string,
+    params: Record<string, string>,
+    usage: Usage,
+    kind: "route" | "search" | "other",
+    cost = 1,
+    signal?: AbortSignal,
+  ): Promise<Reply> {
+    signal?.throwIfAborted();
     if (!this.options.ak)
       throw new ServiceError(
         "尚未配置百度地图服务端 AK，请先配置或使用模拟街区。",
@@ -131,6 +153,7 @@ export class BaiduGateway {
       usage.cacheHits++;
       return structuredClone(cached.value);
     }
+    if (this.blocked) throw this.blocked;
     const url = new URL(path, "https://api.map.baidu.com");
     url.search = new URLSearchParams({
       ...params,
@@ -144,10 +167,24 @@ export class BaiduGateway {
           "步行测时已达到本次预算，请调整采样后重试。",
           429,
         );
-      const qps = kind === "route" ? this.routeQps : 3;
-      const start = Math.max(this.now(), this.next.get(kind) ?? 0);
-      this.next.set(kind, start + Math.ceil((cost / qps) * 1000) + 50);
-      await this.wait(Math.max(0, start - this.now()), signal);
+      if (
+        !Number.isInteger(cost) ||
+        cost < 1 ||
+        (kind === "route" && cost > this.routeQps)
+      )
+        throw new ServiceError(
+          "单次请求超过当前安全调用频率，请拆分路线。",
+          400,
+        );
+      const interval =
+        kind === "search"
+          ? this.searchIntervalMs
+          : Math.ceil((cost / (kind === "route" ? this.routeQps : 1)) * 1000) +
+            100;
+      await this.wait(
+        Math.max(0, (this.next.get(kind) ?? 0) - this.now()),
+        signal,
+      );
       signal?.throwIfAborted();
       try {
         await this.ledger.take(kind, cost);
@@ -160,18 +197,27 @@ export class BaiduGateway {
       usage.requests++;
       if (kind === "route") usage.routePairs += cost;
       if (kind === "search") usage.searchRequests++;
+      const startedAt = this.now();
+      this.next.set(kind, startedAt + interval);
+      let httpStatus: number | undefined;
+      let upstreamStatus: number | undefined;
       try {
         const timed = AbortSignal.timeout(this.options.timeoutMs ?? 12000);
         const response = await this.fetcher(url, {
           signal: signal ? AbortSignal.any([signal, timed]) : timed,
           redirect: "error",
         });
+        httpStatus = response.status;
         if (!response.ok) {
           await response.body?.cancel();
-          if (
-            attempt === 0 &&
-            (response.status === 429 || response.status >= 500)
-          ) {
+          if (response.status === 429) {
+            this.blocked = new ServiceError(
+              "地图服务触发限流（HTTP 429），已停止真实接口请求；请核对控制台后再重启服务。",
+              429,
+            );
+            throw this.blocked;
+          }
+          if (attempt === 0 && response.status >= 500) {
             usage.retries++;
             await this.wait(800, signal);
             continue;
@@ -184,8 +230,14 @@ export class BaiduGateway {
         if (text.length > 2_000_000)
           throw new ServiceError("地图服务返回数据过大，请缩小查询范围。");
         const result = JSON.parse(text) as Reply;
-        if (!result || Number(result.status) !== 0)
-          throw upstreamError(result?.status, path);
+        upstreamStatus = Number.isFinite(Number(result?.status))
+          ? Number(result.status)
+          : undefined;
+        if (!result || upstreamStatus !== 0) {
+          const error = upstreamError(result?.status, path);
+          if (error.code === 429) this.blocked = error;
+          throw error;
+        }
         if (this.cache.size >= 128)
           this.cache.delete(this.cache.keys().next().value!);
         this.cache.set(cacheKey, {
@@ -204,6 +256,31 @@ export class BaiduGateway {
         throw new ServiceError(
           "地图服务连接超时或响应无效，请检查网络后重试。",
         );
+      } finally {
+        if (this.options.requestLogPath) {
+          try {
+            await mkdir(dirname(this.options.requestLogPath), {
+              recursive: true,
+            });
+            await appendFile(
+              this.options.requestLogPath,
+              JSON.stringify({
+                startedAt: new Date(startedAt).toISOString(),
+                service: kind,
+                path,
+                units: cost,
+                httpStatus,
+                upstreamStatus,
+              }) + "\n",
+            );
+          } catch {
+            this.blocked = new ServiceError(
+              "调用时间记录无法写入，已停止真实接口请求。",
+              503,
+            );
+            throw this.blocked;
+          }
+        }
       }
     }
     throw new ServiceError("地图服务未返回结果，请重试。");

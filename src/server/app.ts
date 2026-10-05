@@ -111,8 +111,8 @@ export function createApp(
   };
   const quota = new QuotaLedger(
     {
-      route: integer(env.BAIDU_DAILY_ROUTE_LIMIT, 1200, 1, 100000),
-      search: integer(env.BAIDU_DAILY_SEARCH_LIMIT, 80, 1, 10000),
+      route: integer(env.BAIDU_DAILY_ROUTE_LIMIT, 500, 1, 1200),
+      search: integer(env.BAIDU_DAILY_SEARCH_LIMIT, 12, 1, 80),
       other: 50,
       map: 500,
     },
@@ -123,12 +123,19 @@ export function createApp(
     gatewayOverride ??
     new BaiduGateway({
       ak: serverAk,
-      routeQps: integer(env.BAIDU_ROUTE_QPS, 3, 1, 50),
-      maxRoutePairs: integer(env.BAIDU_MAX_ROUTE_PAIRS, 300, 81, 1000),
+      routeQps: integer(env.BAIDU_ROUTE_QPS, 1, 1, 2),
+      searchIntervalMs: integer(
+        env.BAIDU_SEARCH_INTERVAL_MS,
+        2000,
+        2000,
+        60000,
+      ),
+      maxRoutePairs: integer(env.BAIDU_MAX_ROUTE_PAIRS, 260, 81, 1000),
       maxSearchPages: integer(env.BAIDU_MAX_SEARCH_PAGES, 1, 1, 3),
-      dailyRouteLimit: integer(env.BAIDU_DAILY_ROUTE_LIMIT, 1200, 1, 100000),
-      dailySearchLimit: integer(env.BAIDU_DAILY_SEARCH_LIMIT, 80, 1, 10000),
       ledger: quota,
+      requestLogPath: serverAk
+        ? resolve(".cache/baidu-requests.jsonl")
+        : undefined,
     });
   const jobs = new Map<
     string,

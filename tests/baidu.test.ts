@@ -34,7 +34,7 @@ test("walking batches respect pair QPS, coordinate order and route reuse", async
   const waits: number[] = [];
   const client = new BaiduGateway({
     ak: "test-only",
-    routeQps: 3,
+    routeQps: 2,
     now: () => 0,
     wait: async (ms) => {
       waits.push(ms);
@@ -66,7 +66,7 @@ test("walking batches respect pair QPS, coordinate order and route reuse", async
   assert.equal(calls.length, 2);
   assert.equal(calls[0].searchParams.get("origins"), "31.2,121.5");
   assert.equal(calls[0].searchParams.get("coord_type"), "bd09ll");
-  assert.equal(calls[0].searchParams.get("destinations")!.split("|").length, 3);
+  assert.equal(calls[0].searchParams.get("destinations")!.split("|").length, 2);
   assert.equal(provider.usage.routePairs, 4);
   assert.ok(waits[1] >= 1000);
   assert.equal(results.length, 6);
@@ -102,11 +102,11 @@ test("retry consumes actual route pairs and stops after one retry", async () => 
   });
   const usage = emptyUsage();
   await assert.rejects(
-    client.call("/routematrix/v2/walking", {}, usage, "route", 3),
+    client.call("/routematrix/v2/walking", {}, usage, "route", 1),
     /暂不可用/,
   );
   assert.equal(calls, 2);
-  assert.equal(usage.routePairs, 6);
+  assert.equal(usage.routePairs, 2);
   assert.equal(usage.retries, 1);
 });
 test("pagination cap and missing total never establish facility absence", async () => {

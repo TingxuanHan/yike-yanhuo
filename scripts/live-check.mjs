@@ -28,10 +28,12 @@ const ledger = new QuotaLedger(
 );
 const gateway = new BaiduGateway({
   ak,
-  routeQps: 3,
+  routeQps: 1,
+  searchIntervalMs: 2000,
   maxRoutePairs: 260,
   maxSearchPages: 1,
   ledger,
+  requestLogPath: resolve(".cache/baidu-requests.jsonl"),
 });
 const evidence = {
   timestamp: new Date().toISOString(),
@@ -41,7 +43,9 @@ const evidence = {
     routesThisAnalysis: 260,
     dailyRoutes: 500,
     dailySearches: 12,
-    routePairsPerSecond: 3,
+    routePairsPerSecond: 1,
+    searchIntervalMs: 2000,
+    maxInFlight: 1,
   },
   notes: ["本记录是接口联调，不构成现场入口核验或地图准确性验证。"],
 };
