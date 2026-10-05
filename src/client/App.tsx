@@ -19,6 +19,8 @@ import { BaiduMap } from "./BaiduMap.js";
 import { Report, walkTime } from "./Report.js";
 import { post, request } from "./api.js";
 import { ResultLibrary } from "./ResultLibrary.js";
+import { QuotaPanel } from "./QuotaPanel.js";
+import { GAP_CATEGORIES, type GapCategory } from "../core/coverage.js";
 
 export function App() {
   const [config, setConfig] = useState<PublicConfig | null>(null);
@@ -33,6 +35,7 @@ export function App() {
     CATEGORIES.map((c) => c.id),
   );
   const [showGaps, setShowGaps] = useState(false);
+  const [gapCategory, setGapCategory] = useState<GapCategory>("school");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [replay, setReplay] = useState(false);
   const [liveMap, setLiveMap] = useState(false);
@@ -141,8 +144,7 @@ export function App() {
     setBusy(true);
     setError("");
     setSelected(null);
-    setResult(null);
-    setReplay(false);
+    setReplay(Boolean(result));
     setView("map");
     cancelled.current = false;
     setProgress({ stage: "准备体检", done: 0, total: 1 });
@@ -163,6 +165,7 @@ export function App() {
         setProgress(job.progress);
         if (job.status === "done" && job.result) {
           setResult(job.result);
+          setReplay(false);
           if (window.matchMedia("(max-width:760px)").matches)
             requestAnimationFrame(() =>
               document.querySelector(".content-topbar")?.scrollIntoView({
@@ -469,6 +472,7 @@ export function App() {
               )}
             </div>
           )}
+          {mode === "baidu" && <QuotaPanel busy={busy || locating} />}
           <button
             className="text-button layer-disclosure-toggle"
             aria-expanded={mobileLayers}
@@ -578,7 +582,10 @@ export function App() {
                   hour12: false,
                 })}{" "}
                 的{mode === "demo" ? "模拟" : "百度接口"}
-                结果。当前回放未重新检索或测时。
+                结果。
+                {busy
+                  ? "正在更新，原结果暂时保留。"
+                  : "这是已保存的数据；更新失败或取消时保留原结果。"}
               </span>
               {mode === "baidu" && !liveMap && config?.mapConfigured && (
                 <button
@@ -606,6 +613,7 @@ export function App() {
                   facilities={visible}
                   minutes={minutes}
                   showGaps={showGaps}
+                  gapCategory={gapCategory}
                   disabled={busy || replay}
                   onCenter={choosePoint}
                   onFacility={setSelected}
@@ -617,6 +625,7 @@ export function App() {
                   facilities={visible}
                   minutes={minutes}
                   showGaps={showGaps}
+                  gapCategory={gapCategory}
                   disabled={busy}
                   onCenter={chooseGeo}
                   onFacility={setSelected}
@@ -678,6 +687,28 @@ export function App() {
             </div>
             {result ? (
               <>
+                {showGaps && (
+                  <div className="gap-explanation">
+                    <label htmlFor="gap-category">核查类别</label>
+                    <select
+                      id="gap-category"
+                      value={gapCategory}
+                      onChange={(e) =>
+                        setGapCategory(e.target.value as GapCategory)
+                      }
+                    >
+                      {GAP_CATEGORIES.map((id) => (
+                        <option key={id} value={id}>
+                          {CATEGORIES.find((c) => c.id === id)!.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p>
+                      灰色实填 / ×：1公里内未检索到；浅灰斜线或虚线 /
+                      ?：数据不足。色块仅提示采样点周边，不是连续缺口面积。
+                    </p>
+                  </div>
+                )}
                 <section className="result-strip" aria-label="体检摘要">
                   <div>
                     <span>{minutes}分钟近似可达面积</span>

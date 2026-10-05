@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { dirname } from "node:path";
+import type { QuotaSnapshot } from "../shared/types.js";
 
 export type QuotaKind = "route" | "search" | "other" | "map";
 export class QuotaError extends Error {}
@@ -12,8 +13,15 @@ export class QuotaLedger {
     private path?: string,
     private now: () => number = Date.now,
   ) {}
+  async snapshot(): Promise<QuotaSnapshot> {
+    await this.take("route", 0);
+    const { day, ...used } = this.state;
+    return { day, used: { ...used }, limits: { ...this.limits } };
+  }
   async take(kind: QuotaKind, count: number): Promise<void> {
     const operation = this.queue.then(async () => {
+      if (!Number.isInteger(count) || count < 0)
+        throw new QuotaError("调用计数无效。");
       if (!this.loaded) {
         if (this.path) {
           try {
@@ -25,7 +33,13 @@ export class QuotaLedger {
               )
             )
               throw new Error("invalid");
-            this.state = value;
+            this.state = {
+              day: value.day,
+              route: value.route,
+              search: value.search,
+              other: value.other,
+              map: value.map,
+            };
           } catch (error) {
             if (!(
               error &&
@@ -45,12 +59,12 @@ export class QuotaLedger {
         .slice(0, 10);
       if (day !== this.state.day)
         this.state = { day, route: 0, search: 0, other: 0, map: 0 };
-      if (this.state[kind] + count > this.limits[kind])
+      if (count > 0 && this.state[kind] + count > this.limits[kind])
         throw new QuotaError(
           "已达到本地当日调用预算，停止继续请求。请核对控制台额度后再调整。",
         );
       this.state[kind] += count;
-      if (this.path) {
+      if (this.path && count > 0) {
         await mkdir(dirname(this.path), { recursive: true });
         const temporary = this.path + ".tmp";
         await writeFile(temporary, JSON.stringify(this.state) + "\n");

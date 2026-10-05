@@ -38,6 +38,12 @@ test("desktop analysis, local filtering, report export and no browser errors", a
   await expect(
     page.getByRole("heading", { name: "1公里设施覆盖核查" }),
   ).toBeVisible();
+  await expect(page.locator(".chart-row")).toHaveCount(6);
+  await expect(page.locator(".coverage-row")).toHaveCount(3);
+  await page.screenshot({
+    path: info.outputPath("report-charts.png"),
+    fullPage: true,
+  });
   const downloaded = page.waitForEvent("download");
   await page.getByRole("button", { name: "导出数据", exact: true }).click();
   const download = await downloaded;
@@ -65,6 +71,8 @@ test("mobile workbench fits viewport and handles a changed center", async ({
   ).toBeEnabled();
   await page.getByRole("button", { name: /设施筛选与核查点/ }).click();
   await page.getByLabel("显示设施覆盖核查点").check();
+  await page.getByLabel("核查类别").selectOption("school");
+  await expect(page.locator(".gap-explanation")).toContainText("数据不足");
   await page.screenshot({
     path: info.outputPath("mobile.png"),
     fullPage: true,
@@ -75,6 +83,10 @@ test("mobile workbench fits viewport and handles a changed center", async ({
     ),
   ).toBe(true);
   await page.getByRole("button", { name: "体检报告", exact: true }).click();
+  await page.screenshot({
+    path: info.outputPath("report-mobile.png"),
+    fullPage: true,
+  });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -106,6 +118,14 @@ test("missing configuration and server failure offer recovery without losing inp
   await expect(
     page.getByRole("button", { name: "重新体检", exact: true }),
   ).toBeEnabled();
+  await page.route("**/api/analyses", (route) =>
+    route.fulfill({ status: 429, json: { error: "预算不足，请稍后重试。" } }),
+  );
+  await page.getByRole("button", { name: "重新体检", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("预算不足");
+  await expect(page.locator(".result-strip")).toBeVisible();
+  await page.getByRole("button", { name: "体检报告", exact: true }).click();
+  await expect(page.getByRole("article")).toBeVisible();
 });
 test("map permission rejection shows recovery without vendor dialogs or a blank map", async ({
   page,

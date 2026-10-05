@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { QuotaLedger } from "../src/server/quota.js";
@@ -29,6 +29,27 @@ test("map proxy blocks analysis services and arbitrary upstream URLs", () => {
   assert.ok(!allowedMapPath("/place/v3/around"));
   assert.ok(!allowedMapPath("/routematrix/v2/walking"));
   assert.ok(!allowedMapPath("//unrelated.invalid/"));
+});
+test("quota snapshots do not spend or rewrite the ledger, and reset by Shanghai date", async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), "yike-snapshot-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  let now = Date.parse("2026-10-05T15:59:00Z");
+  const path = join(dir, "quota.json");
+  const ledger = new QuotaLedger(
+    { route: 2, search: 2, other: 2, map: 2 },
+    path,
+    () => now,
+  );
+  assert.equal((await ledger.snapshot()).used.route, 0);
+  await assert.rejects(readFile(path), { code: "ENOENT" });
+  await ledger.take("route", 2);
+  const raw = await readFile(path, "utf8");
+  assert.equal((await ledger.snapshot()).used.route, 2);
+  assert.equal(await readFile(path, "utf8"), raw);
+  now += 120_000;
+  const next = await ledger.snapshot();
+  assert.equal(next.day, "2026-10-06");
+  assert.equal(next.used.route, 0);
 });
 test("map proxy supports SDK verification and repeated slashes without opening arbitrary services", async () => {
   const upstream: URL[] = [];

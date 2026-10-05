@@ -7,6 +7,7 @@ import {
   type XY,
 } from "../shared/types.js";
 import { toGeo } from "../core/geo.js";
+import { gapCells, type GapCategory } from "../core/coverage.js";
 
 interface MapInstance {
   addOverlay(value: unknown): void;
@@ -89,6 +90,7 @@ interface Props {
   facilities: Facility[];
   minutes: number;
   showGaps: boolean;
+  gapCategory: GapCategory;
   disabled: boolean;
   onCenter: (point: LngLat) => void;
   onFacility: (facility: Facility) => void;
@@ -164,6 +166,23 @@ export function BaiduMap(props: Props) {
           ),
         );
     }
+    if (props.showGaps && props.result) {
+      const cells = gapCells(props.result, props.gapCategory, props.minutes);
+      for (const status of ["missing", "unknown"] as const)
+        for (const polygon of cells[status])
+          instance.addOverlay(
+            new BMap.Polygon(
+              polygon.map((ring) => ring.map(localPoint)),
+              {
+                strokeColor: "#53646b",
+                strokeWeight: 1,
+                strokeStyle: status === "unknown" ? "dashed" : "solid",
+                fillColor: "#59666c",
+                fillOpacity: status === "unknown" ? 0.15 : 0.4,
+              },
+            ),
+          );
+    }
     const marker = (point: unknown, color: string, letter: string) =>
       new BMap.Marker(point, {
         icon: new BMap.Icon(iconSvg(color, letter), new BMap.Size(32, 32)),
@@ -179,7 +198,17 @@ export function BaiduMap(props: Props) {
       instance.addOverlay(pin);
     }
     if (props.showGaps)
-      for (const gap of props.result?.gaps ?? [])
+      for (const gap of props.result?.gaps.filter(
+        (g) =>
+          g.category === props.gapCategory &&
+          props.result?.samples.some(
+            (s) =>
+              s.point[0] === g.point[0] &&
+              s.point[1] === g.point[1] &&
+              s.travel.status === "ok" &&
+              s.travel.seconds <= props.minutes * 60,
+          ),
+      ) ?? [])
         instance.addOverlay(
           marker(
             localPoint(gap.point),
@@ -194,6 +223,7 @@ export function BaiduMap(props: Props) {
     props.facilities,
     props.minutes,
     props.showGaps,
+    props.gapCategory,
     props.center,
   ]);
   return (

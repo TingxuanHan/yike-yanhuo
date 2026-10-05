@@ -160,6 +160,11 @@ export interface PublicConfig {
   mapConfigured: boolean;
   version: string;
 }
+export interface QuotaSnapshot {
+  day: string;
+  used: Record<"route" | "search" | "other" | "map", number>;
+  limits: Record<"route" | "search" | "other" | "map", number>;
+}
 export const emptyUsage = (): Usage => ({
   requests: 0,
   routePairs: 0,

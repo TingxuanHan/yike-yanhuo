@@ -6,6 +6,7 @@ import {
   ServiceError,
 } from "../dist/server/server/baidu.js";
 import { QuotaLedger } from "../dist/server/server/quota.js";
+import { acquireQuotaLease } from "../dist/server/server/runtime-lease.js";
 import { analyze } from "../dist/server/core/analyze.js";
 import { emptyUsage, CATEGORIES } from "../dist/server/shared/types.js";
 import { facilityCount } from "../dist/server/core/facilities.js";
@@ -22,6 +23,10 @@ if (!ak) {
   process.exit(1);
 }
 const quotaPath = resolve(".cache/baidu-quota.json");
+const releaseLease = await acquireQuotaLease(quotaPath).catch((error) => {
+  console.error(error.message);
+  process.exit(1);
+});
 const ledger = new QuotaLedger(
   { route: 500, search: 12, other: 10, map: 500 },
   quotaPath,
@@ -148,4 +153,5 @@ try {
     JSON.stringify(evidence, null, 2) + "\n",
   );
   console.log("无密钥的联调摘要已保存到 .cache/live-check.json");
+  await releaseLease();
 }

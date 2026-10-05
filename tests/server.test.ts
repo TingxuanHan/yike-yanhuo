@@ -29,6 +29,12 @@ test("HTTP flow: configuration, validation, asynchronous analysis, cancellation 
   >;
   assert.equal(config.baiduConfigured, false);
   assert.ok(!("serverAk" in config));
+  const quota = (await (await fetch(base + "/api/quota")).json()) as {
+    used: { route: number };
+    limits: { route: number };
+  };
+  assert.equal(quota.used.route, 0);
+  assert.equal(quota.limits.route, 500);
   assert.equal(
     (
       await post("/api/analyses", {

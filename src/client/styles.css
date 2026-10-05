@@ -1386,6 +1386,142 @@ dd {
   padding: 10px 0;
   min-height: 44px;
 }
+.quota-panel summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  font-size: 13px;
+  color: var(--green);
+}
+.quota-counters {
+  margin: 0;
+  font-size: 12px;
+}
+.quota-counters > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+}
+.quota-counters dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.facility-chart,
+.coverage-chart {
+  margin: 20px 0;
+  font-size: 12px;
+  break-inside: avoid;
+}
+.facility-chart figcaption,
+.coverage-chart figcaption {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.chart-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.chart-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.chart-key i {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+}
+.chart-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+.chart-track,
+.coverage-track {
+  display: flex;
+  background: #f0f4f2;
+  height: 18px;
+  overflow: hidden;
+}
+.chart-track i,
+.coverage-track i {
+  display: block;
+  height: 100%;
+}
+.chart-row strong {
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.chart-row small {
+  margin-left: 4px;
+  color: var(--muted);
+}
+.band-5,
+.coverage-covered {
+  background: #146c5d;
+}
+.band-10 {
+  background: #72aa8d;
+}
+.band-15 {
+  background: #b2cfbb;
+}
+.coverage-missing {
+  background: #59666c;
+}
+.coverage-unknown {
+  background: repeating-linear-gradient(135deg, #e0e6e8 0 4px, #8b999f 4px 6px);
+}
+.coverage-row {
+  margin: 16px 0;
+}
+.coverage-row-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+.coverage-row-title span,
+.coverage-row p {
+  color: var(--muted);
+  font-size: 11px;
+}
+.coverage-row p {
+  margin: 6px 0 0;
+}
+.gap-explanation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  font-size: 12px;
+}
+.gap-explanation select {
+  width: 100px;
+}
+.gap-explanation p {
+  flex: 1;
+  min-width: 200px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.8;
+}
+@media print {
+  .chart-track,
+  .coverage-track,
+  .chart-key {
+    print-color-adjust: exact;
+  }
+}
 .result-library input[type="file"] {
   font-size: 12px;
   width: 100%;

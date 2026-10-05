@@ -1,6 +1,7 @@
 import { CATEGORIES, type AnalysisResult } from "../shared/types.js";
 import { facilityCount } from "../core/facilities.js";
 import { downloadJson } from "./api.js";
+import { CoverageChart, FacilityChart } from "./CoverageCharts.js";
 
 export const walkTime = (seconds: number) =>
   seconds === 0 ? "起点" : `约 ${Math.ceil(seconds / 60)} 分钟`;
@@ -62,6 +63,7 @@ export function Report({ result }: { result: AnalysisResult }) {
       </section>
       <section>
         <h3>范围内已发现的设施</h3>
+        <FacilityChart result={result} />
         <div className="table-scroll">
           <table>
             <thead>
@@ -97,6 +99,7 @@ export function Report({ result }: { result: AnalysisResult }) {
         <p>
           检查15分钟可达采样点周边的菜市场、药店和小学。此处“1公里”为直线距离，与步行可达范围分开计算。
         </p>
+        <CoverageChart result={result} />
         <div className="table-scroll">
           <table>
             <thead>

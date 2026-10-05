@@ -14,7 +14,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "test:ui": "playwright test",
     "check": "tsc --noEmit",
-    "format": "prettier --write src tests scripts *.json *.ts",
+    "format": "prettier --write src tests scripts *.json *.ts .github/workflows/*.yml",
+    "format:check": "prettier --check src tests scripts *.json *.ts .github/workflows/*.yml",
     "demo:report": "node --import tsx scripts/demo-report.ts"
   },
   "dependencies": {

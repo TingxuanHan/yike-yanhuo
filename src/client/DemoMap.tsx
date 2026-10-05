@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { gapCells, type GapCategory } from "../core/coverage.js";
 import { demoRoads } from "../core/demo.js";
 import {
   CATEGORIES,
@@ -27,6 +28,7 @@ interface Props {
   facilities: Facility[];
   minutes: number;
   showGaps: boolean;
+  gapCategory: GapCategory;
   disabled: boolean;
   onCenter: (point: XY) => void;
   onFacility: (facility: Facility) => void;
@@ -38,6 +40,7 @@ export function DemoMap({
   facilities,
   minutes,
   showGaps,
+  gapCategory,
   disabled,
   onCenter,
   onFacility,
@@ -45,6 +48,10 @@ export function DemoMap({
   const [extent, setExtent] = useState(1600);
   const container = useRef<HTMLDivElement>(null);
   const [pixels, setPixels] = useState(520);
+  const cells = useMemo(
+    () => (result && showGaps ? gapCells(result, gapCategory, minutes) : null),
+    [result, showGaps, gapCategory, minutes],
+  );
   useEffect(() => {
     if (!container.current) return;
     const observer = new ResizeObserver((entries) => {
@@ -89,6 +96,14 @@ export function DemoMap({
         }}
       >
         <defs>
+          <pattern
+            id="unknown-grid"
+            width="30"
+            height="30"
+            patternUnits="userSpaceOnUse"
+          >
+            <path d="M0,30L30,0" stroke="#64777c" strokeWidth="5" />
+          </pattern>
           <pattern
             id="blocks"
             width="200"
@@ -208,27 +223,63 @@ export function DemoMap({
               pointerEvents="none"
             />
           ))}
-        {showGaps &&
-          result?.gaps.map((g, i) => (
-            <g
-              key={i}
-              transform={`translate(${g.point[0]},${-g.point[1]})`}
-              pointerEvents="none"
-            >
-              <circle
-                r="25"
-                fill="#fff7e9"
-                stroke="#b87023"
-                strokeWidth="5"
-                strokeDasharray={g.status === "unknown" ? "7 5" : undefined}
-              />
-              <path d="M-8,-8L8,8M-8,8L8,-8" stroke="#b87023" strokeWidth="4" />
-              <title>
-                {g.status === "unknown" ? "待核查" : "1公里内未检索到"}
-                {CATEGORIES.find((c) => c.id === g.category)?.label}
-              </title>
+        {cells &&
+          (["missing", "unknown"] as const).map((status) => (
+            <g key={status} pointerEvents="none">
+              <path
+                d={contourPath(cells[status])}
+                fill={status === "missing" ? "#59666c" : "url(#unknown-grid)"}
+                fillOpacity={0.4}
+                stroke="#53646b"
+                strokeWidth="1"
+                vectorEffect="non-scaling-stroke"
+                fillRule="evenodd"
+              >
+                <title>
+                  {status === "missing"
+                    ? "未检索到设施的采样点周边"
+                    : "数据不足的采样点周边"}
+                </title>
+              </path>
             </g>
           ))}
+        {showGaps &&
+          result?.gaps
+            .filter(
+              (g) =>
+                g.category === gapCategory &&
+                result.samples.some(
+                  (s) =>
+                    s.point[0] === g.point[0] &&
+                    s.point[1] === g.point[1] &&
+                    s.travel.status === "ok" &&
+                    s.travel.seconds <= minutes * 60,
+                ),
+            )
+            .map((g, i) => (
+              <g
+                key={i}
+                transform={`translate(${g.point[0]},${-g.point[1]})`}
+                pointerEvents="none"
+              >
+                <circle
+                  r="25"
+                  fill="#fff7e9"
+                  stroke="#b87023"
+                  strokeWidth="5"
+                  strokeDasharray={g.status === "unknown" ? "7 5" : undefined}
+                />
+                <path
+                  d="M-8,-8L8,8M-8,8L8,-8"
+                  stroke="#b87023"
+                  strokeWidth="4"
+                />
+                <title>
+                  {g.status === "unknown" ? "待核查" : "1公里内未检索到"}
+                  {CATEGORIES.find((c) => c.id === g.category)?.label}
+                </title>
+              </g>
+            ))}
         {facilities
           .filter(
             (p) =>

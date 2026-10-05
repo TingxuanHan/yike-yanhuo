@@ -18,7 +18,7 @@ import type {
   Provider,
   PublicConfig,
 } from "../shared/types.js";
-import { QuotaLedger } from "./quota.js";
+import { QuotaLedger, QuotaError } from "./quota.js";
 import { createMapProxy } from "./map-proxy.js";
 
 const integer = (
@@ -177,6 +177,8 @@ export function createApp(
         return json(res, 200, { status: "ok", version: config.version });
       if (method === "GET" && url.pathname === "/api/config")
         return json(res, 200, config);
+      if (method === "GET" && url.pathname === "/api/quota")
+        return json(res, 200, await quota.snapshot());
       if (method === "GET" && url.pathname.startsWith("/api/map-sdk/")) {
         const origin =
           req.headers.origin ??
@@ -194,6 +196,18 @@ export function createApp(
             "尚未配置百度地图服务，请先使用模拟街区。",
             503,
           );
+        if (input.mode === "baidu") {
+          const budget = await quota.snapshot();
+          if (
+            budget.limits.route - budget.used.route < gateway.maxRoutePairs ||
+            budget.limits.search - budget.used.search <
+              6 * gateway.maxSearchPages
+          )
+            throw new ServiceError(
+              "本地剩余预算不足以预留一次完整体检，请打开已保存结果，或核对额度后再调整。",
+              429,
+            );
+        }
         if (
           [...jobs.values()].filter((v) => v.job.status === "running").length >=
             2 ||
@@ -317,12 +331,20 @@ export function createApp(
       createReadStream(target).pipe(res);
     } catch (error) {
       if (!res.headersSent)
-        json(res, error instanceof ServiceError ? error.code : 500, {
-          error:
-            error instanceof ServiceError
-              ? error.message
-              : "服务暂时不可用，请稍后重试。",
-        });
+        json(
+          res,
+          error instanceof ServiceError
+            ? error.code
+            : error instanceof QuotaError
+              ? 503
+              : 500,
+          {
+            error:
+              error instanceof ServiceError || error instanceof QuotaError
+                ? error.message
+                : "服务暂时不可用，请稍后重试。",
+          },
+        );
       else res.end();
     }
   });
