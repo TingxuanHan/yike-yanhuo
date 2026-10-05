@@ -1,10 +1,7 @@
 import { randomUUID } from "node:crypto";
-import {
-  contoursFromTriangles,
-  crossesThreshold,
-  polygonArea,
-} from "./contours.js";
-import { distance, midpoint, pointKey } from "./geo.js";
+import { contoursFromTriangles, polygonArea } from "./contours.js";
+import { pointKey } from "./geo.js";
+import { adaptiveMesh, MESH_VERSION } from "./mesh.js";
 import { deduplicate, findGaps } from "./facilities.js";
 import type {
   AnalysisResult,
@@ -12,7 +9,6 @@ import type {
   Progress,
   Provider,
   Sample,
-  Triangle,
   XY,
 } from "../shared/types.js";
 
@@ -32,7 +28,17 @@ export async function analyze(
   const radius = options.radius ?? 1600;
   const step = options.step ?? 400;
   const maxRefinement = options.maxRefinement ?? 96;
-  if (radius <= 0 || step <= 0 || (radius / step) % 1 !== 0)
+  if (
+    !Number.isFinite(radius) ||
+    !Number.isFinite(step) ||
+    radius <= 0 ||
+    step <= 0 ||
+    (radius / step) % 1 !== 0 ||
+    radius / step > 20 ||
+    !Number.isInteger(maxRefinement) ||
+    maxRefinement < 0 ||
+    maxRefinement > 500
+  )
     throw new Error("采样范围与间距不匹配");
   const progress = (stage: string, done: number, total: number) =>
     options.onProgress?.({ stage, done, total });
@@ -67,55 +73,17 @@ export async function analyze(
       );
     }
     progress(stage, pending.length, pending.length);
+    return points.map((p) => samples.get(pointKey(p))!);
   };
-  const points: XY[] = [];
-  for (let x = -radius; x <= radius; x += step)
-    for (let y = -radius; y <= radius; y += step)
-      points.push([center.point[0] + x, center.point[1] + y]);
-  await query(points, "测量步行时间");
+  const mesh = await adaptiveMesh(
+    center.point,
+    radius,
+    step,
+    maxRefinement,
+    query,
+  );
   const get = (p: XY) => samples.get(pointKey(p))!;
-  const base: Triangle[] = [];
-  for (let x = -radius; x < radius; x += step)
-    for (let y = -radius; y < radius; y += step) {
-      const a: XY = [center.point[0] + x, center.point[1] + y];
-      const b: XY = [a[0] + step, a[1]];
-      const c: XY = [a[0] + step, a[1] + step];
-      const d: XY = [a[0], a[1] + step];
-      base.push([get(a), get(b), get(c)], [get(a), get(c), get(d)]);
-    }
-  const refine = new Set<Triangle>();
-  const additions = new Map<string, XY>();
-  const candidates = base
-    .filter(crossesThreshold)
-    .sort(
-      (a, b) =>
-        distance(a[0].point, center.point) - distance(b[0].point, center.point),
-    );
-  for (const triangle of candidates) {
-    const mids = triangle.map((p, i) =>
-      midpoint(p.point, triangle[(i + 1) % 3].point),
-    );
-    const missing = mids.filter(
-      (p) => !samples.has(pointKey(p)) && !additions.has(pointKey(p)),
-    );
-    if (additions.size + missing.length > maxRefinement) continue;
-    missing.forEach((p) => additions.set(pointKey(p), p));
-    refine.add(triangle);
-  }
-  await query([...additions.values()], "细化可达范围");
-  const triangles = base.flatMap((t): Triangle[] => {
-    if (!refine.has(t)) return [t];
-    const [a, b, c] = t;
-    const ab = get(midpoint(a.point, b.point));
-    const bc = get(midpoint(b.point, c.point));
-    const ca = get(midpoint(c.point, a.point));
-    return [
-      [a, ab, ca],
-      [ab, b, bc],
-      [ca, bc, c],
-      [ab, bc, ca],
-    ];
-  });
+  const triangles = mesh.triangles;
   await query(
     facilities.map((p) => p.point),
     "核对设施步行时间",
@@ -123,11 +91,7 @@ export async function analyze(
   facilities.forEach((p) => {
     p.travel = get(p.point).travel;
   });
-  const gridSamples = [...samples.values()].filter(
-    (p) =>
-      points.some((q) => pointKey(q) === pointKey(p.point)) ||
-      additions.has(pointKey(p.point)),
-  );
+  const gridSamples = mesh.samples;
   const contours = ([5, 10, 15] as const).map((minutes) => {
     const polygons = contoursFromTriangles(triangles, minutes * 60);
     const clipped = gridSamples.some(
@@ -159,7 +123,7 @@ export async function analyze(
     );
   if (contours.some((c) => c.clipped))
     warnings.push("可达范围触及采样边界，面积可能低估，需扩大采样范围复核。");
-  if (refine.size < candidates.length)
+  if (mesh.limited)
     warnings.push("部分边界仍采用较粗采样，未超过本次加密预算。");
   progress("生成体检报告", 1, 1);
   return {
@@ -187,8 +151,9 @@ export async function analyze(
     parameters: {
       radiusMeters: radius,
       coarseStepMeters: step,
-      refinedStepMeters: step / 2,
-      refinementPoints: additions.size,
+      refinedStepMeters: step / 2 ** mesh.passes,
+      refinementPoints: mesh.additions,
+      meshVersion: MESH_VERSION,
       searchRadiusMeters: search.radiusMeters,
       gapDistanceMeters: 1000,
       gapDistanceDefinition:

@@ -132,11 +132,18 @@ export interface AnalysisResult {
   warnings: string[];
   usage: Usage;
   elapsedMs: number;
+  derivedFrom?: {
+    sourceId: string;
+    sourceGeneratedAt: string;
+    reusedTravelPoints: number;
+    addedTravelPoints: number;
+  };
   parameters: {
     radiusMeters: number;
     coarseStepMeters: number;
     refinedStepMeters: number;
     refinementPoints: number;
+    meshVersion?: string;
     searchRadiusMeters: number;
     gapDistanceMeters: number;
     gapDistanceDefinition: string;

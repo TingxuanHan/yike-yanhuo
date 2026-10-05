@@ -44,6 +44,17 @@ export function Report({ result }: { result: AnalysisResult }) {
           本报告用于演示算法与操作流程，数据为人工构造，不代表上海真实社区。
         </p>
       )}
+      {result.derivedFrom && (
+        <p className="notice">
+          本次为局部加密复核，复用{" "}
+          {new Date(result.derivedFrom.sourceGeneratedAt).toLocaleString(
+            "zh-CN",
+            { hour12: false },
+          )}{" "}
+          的设施与测时数据， 新增 {result.derivedFrom.addedTravelPoints}{" "}
+          个测时点。设施没有重新检索，营业状态仍需核查。
+        </p>
+      )}
       <section>
         <h3>步行可达范围</h3>
         <p>

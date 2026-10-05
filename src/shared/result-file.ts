@@ -135,6 +135,18 @@ export function parseResultFile(raw: string): AnalysisResult {
     return fail();
   for (const group of ["usage", "parameters", "quality"])
     if (!object(r[group])) return fail();
+  if (
+    r.derivedFrom !== undefined &&
+    (!object(r.derivedFrom) ||
+      !text(r.derivedFrom.sourceId, 100) ||
+      !text(r.derivedFrom.sourceGeneratedAt, 50) ||
+      !Number.isFinite(Date.parse(r.derivedFrom.sourceGeneratedAt)) ||
+      !Number.isInteger(r.derivedFrom.reusedTravelPoints) ||
+      r.derivedFrom.reusedTravelPoints < 0 ||
+      !Number.isInteger(r.derivedFrom.addedTravelPoints) ||
+      r.derivedFrom.addedTravelPoints < 0)
+  )
+    return fail();
   for (const key of [
     "requests",
     "routePairs",
@@ -154,6 +166,8 @@ export function parseResultFile(raw: string): AnalysisResult {
     if (!finite(r.parameters[key]) || r.parameters[key] < 0) return fail();
   if (
     r.parameters.coarseStepMeters <= 0 ||
+    (r.parameters.meshVersion !== undefined &&
+      !text(r.parameters.meshVersion, 100)) ||
     !text(r.parameters.gapDistanceDefinition, 500) ||
     !finite(r.elapsedMs) ||
     r.elapsedMs < 0
@@ -210,22 +224,37 @@ export function parseResultFile(raw: string): AnalysisResult {
     })),
     warnings: r.warnings,
     elapsedMs: r.elapsedMs,
+    ...(r.derivedFrom
+      ? {
+          derivedFrom: {
+            sourceId: r.derivedFrom.sourceId,
+            sourceGeneratedAt: r.derivedFrom.sourceGeneratedAt,
+            reusedTravelPoints: r.derivedFrom.reusedTravelPoints,
+            addedTravelPoints: r.derivedFrom.addedTravelPoints,
+          },
+        }
+      : {}),
     usage: Object.fromEntries(
       ["requests", "routePairs", "searchRequests", "cacheHits", "retries"].map(
         (k) => [k, r.usage[k]],
       ),
     ) as AnalysisResult["usage"],
-    parameters: Object.fromEntries(
-      [
-        "radiusMeters",
-        "coarseStepMeters",
-        "refinedStepMeters",
-        "refinementPoints",
-        "searchRadiusMeters",
-        "gapDistanceMeters",
-        "gapDistanceDefinition",
-      ].map((k) => [k, r.parameters[k]]),
-    ) as AnalysisResult["parameters"],
+    parameters: {
+      ...Object.fromEntries(
+        [
+          "radiusMeters",
+          "coarseStepMeters",
+          "refinedStepMeters",
+          "refinementPoints",
+          "searchRadiusMeters",
+          "gapDistanceMeters",
+          "gapDistanceDefinition",
+        ].map((k) => [k, r.parameters[k]]),
+      ),
+      ...(r.parameters.meshVersion
+        ? { meshVersion: r.parameters.meshVersion }
+        : {}),
+    } as AnalysisResult["parameters"],
     quality: Object.fromEntries(
       [
         "knownSamples",
