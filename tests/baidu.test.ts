@@ -203,7 +203,7 @@ test("geocoding validates UTF-8 bytes before spending quota and accepts 128 byte
 });
 test("permission and quota failures have safe actionable guidance without retrying", async () => {
   for (const [status, message, http] of [
-    [240, "地理编码服务未启用", 502],
+    [240, "地理编码服务权限校验未通过", 502],
     [210, "IP 校验失败", 502],
     [302, "当日配额已用完", 429],
     [401, "并发超限", 429],

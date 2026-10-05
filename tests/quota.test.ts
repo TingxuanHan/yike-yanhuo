@@ -120,7 +120,9 @@ test("disabled map permission stops SDK loading and caches the denial", async ()
     async (input) => {
       calls++;
       assert.equal(new URL(String(input)).searchParams.get("qt"), "verify");
-      return new Response('__yikeVerify({"statuscode":240});');
+      return new Response(
+        '__yikeVerify({"error":240,"error_msg":"denied","popup":1});',
+      );
     },
   );
   const req = { headers: {} } as IncomingMessage;
@@ -140,7 +142,7 @@ test("disabled map permission stops SDK loading and caches the denial", async ()
         new URL("http://localhost/api/map-sdk/api"),
         "http://localhost",
       ),
-      /浏览器端应用.*240/,
+      /240.*浏览器端 AK.*应用是否对应/,
     );
   assert.equal(calls, 1);
   assert.equal(sent, false);
@@ -155,7 +157,7 @@ test("valid map permission loads the SDK and reuses the verified resource", asyn
       calls++;
       return new Response(
         new URL(String(input)).pathname === "/"
-          ? '__yikeVerify({"statuscode":0});'
+          ? '__yikeVerify({"error":0,"error_msg":"","popup":0});'
           : "window.example=true;",
       );
     },

@@ -84,7 +84,8 @@ export function createMapProxy(
         ? raw
         : raw.match(/__yikeVerify\s*\(\s*(\{[\s\S]*\})\s*\)\s*;?\s*$/)?.[1];
       const reply = JSON.parse(payload ?? "");
-      status = reply.statuscode ?? reply.status;
+      status =
+        reply.error ?? reply.result?.error ?? reply.statuscode ?? reply.status;
     } catch {
       throw new ServiceError("地图权限响应异常，请稍后重试。", 502);
     }
@@ -95,7 +96,7 @@ export function createMapProxy(
     const code = Number.isFinite(Number(status)) ? Number(status) : "未知";
     const message =
       code === 240
-        ? "地图底图服务未启用，请在浏览器端应用中开启 JavaScript API（240）。"
+        ? "地图权限校验未通过（240），请先核对本地浏览器端 AK 与控制台应用是否对应，再检查 JavaScript API 服务开关。"
         : `地图应用校验未通过（${code}），请核对浏览器端类型、服务权限和 Referer 白名单。`;
     const error = new ServiceError(message, 503);
     permissions.set(publicOrigin, { expires: Date.now() + 120_000, error });
