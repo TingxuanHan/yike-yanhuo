@@ -56,6 +56,7 @@ export function DemoMap({
     if (!container.current) return;
     const observer = new ResizeObserver((entries) => {
       const rect = entries[0].contentRect;
+      if (rect.width <= 0 || rect.height <= 0) return;
       setPixels(Math.max(250, Math.min(rect.width, rect.height)));
     });
     observer.observe(container.current);

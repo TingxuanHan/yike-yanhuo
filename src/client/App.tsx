@@ -82,6 +82,8 @@ export function App() {
     setPoint(value.center.point);
     setGeo(value.center.geo ?? null);
     setLabel(value.center.label);
+    setLocationNote("");
+    if (value.mode === "baidu") setAddress(value.center.label);
     if (value.center.geo)
       setCoordinateText({
         lng: String(value.center.geo.lng),

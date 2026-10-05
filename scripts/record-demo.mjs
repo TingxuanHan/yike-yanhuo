@@ -1,7 +1,8 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { once } from "node:events";
 import { resolve } from "node:path";
 import { createApp } from "../dist/server/server/app.js";
+import { parseResultFile } from "../dist/server/shared/result-file.js";
 
 // Recording always uses a separate server with no real service credentials.
 process.env.PLAYWRIGHT_BROWSERS_PATH ??= resolve(".cache/playwright");
@@ -22,6 +23,7 @@ try {
   const page = await context.newPage();
   const errors = [];
   let analyses = 0;
+  let realRequests = 0;
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("request", (request) => {
     if (request.method() === "POST" && request.url().endsWith("/api/analyses"))
@@ -29,6 +31,15 @@ try {
   });
   await page.route("**/*", (route) => {
     const url = new URL(route.request().url());
+    if (
+      url.pathname.startsWith("/api/map-sdk/") ||
+      /^\/api\/(geocode|convert)$/.test(url.pathname) ||
+      (url.pathname === "/api/analyses" &&
+        route.request().postDataJSON()?.mode === "baidu")
+    ) {
+      realRequests++;
+      return route.abort();
+    }
     return url.hostname === "127.0.0.1" || url.protocol === "data:"
       ? route.continue()
       : route.abort();
@@ -59,7 +70,7 @@ try {
   };
   await page.goto("http://127.0.0.1:8790");
   await caption(
-    "一刻烟火 · 首版操作演示",
+    "一刻烟火 · 增强版操作演示",
     "15分钟生活圈智能体检与规划助手。本片使用模拟道路和设施，无真实社区结论。",
     5500,
   );
@@ -86,7 +97,7 @@ try {
   await page.getByLabel("显示设施覆盖核查点").check();
   await caption(
     "03  标记需要核查的位置",
-    "在15分钟可达采样点查看1公里设施覆盖；查询不完整时保留未知状态。",
+    "灰色网格提示采样点周边，按类别区分未检索到与数据不足，不代表精确缺口面积。",
     5000,
   );
   await page
@@ -107,7 +118,7 @@ try {
   await page.getByRole("button", { name: "体检报告", exact: true }).click();
   await caption(
     "05  阅读体检报告",
-    "同时呈现已发现设施、数据来源、采样参数和结果边界。",
+    "条形图呈现六类设施的步行时段，覆盖图表区分已有设施、候选缺口与数据不足。",
     5000,
   );
   await page.evaluate(() => scrollTo({ top: 650, behavior: "smooth" }));
@@ -134,17 +145,52 @@ try {
     "道路与桥梁会改变步行范围。画面仍为人工构造的对照场景。",
     5500,
   );
-  await caption(
-    "首版可运行，真实案例继续核验",
-    "上海四平路街道首轮接口分析已通过；完整底图、实际入口与设施仍待独立核验。",
-    5500,
+  const saved = await readFile(".cache/live-result.json", "utf8").catch(
+    () => null,
   );
+  if (saved) {
+    const report = parseResultFile(saved);
+    await page.getByText("保存与打开结果", { exact: true }).click();
+    await page.locator("#result-import").setInputFiles({
+      name: "shanghai-result.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(report)),
+    });
+    await page.getByRole("article").waitFor();
+    await page.getByText("保存与打开结果", { exact: true }).click();
+    await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+    await caption(
+      "08  打开上海已保存的体检",
+      "现在是2026年10月5日的百度接口历史结果；回放不重新检索或测时，入口尚未现场核验。",
+      6500,
+    );
+    await page.locator(".coverage-chart").scrollIntoViewIfNeeded();
+    await caption(
+      "检索状态与覆盖证据分别呈现",
+      "已返回设施可支持样点覆盖；六类检索均未取全，不能声称完成设施普查。",
+      5500,
+    );
+    await page.getByRole("button", { name: "地图", exact: true }).click();
+    await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+    await caption(
+      "结果也可以离线查看",
+      "此处为原坐标和轮廓示意，不含道路底图。仅在主动加载真实底图时请求地图资源。",
+      5500,
+    );
+  }
+  await caption(
+    "按证据继续改进",
+    "24点API对照中，15分钟加密轮廓一致率95.8%；5分钟仍有误差。入口和设施需继续现场核验。",
+    6500,
+  );
+  if (realRequests)
+    throw new Error("Unexpected real-service request while recording");
   if (errors.length) throw new Error("Browser errors while recording");
   const video = page.video();
   await context.close();
   await video.saveAs("materials/yike-yanhuo-demo.webm");
   console.log(
-    "Recorded materials/yike-yanhuo-demo.webm with no real API calls.",
+    "Recorded materials/yike-yanhuo-demo.webm with no real API calls; saved Shanghai replay is included when available.",
   );
 } finally {
   await browser?.close();
