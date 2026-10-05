@@ -50,6 +50,9 @@ test("map proxy supports SDK verification and repeated slashes without opening a
     "//getmodules?v=4.0",
     "/?qt=verify&callback=ready",
     "/res/webgl/10/bmap-v4.css",
+    "/?qt=business&callback=ready",
+    "/?qt=custom_hd&callback=ready",
+    "/?qt=cen&callback=ready",
   ]) {
     await proxy(
       req,
@@ -60,13 +63,15 @@ test("map proxy supports SDK verification and repeated slashes without opening a
   }
   assert.deepEqual(
     upstream.map((url) => url.pathname),
-    ["/getmodules", "/", "/res/webgl/10/bmap-v4.css"],
+    ["/getmodules", "/", "/res/webgl/10/bmap-v4.css", "/", "/", "/"],
   );
   assert.ok(
     upstream.every((url) => url.origin === "https://api.map.baidu.com"),
   );
   for (const path of [
     "/?qt=place",
+    "/?qt=s",
+    "/?qt=walk2",
     "//unrelated.invalid/api",
     "/place/v3/around",
   ]) {
@@ -80,7 +85,7 @@ test("map proxy supports SDK verification and repeated slashes without opening a
       /不可用/,
     );
   }
-  assert.equal(upstream.length, 3);
+  assert.equal(upstream.length, 6);
 });
 test("map proxy rejects upstream credential echoes before writing any response body", async () => {
   let sent = false;

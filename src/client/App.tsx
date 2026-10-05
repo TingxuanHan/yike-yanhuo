@@ -18,6 +18,7 @@ import { DemoMap } from "./DemoMap.js";
 import { BaiduMap } from "./BaiduMap.js";
 import { Report, walkTime } from "./Report.js";
 import { post, request } from "./api.js";
+import { ResultLibrary } from "./ResultLibrary.js";
 
 export function App() {
   const [config, setConfig] = useState<PublicConfig | null>(null);
@@ -33,6 +34,8 @@ export function App() {
   );
   const [showGaps, setShowGaps] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [replay, setReplay] = useState(false);
+  const [liveMap, setLiveMap] = useState(false);
   const [selected, setSelected] = useState<Facility | null>(null);
   const [busy, setBusy] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -63,9 +66,30 @@ export function App() {
   }, []);
   const clearResult = () => {
     setResult(null);
+    setReplay(false);
+    setLiveMap(false);
     setSelected(null);
     setError("");
     setView("map");
+    setShowGaps(false);
+  };
+  const openResult = (value: AnalysisResult) => {
+    setResult(value);
+    setMode(value.mode);
+    setPoint(value.center.point);
+    setGeo(value.center.geo ?? null);
+    setLabel(value.center.label);
+    if (value.center.geo)
+      setCoordinateText({
+        lng: String(value.center.geo.lng),
+        lat: String(value.center.geo.lat),
+      });
+    setSelected(null);
+    setError("");
+    setReplay(true);
+    setLiveMap(false);
+    setMinutes(15);
+    setView("report");
     setShowGaps(false);
   };
   const changeMode = (value: Mode) => {
@@ -118,6 +142,7 @@ export function App() {
     setError("");
     setSelected(null);
     setResult(null);
+    setReplay(false);
     setView("map");
     cancelled.current = false;
     setProgress({ stage: "准备体检", done: 0, total: 1 });
@@ -140,15 +165,13 @@ export function App() {
           setResult(job.result);
           if (window.matchMedia("(max-width:760px)").matches)
             requestAnimationFrame(() =>
-              document
-                .querySelector(".content-topbar")
-                ?.scrollIntoView({
-                  behavior: window.matchMedia("(prefers-reduced-motion:reduce)")
-                    .matches
-                    ? "instant"
-                    : "smooth",
-                  block: "start",
-                }),
+              document.querySelector(".content-topbar")?.scrollIntoView({
+                behavior: window.matchMedia("(prefers-reduced-motion:reduce)")
+                  .matches
+                  ? "instant"
+                  : "smooth",
+                block: "start",
+              }),
             );
           break;
         }
@@ -260,6 +283,11 @@ export function App() {
               百度地图
             </button>
           </div>
+          <ResultLibrary
+            result={result}
+            disabled={busy || locating}
+            onOpen={openResult}
+          />
           <section className="control-section">
             <h2>分析地点</h2>
             {mode === "demo" ? (
@@ -512,7 +540,11 @@ export function App() {
           <div className="content-topbar no-print">
             <div>
               <span className={`status-tag ${mode}`}>
-                {mode === "demo" ? "模拟街区" : "真实地图"}
+                {replay
+                  ? "历史结果"
+                  : mode === "demo"
+                    ? "模拟街区"
+                    : "真实地图"}
               </span>
               <h2>
                 {result
@@ -538,19 +570,43 @@ export function App() {
               </button>
             </div>
           </div>
+          {replay && result && (
+            <div className="replay-notice no-print" role="status">
+              <span>
+                正在查看{" "}
+                {new Date(result.generatedAt).toLocaleString("zh-CN", {
+                  hour12: false,
+                })}{" "}
+                的{mode === "demo" ? "模拟" : "百度接口"}
+                结果。当前回放未重新检索或测时。
+              </span>
+              {mode === "baidu" && !liveMap && config?.mapConfigured && (
+                <button
+                  className="text-button"
+                  onClick={() => {
+                    setLiveMap(true);
+                    setView("map");
+                  }}
+                >
+                  加载真实底图
+                </button>
+              )}
+            </div>
+          )}
           <section
             className={`map-pane ${view !== "map" ? "view-hidden" : ""}`}
             aria-label="地图和设施结果"
           >
             <div className="map-container">
-              {mode === "demo" ? (
+              {mode === "demo" || (replay && !liveMap) ? (
                 <DemoMap
-                  center={point}
+                  center={result?.center.point ?? point}
+                  background={mode === "demo" ? "demo" : "plain"}
                   result={result}
                   facilities={visible}
                   minutes={minutes}
                   showGaps={showGaps}
-                  disabled={busy}
+                  disabled={busy || replay}
                   onCenter={choosePoint}
                   onFacility={setSelected}
                 />

@@ -1379,6 +1379,60 @@ dd {
 .layer-disclosure-toggle {
   display: none;
 }
+.result-library summary {
+  cursor: pointer;
+  color: #146c5d;
+  font-weight: 600;
+  padding: 10px 0;
+  min-height: 44px;
+}
+.result-library input[type="file"] {
+  font-size: 12px;
+  width: 100%;
+  padding: 8px;
+}
+.library-actions {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.saved-results {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+.saved-results li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid #d7e3de;
+}
+.saved-title {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.saved-title strong,
+.saved-title span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.saved-title span {
+  font-size: 11px;
+  color: #64777c;
+  margin-top: 4px;
+}
+.replay-notice {
+  border-left: 3px solid #146c5d;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  background: #eaf3ef;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
 @media (max-width: 760px) {
   .layer-disclosure-toggle {
     display: block;

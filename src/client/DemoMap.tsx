@@ -21,6 +21,7 @@ const contourPath = (polygons: XY[][][]) =>
     )
     .join(" ");
 interface Props {
+  background?: "demo" | "plain";
   center: XY;
   result: AnalysisResult | null;
   facilities: Facility[];
@@ -31,6 +32,7 @@ interface Props {
   onFacility: (facility: Facility) => void;
 }
 export function DemoMap({
+  background = "demo",
   center,
   result,
   facilities,
@@ -64,7 +66,11 @@ export function DemoMap({
         className="neighborhood-map"
         viewBox={`${view.x} ${view.y} ${view.size} ${view.size}`}
         role="group"
-        aria-label="模拟街区步行分析地图，可用左侧地点菜单选择中心"
+        aria-label={
+          background === "demo"
+            ? "模拟街区步行分析地图，可用左侧地点菜单选择中心"
+            : "历史结果坐标示意图，不含道路底图"
+        }
         data-testid="demo-map"
         onClick={(event) => {
           if (disabled) return;
@@ -110,63 +116,74 @@ export function DemoMap({
           </pattern>
         </defs>
         <rect x="-3200" y="-3200" width="6400" height="6400" fill="#edf1ec" />
-        <rect
-          x="-4000"
-          y="-4000"
-          width="8000"
-          height="8000"
-          fill="url(#blocks)"
-        />
-        <rect x="441" y="-3200" width="118" height="6400" fill="#aecfd5" />
-        <path
-          d="M477,-3200V3200 M527,-3200V3200"
-          stroke="#c7e1e4"
-          fill="none"
-          strokeWidth="3"
-        />
-        <rect
-          x="-770"
-          y="-570"
-          width="135"
-          height="145"
-          rx="28"
-          fill="#c4d9ba"
-        />
-        <rect x="29" y="-770" width="144" height="133" rx="35" fill="#c4d9ba" />
-        {roads.map((r, i) => (
-          <line
-            key={i}
-            x1={r.a[0]}
-            y1={-r.a[1]}
-            x2={r.b[0]}
-            y2={-r.b[1]}
-            stroke="#fff"
-            strokeWidth={r.a[1] === -600 || r.a[1] === 800 ? 22 : 13}
-          />
-        ))}
-        <g
-          className="map-place-labels"
-          fontSize="47"
-          fill="#829087"
-          textAnchor="middle"
-          pointerEvents="none"
-        >
-          <text x="-970" y="-1050">
-            西街住区
-          </text>
-          <text x="-270" y="1120">
-            站前街区
-          </text>
-          <text x="1140" y="-960">
-            河畔住区
-          </text>
-          <text x="730" y="690" fontSize="30">
-            南桥
-          </text>
-          <text x="670" y="-830" fontSize="30">
-            北桥
-          </text>
-        </g>
+        {background === "demo" && (
+          <>
+            <rect
+              x="-4000"
+              y="-4000"
+              width="8000"
+              height="8000"
+              fill="url(#blocks)"
+            />
+            <rect x="441" y="-3200" width="118" height="6400" fill="#aecfd5" />
+            <path
+              d="M477,-3200V3200 M527,-3200V3200"
+              stroke="#c7e1e4"
+              fill="none"
+              strokeWidth="3"
+            />
+            <rect
+              x="-770"
+              y="-570"
+              width="135"
+              height="145"
+              rx="28"
+              fill="#c4d9ba"
+            />
+            <rect
+              x="29"
+              y="-770"
+              width="144"
+              height="133"
+              rx="35"
+              fill="#c4d9ba"
+            />
+            {roads.map((r, i) => (
+              <line
+                key={i}
+                x1={r.a[0]}
+                y1={-r.a[1]}
+                x2={r.b[0]}
+                y2={-r.b[1]}
+                stroke="#fff"
+                strokeWidth={r.a[1] === -600 || r.a[1] === 800 ? 22 : 13}
+              />
+            ))}
+            <g
+              className="map-place-labels"
+              fontSize="47"
+              fill="#829087"
+              textAnchor="middle"
+              pointerEvents="none"
+            >
+              <text x="-970" y="-1050">
+                西街住区
+              </text>
+              <text x="-270" y="1120">
+                站前街区
+              </text>
+              <text x="1140" y="-960">
+                河畔住区
+              </text>
+              <text x="730" y="690" fontSize="30">
+                南桥
+              </text>
+              <text x="670" y="-830" fontSize="30">
+                北桥
+              </text>
+            </g>
+          </>
+        )}
         {result?.contours
           .filter((c) => c.minutes <= minutes)
           .slice()
@@ -269,7 +286,12 @@ export function DemoMap({
         </g>
       </svg>
       <div className="map-source-label">
-        模拟街区<span>人工构造路网与设施</span>
+        {background === "demo" ? "模拟街区" : "结果示意图"}
+        <span>
+          {background === "demo"
+            ? "人工构造路网与设施"
+            : "原坐标与轮廓 · 无道路底图"}
+        </span>
       </div>
       <div className="north" aria-label="上方为北">
         N<span>↑</span>
@@ -294,7 +316,9 @@ export function DemoMap({
       </div>
       <div className="map-scale">
         <span style={{ width: `${(250 / (2 * extent)) * 100}%` }} />
-        <small>图中相邻路口约 200 米</small>
+        <small>
+          {background === "demo" ? "图中相邻路口约 200 米" : "局部坐标比例示意"}
+        </small>
       </div>
       {!result && (
         <div className="map-instruction">选好起点，看看一刻钟能走到哪里</div>

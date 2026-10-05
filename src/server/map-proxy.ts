@@ -115,10 +115,20 @@ export function createMapProxy(
     const path = requested.pathname
       .slice("/api/map-sdk".length)
       .replace(/^\/+/, "/");
-    const verification =
-      path === "/" && requested.searchParams.get("qt") === "verify";
+    if (path === "/" && requested.searchParams.get("qt") === "jsapi_log") {
+      res.writeHead(204, { "cache-control": "no-store" });
+      res.end();
+      return;
+    }
+    // Only SDK rendering metadata observed during an empty-map load is allowed.
+    // Search, geocoding and routing queries remain isolated from this proxy.
+    const renderingMetadata =
+      path === "/" &&
+      ["verify", "business", "custom_hd", "cen"].includes(
+        requested.searchParams.get("qt") ?? "",
+      );
     if (
-      (!allowedMapPath(path) && !verification) ||
+      (!allowedMapPath(path) && !renderingMetadata) ||
       requested.search.length > 5000
     )
       throw new ServiceError("地图资源不可用。", 404);

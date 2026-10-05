@@ -1,5 +1,5 @@
 import { chromium } from "@playwright/test";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 if (!process.argv.includes("--run")) {
   console.log(
@@ -109,6 +109,9 @@ try {
       evidence.failedResources.push({
         host: url.hostname,
         path: url.pathname,
+        kind: /^[a-z0-9_]+$/i.test(url.searchParams.get("qt") ?? "")
+          ? url.searchParams.get("qt")
+          : undefined,
         status: response.status(),
       });
     if (
@@ -127,11 +130,33 @@ try {
     }
   });
   await page.goto("http://127.0.0.1:8787");
-  await page.getByRole("button", { name: "百度地图", exact: true }).click();
-  await page.getByText("直接输入地图坐标", { exact: true }).click();
-  await page.getByLabel("经度", { exact: true }).fill("121.5");
-  await page.getByLabel("纬度", { exact: true }).fill("31.2");
-  await page.getByRole("button", { name: "使用这个点", exact: true }).click();
+  if (process.argv.includes("--saved-result")) {
+    const saved = await readFile(".cache/live-result.json", "utf8");
+    if (containsSecret(saved)) throw new Error("Unsafe input");
+    await page.getByText("保存与打开结果", { exact: true }).click();
+    await page.locator("#result-import").setInputFiles({
+      name: "shanghai-result.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(saved),
+    });
+    await page.getByRole("article").waitFor();
+    await page.getByRole("button", { name: "地图", exact: true }).click();
+    evidence.replayUsedNoRequests =
+      evidence.mapRequests === 0 && evidence.blockedAnalysisRequests === 0;
+    if (!evidence.replayUsedNoRequests)
+      throw new Error("Unexpected replay request");
+    await page
+      .getByRole("button", { name: "加载真实底图", exact: true })
+      .click();
+    evidence.note =
+      "复用已保存的上海真实体检结果显示轮廓与设施，只加载底图；没有重新地点检索或步行测时。";
+  } else {
+    await page.getByRole("button", { name: "百度地图", exact: true }).click();
+    await page.getByText("直接输入地图坐标", { exact: true }).click();
+    await page.getByLabel("经度", { exact: true }).fill("121.5");
+    await page.getByLabel("纬度", { exact: true }).fill("31.2");
+    await page.getByRole("button", { name: "使用这个点", exact: true }).click();
+  }
   await page
     .locator(".baidu-stage .map-zoom")
     .waitFor({ state: "visible", timeout: 25000 });
@@ -160,6 +185,9 @@ try {
   if (evidence.status !== "passed") process.exitCode = 1;
   evidence.externalHosts = [...hosts];
   await browser?.close();
+  if (evidence.status === "passed" && evidence.failedResources.length)
+    evidence.status = "needs_review";
+  if (evidence.status !== "passed") process.exitCode = 1;
   await mkdir(".cache", { recursive: true });
   await writeFile(
     ".cache/map-check.json",
