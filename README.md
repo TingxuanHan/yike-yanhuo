@@ -14,7 +14,7 @@
 
 ## 快速运行
 
-需要 Node.js 22.12+，推荐24。
+需要 Node.js 22.13+，推荐24。私人地点簿使用Node内置SQLite。
 
 ```sh
 npm ci
@@ -39,12 +39,19 @@ npm run dev
 - 最多5份本地记录、结果文件导入和零请求回放，更新失败保留原结果。
 - 设施核查台账：来源与依据录入、批量预览、冲突标记、撤销、保存回放和打印附录；不新增接口调用。
 - 路线条数限流、预算预检与用量展示、同项目进程互斥、短时缓存、有限重试和取消。
+- “我的日常”：5—30分钟个人试算、步速、当地出发时间、可选峰谷等灯假设，复用已有路线、不新增路线调用。
+- 私人地点簿、入口地标、到访日期、大字指引、Web朗读与打印；不会把个人小店自动算成已核验公共设施。
+- Web与微信开发版共用私人空间、出行偏好及共享报告；一次性设备配对、SQLite持久化、版本冲突保护。
+
+[微信小程序开发版](miniprogram/README.md)提供原生页面与平台适配层，尚未完成开发者工具、真机与发布验收；完整交互地图仍在Web。场景设计、实测信号数据需求和后续路线见[日常出行设计](docs/daily-life-design.md)。
 
 上海24点对照：15分钟加密轮廓与API一致23/24，直线圆为16/24；5分钟加密仅19/24，并未全面优于规则网格。完整协议、误判/漏判及限制见[上海对照实验](docs/experiments/shanghai-comparison.md)。
 
 两轮加密后，另一组预先固定的24个短距离点上，5分钟一致数由20/24变为21/24，漏判减少2个、误判增加1个。改进有限；[复核记录](docs/experiments/shanghai-refinement.md)保留全部计数和调用成本，不将原开发案例当作独立证据。
 
 ## 材料导航
+
+现有PDF和视频对应上一轮体检与设施核查功能；本轮日常出行、同步和小程序进展先以代码及设计文档为准，最终参赛录制时统一更新材料。
 
 - [作品介绍 PDF](materials/yike-yanhuo-introduction.pdf)
 - [技术与验证报告 PDF](materials/yike-yanhuo-technical-report.pdf)
@@ -64,6 +71,8 @@ npm run dev
 - [24点对照实验](docs/experiments/shanghai-comparison.md)
 - [设施清洗与多源合并策略](docs/poi-cleaning.md)
 - [界面设计约定](docs/frontend/DESIGN.md)
+- [日常出行与双端设计](docs/daily-life-design.md)
+- [微信小程序联调说明](miniprogram/README.md)
 - [开发记录](CHANGELOG.md)
 
 开发仓库暂为私有；提交参赛材料前需落实评审可访问方式和开源发布。

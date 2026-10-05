@@ -2,6 +2,8 @@
 
 所有计算端点只接受结构化输入，不接受任意上游 URL。默认监听本机，API响应不包含 AK。
 
+外部部署配置`PUBLIC_ORIGIN`后，除健康、公开配置、创建空间和兑换配对码外，所有`/api/`端点都需要设备会话。Web由HttpOnly cookie承载；小程序使用`Authorization: Bearer <设备令牌>`。令牌只对应本服务，不是百度AK。分析任务和私人报告按空间隔离。
+
 | 方法与路径 | 用途 |
 | --- | --- |
 | GET `/api/health` | 存活状态与版本 |
@@ -33,3 +35,25 @@
 ## 本地用量接口
 
 `GET /api/quota` 返回北京时间日期、四类本地已用计数和配置预算，不请求百度服务。完整真实体检启动前预留单次最大路线数与6类检索页数对应的预算；不足时不启动任务。计数不能代替百度控制台账户用量。
+
+## 日常出行与私人空间
+
+| 方法与路径 | 输入 / 结果 |
+| --- | --- |
+| POST `/api/personalize` | `result`为有效报告，`preferences`为共享出行偏好；返回试算报告，不调用百度 |
+| POST `/api/life/create` | `client:web或mini`，外部部署另需`invite`；创建独立私人空间并返回`snapshot` |
+| POST `/api/life/redeem` | `code`与`client`；兑换一次性配对码，加入已有空间并返回`snapshot` |
+| GET `/api/life` | 返回`revision, updatedAt, book`；`book`包含格式标记、偏好和最多200个个人地点 |
+| PUT `/api/life` | `revision, book`；版本不一致返回409且不修改数据库 |
+| POST `/api/life/pair` | 返回`code, expiresAt`；5分钟有效、一次使用，新码作废旧码 |
+| DELETE `/api/life/session` | 撤销当前设备会话；不删除其他设备或地点簿 |
+| GET `/api/life/reports` | 当前空间的最多5份报告摘要 |
+| POST `/api/life/reports` | `result`；上传经过白名单验证的有效报告 |
+| GET `/api/life/reports/:id` | 获取所属空间的报告；其他空间返回404 |
+| DELETE `/api/life/reports/:id` | 移除当前空间的报告 |
+
+仅当`client=mini`时，创建/兑换响应额外返回设备`token`；Web通过cookie获得会话。服务端不记录令牌明文。配对代表对整个私人空间的读写权限，不是只读分享。
+
+共享数据类型与边界验证见`src/shared/life.ts`和`journey.ts`。个人地点强制`source:personal`、明确`position.system`，并保留上次到访日期及入口地标。未知字段丢弃，重复编号、非法坐标、超量记录整批拒绝。
+
+试算报告仍兼容`schemaVersion:1`，增加`scenario:{preferences,sourceId,createdAt}`，有效测时保存可选`recordedSeconds`。原5/10/15分钟报告保持兼容；个性化报告使用5分钟、10分钟及用户目标时长中不超过目标的去重阈值。原数据时间及调用统计不变，表示获取基础数据的成本。
