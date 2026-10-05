@@ -1,3 +1,4 @@
+import type { JourneyPreferences } from "./journey.js";
 export type XY = [number, number];
 export interface LngLat {
   lng: number;
@@ -45,7 +46,7 @@ export const CATEGORIES: {
   },
 ];
 export type Travel =
-  | { status: "ok"; seconds: number; meters: number }
+  | { status: "ok"; seconds: number; meters: number; recordedSeconds?: number }
   | { status: "unknown" | "unreachable"; reason: string };
 export interface FacilityEvidence {
   source: string;
@@ -72,7 +73,7 @@ export interface Sample {
 export type Triangle = [Sample, Sample, Sample];
 export type MultiPolygon = XY[][][];
 export interface Contour {
-  minutes: 5 | 10 | 15;
+  minutes: number;
   polygons: MultiPolygon;
   areaKm2: number;
   clipped: boolean;
@@ -140,6 +141,7 @@ export interface AnalysisResult {
   warnings: string[];
   usage: Usage;
   elapsedMs: number;
+  scenario?: { preferences: JourneyPreferences; sourceId: string; createdAt: string };
   derivedFrom?: {
     sourceId: string;
     sourceGeneratedAt: string;

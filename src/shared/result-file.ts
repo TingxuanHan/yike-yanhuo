@@ -6,6 +6,7 @@ import {
 } from "./types.js";
 import { cleanEvidence } from "./facility-review.js";
 import { reconcileEvidence } from "../core/poi-evidence.js";
+import { cleanJourney, journeyBands } from "./journey.js";
 
 export const MAX_RESULT_BYTES = 2_000_000;
 const categories = new Set(CATEGORIES.map((c) => c.id));
@@ -28,7 +29,8 @@ function travel(value: unknown): value is Travel {
       ? finite(value.seconds) &&
         value.seconds >= 0 &&
         finite(value.meters) &&
-        value.meters >= 0
+        value.meters >= 0 &&
+        (value.recordedSeconds === undefined || (finite(value.recordedSeconds) && value.recordedSeconds >= 0))
       : ["unknown", "unreachable"].includes(value.status) &&
         text(value.reason, 300))
   );
@@ -68,14 +70,20 @@ export function parseResultFile(raw: string): AnalysisResult {
   )
     return fail();
   let vertices = 0;
+  let scenario: AnalysisResult["scenario"];
+  if (r.scenario !== undefined) {
+    if (!object(r.scenario) || !text(r.scenario.sourceId, 100) || !text(r.scenario.createdAt,50) || !Number.isFinite(Date.parse(r.scenario.createdAt))) return fail();
+    scenario = {preferences:cleanJourney(r.scenario.preferences), sourceId:r.scenario.sourceId, createdAt:r.scenario.createdAt};
+  }
+  const bands = scenario ? journeyBands(scenario.preferences.minutes) : [5,10,15];
   if (
     !list(r.contours, 3) ||
-    r.contours.length !== 3 ||
-    new Set(r.contours.map((c: any) => c?.minutes)).size !== 3 ||
+    r.contours.length !== bands.length ||
+    new Set(r.contours.map((c: any) => c?.minutes)).size !== bands.length ||
     r.contours.some(
       (c: any) =>
         !object(c) ||
-        ![5, 10, 15].includes(c.minutes) ||
+        !bands.includes(c.minutes) ||
         !finite(c.areaKm2) ||
         c.areaKm2 < 0 ||
         typeof c.clipped !== "boolean" ||
@@ -237,6 +245,7 @@ export function parseResultFile(raw: string): AnalysisResult {
     })),
     warnings: r.warnings,
     elapsedMs: r.elapsedMs,
+    ...(scenario ? {scenario} : {}),
     ...(r.derivedFrom
       ? {
           derivedFrom: {
@@ -280,6 +289,6 @@ export function parseResultFile(raw: string): AnalysisResult {
 }
 function cleanTravel(value: Travel): Travel {
   return value.status === "ok"
-    ? { status: "ok", seconds: value.seconds, meters: value.meters }
+    ? { status: "ok", seconds: value.seconds, meters: value.meters, ...(value.recordedSeconds !== undefined ? {recordedSeconds:value.recordedSeconds} : {}) }
     : { status: value.status, reason: value.reason };
 }
