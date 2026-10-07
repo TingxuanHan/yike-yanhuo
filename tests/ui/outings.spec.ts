@@ -28,6 +28,10 @@ test("four outing tools work offline on desktop and narrow screens with recovera
   await expect(page.locator(".outing-result").first()).toContainText(
     "回到里巷中心",
   );
+  await expect(
+    page.getByRole("button", { name: "安排这趟出门", exact: true }),
+  ).toBeEnabled();
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "test-results/outings-desktop.png",
     fullPage: true,
@@ -48,6 +52,10 @@ test("four outing tools work offline on desktop and narrow screens with recovera
   await expect(page.locator(".outing-result")).toContainText("个测试点");
   await expect(page.locator(".outing-impact-table tbody tr")).toHaveCount(6);
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect(
+    page.getByRole("button", { name: "比较补点前后", exact: true }),
+  ).toBeEnabled();
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "test-results/outings-impact-mobile.png",
     fullPage: true,

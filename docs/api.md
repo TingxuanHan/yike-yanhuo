@@ -13,6 +13,7 @@
 | POST `/api/analyses` | 创建体检任务，返回 `id` |
 | GET `/api/analyses/:id` | 任务状态、阶段进度与结果 |
 | DELETE `/api/analyses/:id` | 取消任务并清除其结果 |
+| POST `/api/outings/routes` | 有向地点对的步行测量，每次最多12个地点和6段路线；见下方说明 |
 | GET `/api/map-sdk/*` | 受限地图绘制资源代理，不代理地点或算路接口 |
 
 模拟请求：
@@ -70,3 +71,13 @@
 分享令牌与设备令牌独立，数据库仅存哈希；七天到期，单空间最多20张有效卡。无效、到期或已撤销返回404；不能用分享令牌读取地点簿、分析接口或其他卡片。响应`Cache-Control:no-store`。浏览器分享把令牌放在URL片段，读取时只发送专用请求头；小程序卡片读取不携带设备令牌，也不改变原服务地址。日志与截图不应记录有效分享令牌。
 
 个人地点增加可选`favorite:boolean`、`openingHours:string`（120字符）和`photo`。照片仅允许JPEG/PNG的base64数据URI，最长64000字符；不允许远程URL或SVG。整个规范化地点簿UTF-8 JSON上限750000字节，旧无照片数据继续兼容。卡片副本去除私人收藏标记。
+
+## 办事、熟路与休息点
+
+`POST /api/outings/routes`输入`nodes:[{id,name,position}]`、`pairs:[[fromId,toId]]`。起终点必须存在且不同，禁止重复编号、重复方向对以及混用模拟与真实坐标。位置支持`demo`米制位置，或带显式`bd09/gcj02/wgs84`声明的地理坐标。请求体最大24KB，每次最多12个地点、6个有向路段。
+
+返回`nodes,edges:[{from,to,travel}],mode,generatedAt,usage`。模拟路段来自共用示例路网；真实路段先转换坐标，再通过既有串行BaiduGateway请求步行矩阵。公开部署要求设备会话，单设备或本机请求来源最多40次/10分钟。含重试余量的路线或坐标转换预算不足返回429；请求中断会终止后续排队操作。`usage`记录该批矩阵读取，坐标转换实际消耗另计入`GET /api/quota`的`other`，不要仅用`usage.requests`估计全部成本。
+
+`book`增加两个可选数组：`familiarRoutes`最多12条，字段为`id,name,checkedOn,steps:[{title,instruction,photo?}]`；每条2—8步，照片规则与个人地点一致。`restPoints`最多30条，字段为`id,name,position,checkedOn,validUntil,note`，核验日期不能晚于今天，有效期不超过90天。仍使用`yike-life-v1`和750000字节总上限，旧无新字段的文件可读取。当前两端合并同时保留这两类记录，同编号冲突保留本机值。
+
+办事顺序、营业等待、休息规划及补点计算在两端共用`src/shared/outings.ts`，不是新的百度接口。算法及受限候选含义见[出门办事](outings.md)。
