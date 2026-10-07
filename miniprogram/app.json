@@ -1,5 +1,5 @@
 {
-  "pages": ["pages/home/index"],
+  "pages": ["pages/home/index", "pages/card/index"],
   "window": {
     "navigationBarTitleText": "一刻烟火",
     "navigationBarBackgroundColor": "#146c5d",

@@ -1,0 +1,35 @@
+<import src="/components/privacy.wxml" />
+<view class="page shared-card-page"
+  ><text class="eyebrow">一刻烟火 · 家人分享的地点卡</text
+  ><view wx:if="{{loading}}" class="notice">正在打开地点卡…</view
+  ><view wx:if="{{error}}" class="error" role="alert"
+    >{{error}}<button bindtap="load">重试</button></view
+  ><view wx:if="{{place}}" class="card"
+    ><text class="card-title">我要去：{{place.name}}</text
+    ><text wx:if="{{place.position.system==='demo'}}" class="notice"
+      >模拟地点，仅用于演示</text
+    ><image
+      wx:if="{{place.photo}}"
+      class="entrance-photo"
+      mode="aspectFit"
+      src="{{place.photo}}"
+    /><text class="muted">地址</text
+    ><text selectable>{{place.address || '地址待补充'}}</text
+    ><text class="muted">认准这里</text
+    ><text selectable>{{place.landmark || '入口地标待补充'}}</text
+    ><text wx:if="{{place.openingHours}}" class="muted">记录的营业时间</text
+    ><text wx:if="{{place.openingHours}}">{{place.openingHours}}</text
+    ><text class="muted">出门提醒</text
+    ><text>{{place.note || '出发前请确认营业情况'}}</text
+    ><text class="muted"
+      >{{place.visitedOn?'最近到访：'+place.visitedOn+'。':''}}只读快照，非逐路口导航；有效期至
+      {{expires}}，分享者也可提前撤销。</text
+    ><button class="primary" bindtap="directions">打开目的地地图</button
+    ><button bindtap="copy">复制地点文字</button
+    ><button open-type="share">转发这张地点卡</button
+    ><text class="muted"
+      >只包含这一处地点，不提供整个地点簿的访问或修改权限。</text
+    ></view
+  ></view
+>
+<template is="privacy-dialog" data="{{showPrivacy,privacyError}}" />

@@ -1,11 +1,48 @@
 const platform = require("../../platform/index.js");
 const api = require("../../services/api.js");
-const { emptyBook, cleanBook, cleanPlace } = require("../../shared/life.js");
+const {
+  emptyBook,
+  cleanBook,
+  cleanPlace,
+  placeCardText,
+  utf8Bytes,
+} = require("../../shared/life.js");
 const { cleanJourney } = require("../../shared/journey.js");
-const { usableFacility } = require("../../shared/facility-review.js");
+const experience = require("../../shared/experience.js");
+const example = require("../../shared/demo.js");
+const config = require("../../config.js");
+const blankForm = () => ({
+  name: "",
+  address: "",
+  landmark: "",
+  note: "",
+  visitedOn: "",
+  openingHours: "",
+  photo: "",
+  favorite: false,
+});
 Page({
   data: {
-    tab: "places",
+    showPrivacy: false,
+    privacyError: "",
+    tab: "nearby",
+    category: "all",
+    categories: experience.categories,
+    timePresets: [10, 15, 20],
+    searchQuery: "",
+    favoritesOnly: false,
+    placeItems: [],
+    showEditor: false,
+    editorMore: false,
+    hasDraft: false,
+    careMode: false,
+    showAdvanced: false,
+    showConnection: false,
+    showReportDetails: false,
+    selectedFacility: null,
+    nearby: [],
+    minutes: 15,
+    calibrationSeconds: "",
     book: emptyBook(),
     server: "",
     connected: false,
@@ -17,11 +54,12 @@ Page({
     code: "",
     pairCode: "",
     invite: "",
-    form: { name: "", address: "", landmark: "", note: "", visitedOn: "" },
+    form: blankForm(),
     position: null,
     editing: null,
     card: null,
     reports: [],
+    sharedCards: [],
     result: null,
     areas: [],
     undo: null,
@@ -39,11 +77,60 @@ Page({
     this.setData({
       book,
       error,
-      server: platform.get("yike-server") || "http://127.0.0.1:8787",
+      server: platform.get("yike-server") || config.apiBaseUrl,
       connected: !!platform.get("yike-token"),
+      careMode: !!platform.get("yike-care-mode"),
     });
+    this.setData({ placeItems: experience.placeList(book.places) });
+    const draft = platform.get("yike-place-draft");
+    if (draft?.form && typeof draft.form.name === "string")
+      this.setData({
+        form: { ...blankForm(), ...draft.form },
+        position: draft.position || null,
+        editing: draft.editing || null,
+        hasDraft: true,
+      });
+    let result = example;
+    try {
+      const cached = platform.get("yike-last-report");
+      if (cached) result = experience.parseResultFile(JSON.stringify(cached));
+    } catch {
+      this.setData({
+        status: "上次结果未能恢复，已打开离线示例。地点簿仍保留。",
+      });
+    }
+    try {
+      this.setResult(experience.scenario(result, book.preferences));
+    } catch {
+      this.setResult(example);
+    }
+  },
+  onReady() {
+    this.drawMap();
+  },
+  onShow() {
+    this.releasePrivacy?.();
+    this.releasePrivacy = platform.watchPrivacy?.(this);
+  },
+  onHide() {
+    this.releasePrivacy?.();
+    this.releasePrivacy = null;
+  },
+  privacyAgree() {
+    this.resolvePrivacy?.(true);
+  },
+  privacyDecline() {
+    this.resolvePrivacy?.(false);
+  },
+  async privacyContract() {
+    try {
+      await platform.privacyContract();
+    } catch (e) {
+      this.setData({ privacyError: e.message });
+    }
   },
   onUnload() {
+    this.releasePrivacy?.();
     this.alive = false;
     clearTimeout(this.pollTimer);
     if (this.rejectPoll) this.rejectPoll(new Error("页面已关闭"));
@@ -52,9 +139,11 @@ Page({
   },
   switchTab(e) {
     this.setData({ tab: e.currentTarget.dataset.tab });
+    this.drawMap();
   },
   field(e) {
     this.setData({ [e.currentTarget.dataset.key]: e.detail.value });
+    if (e.currentTarget.dataset.key.startsWith("form.")) this.stashDraft();
   },
   pref(e) {
     const key = e.currentTarget.dataset.key;
@@ -91,6 +180,310 @@ Page({
     const valid = cleanBook(book);
     platform.set("yike-life", valid);
     this.setData({ book: valid });
+    this.setData({
+      placeItems: experience.placeList(
+        valid.places,
+        this.data.searchQuery,
+        this.data.favoritesOnly,
+      ),
+    });
+  },
+  drawMap() {
+    if (this.data.tab === "nearby" && this.data.sketch && !this.data.mapNative)
+      platform.drawSketch?.(this.data.sketch, this);
+  },
+  toggle(e) {
+    const key = e.currentTarget.dataset.key;
+    if (
+      ![
+        "showAdvanced",
+        "editorMore",
+        "showConnection",
+        "showReportDetails",
+      ].includes(key)
+    )
+      return;
+    this.setData({ [key]: !this.data[key] });
+  },
+  care() {
+    return this.action(() => {
+      const value = !this.data.careMode;
+      platform.set("yike-care-mode", value);
+      this.setData({
+        careMode: value,
+        status: value ? "大字模式已开启。" : "已恢复标准字号。",
+      });
+    });
+  },
+  openEditor() {
+    this.setData({ showEditor: true, tab: "places", card: null });
+  },
+  closeEditor() {
+    if (this.stashDraft())
+      this.setData({
+        showEditor: false,
+        status: "草稿已留在本机，稍后可继续填写。",
+      });
+  },
+  stashDraft() {
+    try {
+      platform.set("yike-place-draft", {
+        form: this.data.form,
+        position: this.data.position,
+        editing: this.data.editing,
+      });
+      this.setData({ hasDraft: true });
+      return true;
+    } catch (e) {
+      this.setData({ error: e.message });
+      return false;
+    }
+  },
+  discardDraft() {
+    return this.action(async () => {
+      if (
+        !(await platform.confirm(
+          "清除这份尚未保存的草稿？已记住的地点不受影响。",
+        ))
+      )
+        return;
+      platform.remove("yike-place-draft");
+      this.setData({
+        form: blankForm(),
+        position: null,
+        editing: null,
+        hasDraft: false,
+        showEditor: false,
+      });
+    });
+  },
+  search(e) {
+    this.setData({
+      searchQuery: e.detail.value,
+      placeItems: experience.placeList(
+        this.data.book.places,
+        e.detail.value,
+        this.data.favoritesOnly,
+      ),
+    });
+  },
+  favorites() {
+    const only = !this.data.favoritesOnly;
+    this.setData({
+      favoritesOnly: only,
+      placeItems: experience.placeList(
+        this.data.book.places,
+        this.data.searchQuery,
+        only,
+      ),
+    });
+  },
+  favorite(e) {
+    return this.action(() =>
+      this.save({
+        ...this.data.book,
+        places: this.data.book.places.map((p) =>
+          p.id === e.currentTarget.dataset.id
+            ? { ...p, favorite: !p.favorite }
+            : p,
+        ),
+      }),
+    );
+  },
+  photo() {
+    return this.action(async () => {
+      const photo = await platform.choosePhoto();
+      this.setData({ "form.photo": photo, editorMore: true });
+      this.stashDraft();
+    });
+  },
+  removePhoto() {
+    this.setData({ "form.photo": "" });
+    this.stashDraft();
+  },
+  filter(e) {
+    this.setData({
+      category: e.currentTarget.dataset.id,
+      selectedFacility: null,
+    });
+    this.setResult(this.data.result, false);
+  },
+  selectFacility(e) {
+    const id = e.currentTarget.dataset.id;
+    this.selectPlace(this.data.nearby.find((p) => p.id === id) || null, true);
+  },
+  selectPlace(place, reveal = false) {
+    this.setData(
+      {
+        selectedFacility: place,
+        mapMarkers: (this.data.mapMarkers || []).map((marker) => ({
+          ...marker,
+          callout: {
+            ...marker.callout,
+            display:
+              marker.id === 0 || marker.id === place?.markerId
+                ? "ALWAYS"
+                : "BYCLICK",
+          },
+        })),
+      },
+      () => {
+        if (reveal) platform.revealSelected?.();
+      },
+    );
+  },
+  marker(e) {
+    this.selectPlace(
+      this.data.nearby.find((p) => p.markerId === Number(e.detail.markerId)) ||
+        null,
+    );
+  },
+  rememberFacility() {
+    return this.action(async () => {
+      if (!this.data.selectedFacility) return;
+      if (
+        this.data.hasDraft &&
+        !(await platform.confirm(
+          "已有一份未完成的地点草稿，改为记录当前选中的地点？",
+        ))
+      )
+        return;
+      const p = experience.facilityPlace(
+        this.data.result,
+        this.data.selectedFacility.id,
+      );
+      this.setData({
+        form: { ...blankForm(), ...p },
+        position: p.position,
+        editing: null,
+        showEditor: true,
+        editorMore: false,
+        tab: "places",
+      });
+      this.stashDraft();
+    });
+  },
+  directions() {
+    return this.action(async () => {
+      const p =
+        this.data.card ||
+        (this.data.selectedFacility &&
+          experience.facilityPlace(
+            this.data.result,
+            this.data.selectedFacility.id,
+          ));
+      if (!p) return;
+      const geo = experience.mapPosition(p.position);
+      if (!geo)
+        throw new Error(
+          p.position.system === "demo"
+            ? "这是模拟地点，不能用于真实导航。"
+            : "此坐标类型暂不能直接打开，请复制地址在地图中查找。",
+        );
+      await platform.openLocation({ ...geo, name: p.name, address: p.address });
+    });
+  },
+  copyCard() {
+    return this.action(() => platform.clipboard(placeCardText(this.data.card)));
+  },
+  prepareShare() {
+    return this.action(async () => {
+      if (!this.data.card) return;
+      if (
+        !(await platform.confirm(
+          "生成后，持有链接的人可在7天内查看这个地点的名称、地址、照片和提醒，也可转发。卡片只读，不会分享整个地点簿。继续？",
+        ))
+      )
+        return;
+      await this.ensureServer();
+      const value = await api.request("/api/life/cards", "POST", {
+        place: this.data.card,
+      });
+      await platform.openCard(value.token, this.data.server);
+    });
+  },
+  loadCards() {
+    return this.action(async () =>
+      this.setData({ sharedCards: await api.request("/api/life/cards") }),
+    );
+  },
+  revokeCard(e) {
+    return this.action(async () => {
+      if (
+        !(await platform.confirm(
+          "撤销后，这张分享卡的已有链接将失效。已保存的文字或截图无法收回。",
+        ))
+      )
+        return;
+      await api.request(
+        `/api/life/cards/${encodeURIComponent(e.currentTarget.dataset.id)}`,
+        "DELETE",
+      );
+      this.setData({
+        sharedCards: await api.request("/api/life/cards"),
+        status: "分享卡已撤销。",
+      });
+    });
+  },
+  chooseStart() {
+    return this.action(async () => {
+      await this.ensureServer();
+      const place = await platform.choosePlace();
+      await this.analyzePosition(place.position, place.name || "出发点");
+    });
+  },
+  async analyzePosition(position, name) {
+    await this.ensureServer();
+    if (
+      !(await platform.confirm(
+        "将为这个起点查询步行范围，使用受每日预算保护的百度接口额度。继续计算？",
+      ))
+    )
+      return;
+    const geo =
+      position.system === "bd09"
+        ? { lng: position.lng, lat: position.lat }
+        : (
+            await api.request("/api/convert", "POST", {
+              geo: { lng: position.lng, lat: position.lat },
+              from: position.system === "gcj02" ? 3 : 1,
+            })
+          ).geo;
+    this.setData({ analyzing: true });
+    try {
+      const job = await api.request("/api/analyses", "POST", {
+        mode: "baidu",
+        label: name,
+        geo,
+      });
+      const result = await this.poll(job.id);
+      this.setResult(experience.scenario(result, this.data.book.preferences));
+      this.setData({ status: "步行范围已更新，可保存为家庭共享报告。" });
+    } finally {
+      this.setData({ analyzing: false });
+    }
+  },
+  quickTime(e) {
+    this.setData({
+      "book.preferences.minutes": Number(e.currentTarget.dataset.minutes),
+    });
+    return this.scenario();
+  },
+  calibrate() {
+    return this.action(() => {
+      const seconds = Number(this.data.calibrationSeconds);
+      if (!Number.isFinite(seconds) || seconds < 50 || seconds > 333)
+        throw new Error(
+          "请填写平地走100米的实际用时，支持50—333秒；不含等灯和休息。",
+        );
+      this.setData({
+        "book.preferences.speedMps": Math.round(10000 / seconds) / 100,
+      });
+      this.save(this.data.book);
+      this.setData({
+        status: "已按100米实走用时保存步速，可回到附近重新试算。",
+      });
+    });
   },
   choose() {
     return this.action(async () => {
@@ -100,11 +493,21 @@ Page({
         "form.name": p.name,
         "form.address": p.address,
       });
+      this.stashDraft();
     });
   },
   remember() {
     return this.action(() => {
-      if (!this.data.position) throw new Error("请先选取小店入口位置。");
+      if (!this.data.form.name.trim())
+        throw new Error("先给这个地方起个名字。");
+      if (!this.data.position) {
+        if (this.stashDraft())
+          this.setData({
+            status:
+              "已保存地址草稿。补充入口位置后，就能记入地点簿和分享给家人。",
+          });
+        return;
+      }
       const p = cleanPlace({
         ...this.data.form,
         id:
@@ -121,9 +524,12 @@ Page({
         card: p,
         position: null,
         editing: null,
-        form: { name: "", address: "", landmark: "", note: "", visitedOn: "" },
+        form: blankForm(),
+        hasDraft: false,
+        showEditor: false,
         status: "地点已记在本机，可在连接页手动同步。",
       });
+      platform.remove("yike-place-draft");
     });
   },
   card(e) {
@@ -137,19 +543,36 @@ Page({
     this.setData({ card: null });
   },
   edit(e) {
-    const p = this.data.book.places.find(
-      (p) => p.id === e.currentTarget.dataset.id,
-    );
-    this.setData({
-      form: {
-        name: p.name,
-        address: p.address,
-        landmark: p.landmark,
-        note: p.note,
-        visitedOn: p.visitedOn,
-      },
-      position: p.position,
-      editing: p.id,
+    return this.action(async () => {
+      const p = this.data.book.places.find(
+        (p) => p.id === e.currentTarget.dataset.id,
+      );
+      if (!p) throw new Error("地点已不存在，请重新选择。");
+      if (
+        this.data.hasDraft &&
+        !(await platform.confirm(
+          "改为编辑这个地点？当前尚未保存的草稿将被替换。",
+        ))
+      )
+        return;
+      this.setData({
+        form: {
+          ...blankForm(),
+          ...p,
+          name: p.name,
+          address: p.address,
+          landmark: p.landmark,
+          note: p.note,
+          visitedOn: p.visitedOn,
+        },
+        position: p.position,
+        editing: p.id,
+        showEditor: true,
+        editorMore: true,
+        tab: "places",
+        card: null,
+      });
+      this.stashDraft();
     });
   },
   remove(e) {
@@ -202,8 +625,12 @@ Page({
   },
   async ensureServer() {
     const server = this.data.server.replace(/\/$/, "");
-    if (!api.validServer(server))
-      throw new Error("请填写HTTPS服务器地址，本机调试可用localhost。");
+    if (!api.validServer(server)) {
+      this.setData({ showConnection: true });
+      throw new Error(
+        "云端服务尚未连接。先使用离线示例和地点簿，或到“我的 → 连接设置”填写已部署的服务地址。",
+      );
+    }
     if (platform.get("yike-server") !== server) {
       platform.remove("yike-token");
       this.setData({
@@ -212,7 +639,7 @@ Page({
         incoming: null,
         pairCode: "",
         reports: [],
-        result: null,
+        sharedCards: [],
         areas: [],
       });
     }
@@ -298,32 +725,31 @@ Page({
       });
     });
   },
-  setResult(result) {
-    const minutes = result.scenario ? result.scenario.preferences.minutes : 15;
-    this.setData({
-      result,
-      nearby: result.facilities
-        .filter(
-          (p) =>
-            usableFacility(p) &&
-            p.travel &&
-            p.travel.status === "ok" &&
-            p.travel.seconds <= minutes * 60,
-        )
-        .slice(0, 30)
-        .map((p) => ({
-          id: p.id,
-          name: p.name,
-          address: p.address,
-          minutes: Math.ceil(p.travel.seconds / 60),
-        })),
-      areas: result.contours.map((c) => ({
-        minutes: c.minutes,
-        area: c.areaKm2.toFixed(2),
-        clipped: c.clipped,
-      })),
-      tab: "journey",
-    });
+  setResult(result, cache = true) {
+    if (!result) return;
+    const view = experience.reportView(result, this.data.category);
+    if (utf8Bytes(JSON.stringify({ result, ...view })) > 900_000)
+      throw new Error(
+        "这份报告较大，请在Web打开，或选择范围较小的报告。原结果仍保留。",
+      );
+    this.setData(
+      {
+        result,
+        ...view,
+        tab: "nearby",
+        selectedFacility: null,
+      },
+      () => this.drawMap(),
+    );
+    if (cache) {
+      try {
+        platform.set("yike-last-report", result);
+      } catch {
+        this.setData({
+          status: "结果已显示，但本机空间不足，未能保存离线副本。",
+        });
+      }
+    }
   },
   cancelAnalysis() {
     if (this.jobId)
@@ -353,10 +779,10 @@ Page({
   },
   demo() {
     return this.action(async () => {
-      await this.ensureServer();
-      const job = await api.request("/api/analyses", "POST", { mode: "demo" });
-      this.setResult(await this.poll(job.id));
-      this.setData({ status: "模拟体检完成，可按个人偏好试算。" });
+      this.setResult(experience.scenario(example, this.data.book.preferences));
+      this.setData({
+        status: "已打开离线示例，可调整时间和步速；示例不代表真实社区。",
+      });
     });
   },
   analyzePlace(e) {
@@ -364,29 +790,16 @@ Page({
       const p = this.data.book.places.find(
         (p) => p.id === e.currentTarget.dataset.id,
       );
-      let input;
+      if (!p) throw new Error("地点已不存在，请重新选择。");
       if (p.position.system === "demo") {
-        input = {
-          mode: "demo",
-          label: p.name,
-          point: [p.position.x, p.position.y],
-        };
+        this.setResult(
+          experience.scenario(example, this.data.book.preferences),
+        );
+        this.setData({ status: "已打开示例街区的生活圈。" });
+        return;
       } else {
-        const c = p.position;
-        const geo =
-          c.system === "bd09"
-            ? { lng: c.lng, lat: c.lat }
-            : (
-                await api.request("/api/convert", "POST", {
-                  geo: { lng: c.lng, lat: c.lat },
-                  from: c.system === "gcj02" ? 3 : 1,
-                })
-              ).geo;
-        input = { mode: "baidu", label: p.name, geo };
+        await this.analyzePosition(p.position, p.name);
       }
-      const job = await api.request("/api/analyses", "POST", input);
-      this.setResult(await this.poll(job.id));
-      this.setData({ status: "体检完成，可保存为共享报告。" });
     });
   },
   scenario() {
@@ -395,12 +808,9 @@ Page({
         throw new Error("请先打开共享报告或完成一次体检。");
       this.save(this.data.book);
       this.setResult(
-        await api.request("/api/personalize", "POST", {
-          result: this.data.result,
-          preferences: this.data.book.preferences,
-        }),
+        experience.scenario(this.data.result, this.data.book.preferences),
       );
-      this.setData({ status: "试算完成，未新增百度路线调用。" });
+      this.setData({ status: "已按你的时间和步速更新，使用已有路线数据。" });
     });
   },
   loadReports() {

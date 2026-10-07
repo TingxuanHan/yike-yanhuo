@@ -1833,6 +1833,29 @@ dd {
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
+.entrance-photo {
+  display: block;
+  max-width: 100%;
+  width: 480px;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+.shared-card-page {
+  max-width: 760px;
+  padding: 32px 20px;
+  margin: auto;
+}
+.shared-card-page h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.4;
+}
+@media print {
+  .shared-card-page {
+    padding: 0;
+  }
+}
 .assist-card h2 {
   font-size: 34px;
   margin: 16px 0 24px;

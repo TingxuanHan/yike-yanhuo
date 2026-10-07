@@ -3,6 +3,7 @@ import {
   cleanBook,
   cleanPlace,
   emptyBook,
+  MAX_BOOK_BYTES,
   placeCardText,
   type LifeBook,
   type LifeSnapshot,
@@ -12,6 +13,7 @@ import {
 import { cleanJourney, type JourneyPreferences } from "../shared/journey.js";
 import type { AnalysisResult, Facility } from "../shared/types.js";
 import { downloadJson, post, request } from "./api.js";
+import { preparePlacePhoto } from "./place-photo.js";
 
 const KEY = "yike-life-v1";
 function readLocal() {
@@ -63,11 +65,23 @@ export function LifePanel({
   const [address, setAddress] = useState("");
   const [landmark, setLandmark] = useState("");
   const [note, setNote] = useState("");
+  const [openingHours, setOpeningHours] = useState("");
+  const [photo, setPhoto] = useState("");
+  const [favorite, setFavorite] = useState(false);
+  const [shareLink, setShareLink] = useState("");
+  const [sharePrompt, setSharePrompt] = useState(false);
+  const [sharedCards, setSharedCards] = useState<
+    { id: string; name: string; expiresAt: string }[]
+  >([]);
   const [visitedOn, setVisitedOn] = useState("");
   const [savedPosition, setSavedPosition] = useState<PlacePosition | null>(
     null,
   );
   const [card, setCard] = useState<PersonalPlace | null>(null);
+  useEffect(() => {
+    setShareLink("");
+    setSharePrompt(false);
+  }, [card]);
   const [undo, setUndo] = useState<LifeBook | null>(null);
   const [reports, setReports] = useState<
     { id: string; label: string; mode: string; savedAt: string }[]
@@ -114,6 +128,9 @@ export function LifePanel({
     setAddress(p.address);
     setLandmark(p.landmark);
     setNote(p.note);
+    setOpeningHours(p.openingHours || "");
+    setPhoto(p.photo || "");
+    setFavorite(!!p.favorite);
     setVisitedOn(p.visitedOn);
     setSavedPosition(p.position);
   };
@@ -129,6 +146,9 @@ export function LifePanel({
       visitedOn,
       position: loc,
       source: "personal",
+      openingHours,
+      photo,
+      favorite,
     });
     save({ ...book, places: [...book.places.filter((x) => x.id !== p.id), p] });
     setEditing(null);
@@ -136,6 +156,9 @@ export function LifePanel({
     setAddress("");
     setLandmark("");
     setNote("");
+    setOpeningHours("");
+    setPhoto("");
+    setFavorite(false);
     setVisitedOn("");
     setSavedPosition(null);
     setCard(p);
@@ -432,6 +455,54 @@ export function LifePanel({
                   onChange={(e) => setVisitedOn(e.target.value)}
                 />
               </label>
+              <label>
+                记录的营业时间
+                <input
+                  maxLength={120}
+                  value={openingHours}
+                  onChange={(e) => setOpeningHours(e.target.value)}
+                  placeholder="例如：周一至周六 9:00—17:00"
+                />
+              </label>
+            </div>
+            <label className="life-check">
+              <input
+                type="checkbox"
+                checked={favorite}
+                onChange={(e) => setFavorite(e.target.checked)}
+              />
+              收藏这个地点
+            </label>
+            {photo && (
+              <img className="entrance-photo" src={photo} alt="入口照片预览" />
+            )}
+            <div className="life-actions">
+              <label className="file-action">
+                选择入口照片
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  aria-label="选择入口照片"
+                  disabled={busy}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file)
+                      void action(async () =>
+                        setPhoto(await preparePlacePhoto(file)),
+                      );
+                  }}
+                />
+              </label>
+              {photo && (
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => setPhoto("")}
+                >
+                  移除照片
+                </button>
+              )}
             </div>
             <button className="primary" type="submit" disabled={busy}>
               {editing ? "保存地点修改" : "记住这个地方"}
@@ -452,6 +523,7 @@ export function LifePanel({
               <li key={p.id}>
                 <div>
                   <strong>{p.name}</strong>
+                  {p.favorite && <span> · 已收藏</span>}
                   <p>{p.address || "地址待补充"}</p>
                   <small>
                     {p.position.system === "demo" ? "模拟地点" : "个人记录"}
@@ -513,12 +585,25 @@ export function LifePanel({
         <section className="assist-card" aria-label="大字出门指引">
           <div className="assist-caption">一刻烟火 · 出门带上这张卡</div>
           <h2>我要去：{card.name}</h2>
+          {card.photo && (
+            <img
+              className="entrance-photo"
+              src={card.photo}
+              alt={`${card.name}的入口照片`}
+            />
+          )}
           {card.position.system === "demo" && <p>模拟地点，仅用于演示</p>}
           <dl>
             <dt>地址</dt>
             <dd>{card.address || "请协助者补充详细地址"}</dd>
             <dt>认准这里</dt>
             <dd>{card.landmark || "请协助者补充入口地标"}</dd>
+            {card.openingHours && (
+              <>
+                <dt>记录的营业时间</dt>
+                <dd>{card.openingHours}</dd>
+              </>
+            )}
             {card.note && (
               <>
                 <dt>出门提醒</dt>
@@ -548,6 +633,13 @@ export function LifePanel({
               朗读指引
             </button>
             <button
+              className="secondary"
+              disabled={busy || !connected}
+              onClick={() => setSharePrompt(true)}
+            >
+              生成只读分享卡
+            </button>
+            <button
               className="text-button"
               onClick={() => window.speechSynthesis?.cancel()}
             >
@@ -563,6 +655,55 @@ export function LifePanel({
               收起指引
             </button>
           </div>
+          {sharePrompt && (
+            <div className="sync-preview no-print">
+              <p>
+                持有链接的人可在7天内查看并转发这个地点的名称、地址、照片和提醒。分享卡不会开放整个地点簿；可在“设备与同步”撤销。
+              </p>
+              <div className="life-actions">
+                <button
+                  disabled={busy}
+                  className="primary"
+                  onClick={() =>
+                    void action(async () => {
+                      const value = await post<{ token: string }>(
+                        "/api/life/cards",
+                        { place: card },
+                      );
+                      setShareLink(`${location.origin}/#card=${value.token}`);
+                      setSharePrompt(false);
+                    })
+                  }
+                >
+                  确认生成7天有效卡片
+                </button>
+                <button
+                  className="secondary"
+                  onClick={() => setSharePrompt(false)}
+                >
+                  暂不分享
+                </button>
+              </div>
+            </div>
+          )}
+          {shareLink && (
+            <div className="notice no-print">
+              <label>
+                只读地点卡链接
+                <input readOnly value={shareLink} />
+              </label>
+              <button
+                onClick={() =>
+                  void action(async () => {
+                    await navigator.clipboard.writeText(shareLink);
+                    setStatus("链接已复制，可发给家人。");
+                  })
+                }
+              >
+                复制卡片链接
+              </button>
+            </div>
+          )}
         </section>
       )}
       <section className="life-section no-print" hidden={section !== "sync"}>
@@ -771,7 +912,8 @@ export function LifePanel({
                 e.target.value = "";
                 if (f)
                   void action(async () => {
-                    if (f.size > 250_000) throw new Error("备份超过250KB。");
+                    if (f.size > MAX_BOOK_BYTES)
+                      throw new Error("备份超过750KB，请减少入口照片后再试。");
                     const next = cleanBook(JSON.parse(await f.text()));
                     setUndo(book);
                     save(next);
@@ -782,6 +924,51 @@ export function LifePanel({
           </label>
         </div>
       </section>
+      {connected && (
+        <section className="life-section no-print" hidden={section !== "sync"}>
+          <h3>已分享的地点卡</h3>
+          <p>
+            撤销后，原链接无法继续查看。接收者已保存的照片、文字或打印件无法撤回。
+          </p>
+          <button
+            className="secondary"
+            disabled={busy}
+            onClick={() =>
+              void action(async () => {
+                setSharedCards(await request("/api/life/cards"));
+                setStatus("分享卡列表已更新。");
+              })
+            }
+          >
+            查看有效分享卡
+          </button>
+          <ul className="personal-places">
+            {sharedCards.map((c) => (
+              <li key={c.id}>
+                <span>
+                  {c.name} · {new Date(c.expiresAt).toLocaleDateString("zh-CN")}
+                  到期
+                </span>
+                <button
+                  className="text-button"
+                  disabled={busy}
+                  onClick={() =>
+                    void action(async () => {
+                      await request(`/api/life/cards/${c.id}`, {
+                        method: "DELETE",
+                      });
+                      setSharedCards(await request("/api/life/cards"));
+                      setStatus("原分享链接已失效。");
+                    })
+                  }
+                >
+                  撤销分享卡
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       {connected && (
         <section className="life-section no-print" hidden={section !== "sync"}>
           <h3>两端共享的体检报告</h3>
