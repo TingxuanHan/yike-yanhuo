@@ -15,6 +15,16 @@ await build({
   mainFields: ["module", "main"],
   legalComments: "inline",
 });
+await build({
+  entryPoints: ["src/mini/outings.ts"],
+  outfile: "miniprogram/shared/outings-ui.js",
+  bundle: true,
+  platform: "neutral",
+  format: "cjs",
+  target: "es2020",
+  minify: true,
+  legalComments: "inline",
+});
 const demo = await analyze(new DemoProvider(), DEMO_CENTERS[0]);
 demo.id = "offline-neighborhood-v1";
 demo.generatedAt = "2026-10-07T00:00:00.000Z";

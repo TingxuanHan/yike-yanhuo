@@ -26,6 +26,7 @@ import { personalize } from "../core/personalize.js";
 import { cleanJourney } from "../shared/journey.js";
 import { parseResultFile } from "../shared/result-file.js";
 import { MAX_BOOK_BYTES } from "../shared/life.js";
+import { readOutingRoutes } from "./outing-routes.js";
 
 const integer = (
   value: string | undefined,
@@ -331,6 +332,24 @@ export function createApp(
         publicServer && url.pathname.startsWith("/api/")
           ? life.authenticate(tokenOf(req))
           : "local";
+      if (method === "POST" && url.pathname === "/api/outings/routes") {
+        rate("outing:" + owner + ":" + peer, 40);
+        const body = await readJson(req, 24000);
+        const controller = new AbortController();
+        const abort = () => {
+          if (!res.writableEnded) controller.abort();
+        };
+        res.on("close", abort);
+        try {
+          return json(
+            res,
+            200,
+            await readOutingRoutes(body, gateway, quota, controller.signal),
+          );
+        } finally {
+          res.off("close", abort);
+        }
+      }
       if (method === "POST" && url.pathname === "/api/personalize") {
         rate("scenario:" + peer, 20);
         const body = await readJson(req, 2_100_000);

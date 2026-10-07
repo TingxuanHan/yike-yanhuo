@@ -3,6 +3,12 @@ import {
   DEFAULT_JOURNEY,
   type JourneyPreferences,
 } from "./journey.js";
+import {
+  cleanFamiliarRoute,
+  cleanRestPoint,
+  type FamiliarRoute,
+  type RestPoint,
+} from "./outings.js";
 export type PlacePosition =
   | { system: "demo"; x: number; y: number }
   | { system: "bd09" | "gcj02" | "wgs84"; lng: number; lat: number };
@@ -37,6 +43,8 @@ export interface LifeBook {
   format: "yike-life-v1";
   preferences: JourneyPreferences;
   places: PersonalPlace[];
+  familiarRoutes?: FamiliarRoute[];
+  restPoints?: RestPoint[];
 }
 export interface LifeSnapshot {
   revision: number;
@@ -124,10 +132,42 @@ export function cleanBook(value: unknown): LifeBook {
     format: "yike-life-v1",
     preferences: cleanJourney(b.preferences),
     places,
+    ...(b.familiarRoutes !== undefined
+      ? { familiarRoutes: cleanItems(b.familiarRoutes, cleanFamiliarRoute, 12) }
+      : {}),
+    ...(b.restPoints !== undefined
+      ? { restPoints: cleanItems(b.restPoints, cleanRestPoint, 30) }
+      : {}),
   };
   if (utf8Bytes(JSON.stringify(result)) > MAX_BOOK_BYTES)
     throw new Error("地点簿已接近本机容量，请备份并移除部分入口照片后重试。");
   return result;
+}
+function cleanItems<T extends { id: string }>(
+  items: T[],
+  clean: (v: unknown) => T,
+  max: number,
+): T[] {
+  if (!Array.isArray(items) || items.length > max)
+    throw new Error("熟路或休息点数量超出本机容量。");
+  const result = items.map(clean);
+  if (new Set(result.map((r) => r.id)).size !== result.length)
+    throw new Error("熟路或休息点编号重复。");
+  return result;
+}
+export function mergeBooks(local: LifeBook, incoming: LifeBook): LifeBook {
+  const merge = <T extends { id: string }>(a: T[], b: T[]) => [
+    ...new Map([...b, ...a].map((v) => [v.id, v])).values(),
+  ];
+  return cleanBook({
+    ...local,
+    places: merge(local.places, incoming.places),
+    familiarRoutes: merge(
+      local.familiarRoutes ?? [],
+      incoming.familiarRoutes ?? [],
+    ),
+    restPoints: merge(local.restPoints ?? [], incoming.restPoints ?? []),
+  });
 }
 export function placeCardText(p: PersonalPlace) {
   return `${p.position.system === "demo" ? "模拟地点。" : ""}我要去：${p.name}。地址：${p.address || "地址待补充"}。认准这里：${p.landmark || "入口地标待补充"}。${p.openingHours ? `记录的营业时间：${p.openingHours}。` : ""}${p.note ? `出门提醒：${p.note}。` : ""}地点由本人或协助者记录，开放情况请在出发前确认。`;

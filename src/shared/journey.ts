@@ -90,8 +90,18 @@ const inBand = (minute: number, start: string, end: string) => {
 };
 // Scenario crossings are evenly spaced along route distance, not observed junctions.
 // Evaluate the wait at arrival, including delays accumulated at previous crossings.
-export function estimateJourney(meters: number, input: JourneyPreferences) {
+export function estimateJourney(
+  meters: number,
+  input: JourneyPreferences,
+  elapsedSeconds = 0,
+) {
   const p = cleanJourney(input);
+  if (
+    !Number.isFinite(elapsedSeconds) ||
+    elapsedSeconds < 0 ||
+    elapsedSeconds > 86400
+  )
+    throw new Error("累计出行时间无效。");
   if (!Number.isFinite(meters) || meters < 0 || meters > 100_000)
     throw new Error("路线距离超出试算范围。");
   const walkingSeconds = meters / p.speedMps;
@@ -103,7 +113,10 @@ export function estimateJourney(meters: number, input: JourneyPreferences) {
   for (let i = 1; i <= crossings; i++) {
     const arrival =
       (clockMinute(p.departure) +
-        ((i * 1000) / s.crossingsPerKm / p.speedMps + waitingSeconds) / 60) %
+        (elapsedSeconds +
+          (i * 1000) / s.crossingsPerKm / p.speedMps +
+          waitingSeconds) /
+          60) %
       1440;
     waitingSeconds +=
       inBand(arrival, s.morningStart, s.morningEnd) ||
