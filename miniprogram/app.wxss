@@ -5,6 +5,13 @@ page {
   font-size: 30rpx;
   line-height: 1.6;
 }
+.outing-entry {
+  margin: 0 0 24rpx;
+  padding: 20rpx;
+  font-size: 30rpx;
+  line-height: 1.5;
+  border-radius: 16rpx;
+}
 .privacy-overlay {
   position: fixed;
   inset: 0;

@@ -103,16 +103,14 @@ export function sceneFromReport(
       position: { system: "bd09", ...result.center.geo },
     },
     facilities: [
-      ...result.facilities
-        .filter(usableFacility)
-        .map((f) => ({
-          id: `f-${f.id}`,
-          name: f.name,
-          position: f.geo
-            ? { system: "bd09" as const, ...f.geo }
-            : position(f.point),
-          category: f.category,
-        })),
+      ...result.facilities.filter(usableFacility).map((f) => ({
+        id: `f-${f.id}`,
+        name: f.name,
+        position: f.geo
+          ? { system: "bd09" as const, ...f.geo }
+          : position(f.point),
+        category: f.category,
+      })),
       ...personal.map((p) => ({ ...p, category: "personal" })),
     ],
     samples,

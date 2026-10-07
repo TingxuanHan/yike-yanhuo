@@ -111,6 +111,7 @@ test("public server requires pairing auth, protects jobs and handles stale write
     });
   assert.equal((await call("/api/quota")).status, 401);
   assert.equal((await call("/api/life")).status, 401);
+  assert.equal((await call("/api/outings/routes", "POST", {})).status, 401);
   assert.equal(
     (await call("/api/life/create", "POST", { client: "mini" })).status,
     403,
@@ -121,6 +122,44 @@ test("public server requires pairing auth, protects jobs and handles stale write
   const b = (await (
     await call("/api/life/create", "POST", { invite, client: "mini" })
   ).json()) as any;
+  const outingInput = {
+    nodes: [
+      {
+        id: "home",
+        name: "示例起点",
+        position: { system: "demo", x: -400, y: 0 },
+      },
+      {
+        id: "shop",
+        name: "示例菜场",
+        position: { system: "demo", x: -600, y: -200 },
+      },
+    ],
+    pairs: [["home", "shop"]],
+  };
+  const outing = await call(
+    "/api/outings/routes",
+    "POST",
+    outingInput,
+    a.token,
+  );
+  assert.equal(outing.status, 200);
+  assert.equal(((await outing.json()) as any).edges[0].travel.status, "ok");
+  assert.equal(
+    (
+      await call(
+        "/api/outings/routes",
+        "POST",
+        { ...outingInput, pairs: Array(7).fill(["home", "shop"]) },
+        a.token,
+      )
+    ).status,
+    400,
+  );
+  const quota = (await (
+    await call("/api/quota", "GET", undefined, a.token)
+  ).json()) as any;
+  assert.equal(quota.used.route, 0);
   assert.equal(
     (
       await call(

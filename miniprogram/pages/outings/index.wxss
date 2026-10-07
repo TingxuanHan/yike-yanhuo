@@ -1,0 +1,144 @@
+.outing-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin: 12rpx 0 28rpx;
+}
+.outing-heading button {
+  margin: 0;
+  font-size: 25rpx;
+  padding: 8rpx 18rpx;
+}
+.outing-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12rpx;
+  margin-bottom: 26rpx;
+}
+.outing-tabs button {
+  margin: 0;
+  width: 100%;
+  font-size: 28rpx;
+  padding: 18rpx 10rpx;
+  line-height: 1.5;
+  background: #e9efed;
+  color: #243f48;
+}
+.outing-tabs .active {
+  background: #146c5d;
+  color: white;
+}
+.outing-fields,
+.source-buttons,
+.step-actions {
+  display: flex;
+  gap: 16rpx;
+}
+.outing-fields > label,
+.source-buttons > button,
+.step-actions > button {
+  flex: 1;
+  min-width: 0;
+}
+.source-buttons button {
+  margin-top: 0;
+}
+.outing-page .task-row {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  border-bottom: 1rpx solid #dce6e2;
+}
+.task-row button {
+  flex: 1;
+}
+.task-row label {
+  width: 200rpx;
+  flex: none;
+  font-size: 25rpx;
+}
+.candidate {
+  border-top: 1rpx solid #dce6e2;
+  padding: 20rpx 0;
+}
+.candidate .outing-fields label {
+  margin-bottom: 0;
+}
+.outing-page button {
+  white-space: normal;
+  word-break: break-word;
+}
+.outing-page .timeline {
+  margin: 26rpx 0 8rpx;
+  padding-left: 22rpx;
+  border-left: 5rpx solid #146c5d;
+}
+.timeline text {
+  display: block;
+  margin: 22rpx 0;
+}
+.step-editor {
+  padding: 24rpx 0;
+  border-top: 2rpx solid #dce6e2;
+}
+.outing-page textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1rpx solid #a9bdb5;
+  border-radius: 10rpx;
+  min-height: 120rpx;
+  padding: 18rpx;
+}
+.route-photo {
+  width: 100%;
+  max-width: 600rpx;
+  display: block;
+  border-radius: 12rpx;
+  margin: 20rpx 0;
+}
+.outing-page .step-actions button {
+  font-size: 26rpx;
+  padding: 18rpx 8rpx;
+}
+.step-count {
+  display: block;
+  font-size: 28rpx;
+  color: #146c5d;
+  margin: 18rpx 0;
+}
+.familiar-card .heading {
+  font-size: 44rpx;
+}
+.route-instruction {
+  display: block;
+  font-size: 40rpx;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+.care-mode {
+  font-size: 36rpx;
+}
+.care-mode .muted {
+  font-size: 32rpx;
+}
+.care-mode .outing-tabs button,
+.care-mode input,
+.care-mode .picker {
+  font-size: 32rpx;
+}
+.care-mode .heading {
+  font-size: 42rpx;
+}
+.care-mode .route-instruction {
+  font-size: 46rpx;
+}
+.care-mode .task-row {
+  display: block;
+}
+.care-mode .task-row label {
+  width: auto;
+}
+.care-mode .outing-fields {
+  display: block;
+}

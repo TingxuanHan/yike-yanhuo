@@ -4,6 +4,7 @@ import {
   cleanPlace,
   emptyBook,
   MAX_BOOK_BYTES,
+  mergeBooks,
   placeCardText,
   type LifeBook,
   type LifeSnapshot,
@@ -14,6 +15,7 @@ import { cleanJourney, type JourneyPreferences } from "../shared/journey.js";
 import type { AnalysisResult, Facility } from "../shared/types.js";
 import { downloadJson, post, request } from "./api.js";
 import { preparePlacePhoto } from "./place-photo.js";
+import { OutingsPanel } from "./OutingsPanel.js";
 
 const KEY = "yike-life-v1";
 function readLocal() {
@@ -49,6 +51,7 @@ export function LifePanel({
   onSection: (s: "places" | "preferences" | "sync") => void;
 }) {
   const [initial] = useState(readLocal);
+  const [showOutings, setShowOutings] = useState(false);
   const [book, setBook] = useState<LifeBook>(initial.book);
   const [prefs, setPrefs] = useState(book.preferences);
   const [status, setStatus] = useState("");
@@ -177,12 +180,30 @@ export function LifePanel({
     speech.onerror = () => setError("朗读不可用，请查看大字卡片或打印。");
     window.speechSynthesis.speak(speech);
   };
+  if (showOutings)
+    return (
+      <div className="life-panel">
+        <button
+          className="secondary no-print"
+          onClick={() => setShowOutings(false)}
+        >
+          返回我的日常
+        </button>
+        <OutingsPanel book={book} save={save} result={result} />
+      </div>
+    );
   return (
     <div className="life-panel">
       <div className="life-heading no-print">
         <p className="eyebrow">自己记，也可以请家人帮忙记</p>
         <h2>我的日常</h2>
         <p>按自己的节奏出门，把熟悉的小店和入口留下来。</p>
+        <button
+          className="primary outing-entry"
+          onClick={() => setShowOutings(true)}
+        >
+          出门办事 · 熟路与歇脚
+        </button>
       </div>
       <div className="life-tabs no-print" role="group" aria-label="日常功能">
         {(
@@ -850,7 +871,9 @@ export function LifePanel({
         {incoming && (
           <div className="sync-preview">
             <p>
-              服务器有 {incoming.book.places.length} 个地点，版本{" "}
+              服务器有 {incoming.book.places.length} 个地点、
+              {incoming.book.familiarRoutes?.length ?? 0} 条熟路、
+              {incoming.book.restPoints?.length ?? 0} 个休息点，版本{" "}
               {incoming.revision}。选择后仍需手动同步，才会修改服务器。
             </p>
             <div className="life-actions">
@@ -874,12 +897,8 @@ export function LifePanel({
                 disabled={busy}
                 onClick={() =>
                   void action(() => {
-                    const places = new Map(
-                      incoming.book.places.map((p) => [p.id, p]),
-                    );
-                    book.places.forEach((p) => places.set(p.id, p));
                     setUndo(book);
-                    save({ ...book, places: [...places.values()] });
+                    save(mergeBooks(book, incoming.book));
                     setRevision(incoming.revision);
                     setIncoming(null);
                     setStatus(

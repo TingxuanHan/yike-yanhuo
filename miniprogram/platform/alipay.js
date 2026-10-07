@@ -1,5 +1,14 @@
 // Reserved adapter; an Alipay app manifest, permission review and device QA are still required.
 module.exports = {
+  openOutings() {
+    return new Promise((resolve, reject) =>
+      my.navigateTo({
+        url: "/pages/outings/index",
+        success: resolve,
+        fail: () => reject(new Error("出门办事页面尚未适配当前平台。")),
+      }),
+    );
+  },
   get(key) {
     return my.getStorageSync({ key }).data;
   },

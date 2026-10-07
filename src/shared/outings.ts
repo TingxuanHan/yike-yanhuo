@@ -35,6 +35,12 @@ export interface FamiliarRoute {
   checkedOn: string;
   steps: FamiliarStep[];
 }
+export interface FamiliarDraft {
+  id: string | null;
+  name: string;
+  checkedOn: string;
+  steps: FamiliarStep[];
+}
 export interface RestPoint extends OutingNode {
   checkedOn: string;
   validUntil: string;
@@ -115,6 +121,7 @@ export function cleanFamiliarRoute(v: unknown): FamiliarRoute {
   const r = v as FamiliarRoute;
   if (
     !r ||
+    typeof r.id !== "string" ||
     !/^[a-zA-Z0-9_-]{1,80}$/.test(r.id) ||
     !validDate(r.checkedOn) ||
     r.checkedOn > todayLocal() ||
@@ -142,6 +149,52 @@ export function cleanFamiliarRoute(v: unknown): FamiliarRoute {
         title: text(s.title, 80),
         instruction: text(s.instruction, 300),
         ...(s.photo ? { photo: s.photo } : {}),
+      };
+    }),
+  };
+}
+export const emptyFamiliarDraft = (): FamiliarDraft => ({
+  id: null,
+  name: "",
+  checkedOn: todayLocal(),
+  steps: [
+    { title: "", instruction: "" },
+    { title: "", instruction: "" },
+  ],
+});
+export function cleanFamiliarDraft(value: unknown): FamiliarDraft {
+  const d = value as FamiliarDraft;
+  if (
+    !d ||
+    (d.id !== null &&
+      (typeof d.id !== "string" || !/^[a-zA-Z0-9_-]{1,80}$/.test(d.id))) ||
+    !validDate(d.checkedOn) ||
+    !Array.isArray(d.steps) ||
+    d.steps.length > 8
+  )
+    throw new Error("熟路草稿格式无效，请检查本机保存内容。");
+  return {
+    id: d.id,
+    name: text(d.name, 80, false),
+    checkedOn: d.checkedOn,
+    steps: d.steps.map((s) => {
+      const validated = cleanFamiliarRoute({
+        id: "draft",
+        name: "草稿",
+        checkedOn: todayLocal(),
+        steps: [
+          {
+            ...s,
+            title: s?.title || "待填写",
+            instruction: s?.instruction || "待填写",
+          },
+          { title: "待填写", instruction: "待填写" },
+        ],
+      }).steps[0];
+      return {
+        ...validated,
+        title: text(s.title, 80, false),
+        instruction: text(s.instruction, 300, false),
       };
     }),
   };
@@ -273,11 +326,16 @@ export function planErrands(
     throw new Error("请选择1—3件事。");
   const names = new Map(bundle.nodes.map((n) => [n.id, n.name]));
   if (!names.has(origin)) throw new Error("出发点缺失。");
+  for (const w of Object.values(openings)) {
+    if (!w || clockMinute(w.start) === clockMinute(w.end))
+      throw new Error("开门和关门时间不能相同；未知营业时间请留空。");
+  }
   for (const t of tasks) {
     bounded(t.stayMinutes, 0, 60, "每站停留需为0—60分钟。");
     if (
       !t.candidates.length ||
       t.candidates.length > 2 ||
+      new Set(t.candidates).size !== t.candidates.length ||
       t.candidates.some((id) => !names.has(id) || id === origin)
     )
       throw new Error("每件事请选择1—2个有效候选地点。");
@@ -493,6 +551,8 @@ export function compareAddition(
     samples.length > 6 ||
     !baseline.length ||
     baseline.length > 3 ||
+    new Set(samples).size !== samples.length ||
+    new Set(baseline).size !== baseline.length ||
     baseline.includes(added) ||
     samples.some((s) => baseline.includes(s) || s === added)
   )

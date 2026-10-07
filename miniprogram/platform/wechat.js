@@ -1,5 +1,8 @@
 // Platform access stays here so pages and the server contract remain portable.
 module.exports = {
+  reveal(selector) {
+    wx.pageScrollTo?.({ selector, duration: 0 });
+  },
   watchPrivacy(owner) {
     if (typeof wx.onNeedPrivacyAuthorization !== "function") return () => {};
     const pending = new Set();
@@ -182,6 +185,16 @@ module.exports = {
         success: resolve,
         fail: () =>
           reject(new Error("卡片已生成，页面未能打开，请在分享管理中重试。")),
+      }),
+    );
+  },
+  openOutings() {
+    return new Promise((resolve, reject) =>
+      wx.navigateTo({
+        url: "/pages/outings/index",
+        success: resolve,
+        fail: () =>
+          reject(new Error("出门办事页面未能打开，请重新编译后重试。")),
       }),
     );
   },

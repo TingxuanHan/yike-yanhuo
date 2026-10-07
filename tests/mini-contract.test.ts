@@ -87,6 +87,27 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
   assert.equal(page.data.book.places[0].position.system, "gcj02");
   await page.create();
   assert.equal(page.data.connected, true);
+  page.data.book.familiarRoutes = [
+    {
+      id: "to-shop",
+      name: "去小店的熟路",
+      checkedOn: "2026-10-01",
+      steps: [
+        { title: "东门", instruction: "沿人行道走" },
+        { title: "蓝色雨棚", instruction: "从东侧入口进" },
+      ],
+    },
+  ];
+  page.data.book.restPoints = [
+    {
+      id: "rest-shop",
+      name: "雨棚下长椅",
+      position: page.data.book.places[0].position,
+      checkedOn: "2026-10-01",
+      validUntil: "2026-10-30",
+      note: "座位在北侧",
+    },
+  ];
   await page.push();
   assert.equal(page.data.revision, 1);
   await page.pair();
@@ -104,6 +125,9 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
     });
   const snapshot = (await (await call("/api/life")).json()) as any;
   assert.equal(snapshot.book.places[0].name, "未收录小店");
+  assert.equal(snapshot.book.familiarRoutes[0].steps[1].title, "蓝色雨棚");
+  assert.equal(snapshot.book.restPoints[0].position.system, "gcj02");
+  snapshot.book.familiarRoutes[0].steps[1].instruction = "从Web补充：东侧入口";
   snapshot.book.places[0].landmark = "东门雨棚";
   await call("/api/life", "PUT", snapshot);
   page.data.book.places[0].landmark = "本机未同步草稿";
@@ -113,6 +137,10 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
   await page.pull();
   await page.applyIncoming({ currentTarget: { dataset: { merge: false } } });
   assert.equal(page.data.book.places[0].landmark, "东门雨棚");
+  assert.equal(
+    page.data.book.familiarRoutes[0].steps[1].instruction,
+    "从Web补充：东侧入口",
+  );
   await page.demo();
   assert.equal(page.data.result.mode, "demo");
   page.data.book.preferences.minutes = 20;

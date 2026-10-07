@@ -6,6 +6,7 @@ const {
   cleanPlace,
   placeCardText,
   utf8Bytes,
+  mergeBooks,
 } = require("../../shared/life.js");
 const { cleanJourney } = require("../../shared/journey.js");
 const experience = require("../../shared/experience.js");
@@ -109,6 +110,22 @@ Page({
     this.drawMap();
   },
   onShow() {
+    try {
+      const saved = platform.get("yike-life");
+      if (saved) {
+        const book = cleanBook(saved);
+        this.setData({ book });
+        this.setData({
+          placeItems: experience.placeList(
+            book.places,
+            this.data.searchQuery,
+            this.data.favoritesOnly,
+          ),
+        });
+      }
+    } catch (e) {
+      this.setData({ error: e.message });
+    }
     this.releasePrivacy?.();
     this.releasePrivacy = platform.watchPrivacy?.(this);
   },
@@ -140,6 +157,9 @@ Page({
   switchTab(e) {
     this.setData({ tab: e.currentTarget.dataset.tab });
     this.drawMap();
+  },
+  openOutings() {
+    return this.action(() => platform.openOutings());
   },
   field(e) {
     this.setData({ [e.currentTarget.dataset.key]: e.detail.value });
@@ -611,9 +631,7 @@ Page({
       this.setData({ undo: this.data.book });
       let book = s.book;
       if (e.currentTarget.dataset.merge) {
-        const places = new Map(s.book.places.map((p) => [p.id, p]));
-        this.data.book.places.forEach((p) => places.set(p.id, p));
-        book = { ...this.data.book, places: [...places.values()] };
+        book = mergeBooks(this.data.book, s.book);
       }
       this.save(book);
       this.setData({
