@@ -4,6 +4,10 @@
 
 本版为原生JS/WXML/WXSS页面，没有嵌入WebView。已实现地点簿、大字卡、出行偏好、私人空间配对、共享报告、分析任务与个人出行试算。完整交互地图与设施核查编辑仍在Web。
 
+## 小程序头像
+
+当前头像采用房屋与“15”形道路结合的版本。微信后台可上传[144像素版](../materials/wechat-avatar-v8-144.png)或[512像素版](../materials/wechat-avatar-v8-512.png)，两者均为小于2MB的PNG。[原始图片](../materials/wechat-avatar-v8-original.png)完整保留，先前版本作为历史设计稿保存。
+
 ## 本机联调
 
 1. 在根目录`npm run build`后`npm start`，Web打开`http://127.0.0.1:8787`。
