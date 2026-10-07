@@ -6,7 +6,7 @@
 
 ## 小程序头像
 
-当前头像采用房屋与“15”形道路结合的版本。微信后台可上传[144像素版](../materials/wechat-avatar-v8-144.png)或[512像素版](../materials/wechat-avatar-v8-512.png)，两者均为小于2MB的PNG。[原始图片](../materials/wechat-avatar-v8-original.png)完整保留，先前版本作为历史设计稿保存。
+当前头像采用房屋与“15”形道路结合的版本。微信后台优先上传[原尺寸压缩版](../materials/wechat-avatar-v8-upload.png)：1254×1254像素、1,586,185字节，小于2MB，压缩前后像素内容一致。另有[144像素版](../materials/wechat-avatar-v8-144.png)和[512像素版](../materials/wechat-avatar-v8-512.png)。[原始图片](../materials/wechat-avatar-v8-original.png)完整保留，先前版本作为历史设计稿保存。
 
 ## 本机联调
 
