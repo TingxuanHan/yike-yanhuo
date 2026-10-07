@@ -1,7 +1,7 @@
 {
   "description": "一刻烟火微信小程序",
   "projectname": "yike-yanhuo",
-  "appid": "touristappid",
+  "appid": "wx43bca392e163360f",
   "compileType": "miniprogram",
   "miniprogramRoot": "./",
   "setting": {
