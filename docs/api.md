@@ -57,3 +57,16 @@
 共享数据类型与边界验证见`src/shared/life.ts`和`journey.ts`。个人地点强制`source:personal`、明确`position.system`，并保留上次到访日期及入口地标。未知字段丢弃，重复编号、非法坐标、超量记录整批拒绝。
 
 试算报告仍兼容`schemaVersion:1`，增加`scenario:{preferences,sourceId,createdAt}`，有效测时保存可选`recordedSeconds`。原5/10/15分钟报告保持兼容；个性化报告使用5分钟、10分钟及用户目标时长中不超过目标的去重阈值。原数据时间及调用统计不变，表示获取基础数据的成本。
+
+## 单地点只读卡片与照片
+
+| 方法与路径 | 权限 / 输入 / 结果 |
+| --- | --- |
+| POST `/api/life/cards` | 设备会话；`place`经过地点校验；返回`id, token, expiresAt`，201 |
+| GET `/api/life/cards` | 设备会话；仅返回本空间有效卡片摘要，不返回分享令牌 |
+| DELETE `/api/life/cards/:id` | 设备会话；只允许撤销本空间卡片 |
+| GET `/api/card` | 无需设备会话；通过`X-Yike-Card`传入32字符分享令牌；返回单地点副本与创建、到期时间 |
+
+分享令牌与设备令牌独立，数据库仅存哈希；七天到期，单空间最多20张有效卡。无效、到期或已撤销返回404；不能用分享令牌读取地点簿、分析接口或其他卡片。响应`Cache-Control:no-store`。浏览器分享把令牌放在URL片段，读取时只发送专用请求头；小程序卡片读取不携带设备令牌，也不改变原服务地址。日志与截图不应记录有效分享令牌。
+
+个人地点增加可选`favorite:boolean`、`openingHours:string`（120字符）和`photo`。照片仅允许JPEG/PNG的base64数据URI，最长64000字符；不允许远程URL或SVG。整个规范化地点簿UTF-8 JSON上限750000字节，旧无照片数据继续兼容。卡片副本去除私人收藏标记。
