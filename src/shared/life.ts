@@ -15,6 +15,23 @@ export interface PersonalPlace {
   visitedOn: string;
   position: PlacePosition;
   source: "personal";
+  favorite?: boolean;
+  openingHours?: string;
+  photo?: string;
+}
+export const MAX_BOOK_BYTES = 750_000;
+export const MAX_PHOTO_LENGTH = 64_000;
+export const utf8Bytes = (s: string) =>
+  encodeURIComponent(s).replace(/%[A-F\d]{2}/g, "x").length;
+export function cleanPhoto(value: unknown): string | undefined {
+  if (value === undefined || value === "") return undefined;
+  if (
+    typeof value !== "string" ||
+    value.length > MAX_PHOTO_LENGTH ||
+    !/^data:image\/(jpeg|png);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)
+  )
+    throw new Error("入口照片须为小于48KB的JPEG或PNG，请重新选择照片。");
+  return value;
 }
 export interface LifeBook {
   format: "yike-life-v1";
@@ -72,6 +89,9 @@ export function cleanPlace(value: unknown): PersonalPlace {
         new Date(p.visitedOn).toISOString().slice(0, 10) !== p.visitedOn))
   )
     throw new Error("到访日期无效。");
+  if (p.favorite !== undefined && typeof p.favorite !== "boolean")
+    throw new Error("收藏状态无效。");
+  const photo = cleanPhoto(p.photo);
   return {
     id: p.id,
     source: "personal",
@@ -81,6 +101,11 @@ export function cleanPlace(value: unknown): PersonalPlace {
     note: text(p.note, 300),
     visitedOn: p.visitedOn,
     position,
+    ...(p.favorite !== undefined ? { favorite: p.favorite } : {}),
+    ...(p.openingHours !== undefined
+      ? { openingHours: text(p.openingHours, 120) }
+      : {}),
+    ...(photo ? { photo } : {}),
   };
 }
 export function cleanBook(value: unknown): LifeBook {
@@ -95,12 +120,15 @@ export function cleanBook(value: unknown): LifeBook {
   const places = b.places.map(cleanPlace);
   if (new Set(places.map((p) => p.id)).size !== places.length)
     throw new Error("地点编号重复，请检查备份文件。");
-  return {
+  const result: LifeBook = {
     format: "yike-life-v1",
     preferences: cleanJourney(b.preferences),
     places,
   };
+  if (utf8Bytes(JSON.stringify(result)) > MAX_BOOK_BYTES)
+    throw new Error("地点簿已接近本机容量，请备份并移除部分入口照片后重试。");
+  return result;
 }
 export function placeCardText(p: PersonalPlace) {
-  return `${p.position.system === "demo" ? "模拟地点。" : ""}我要去：${p.name}。地址：${p.address || "地址待补充"}。认准这里：${p.landmark || "入口地标待补充"}。${p.note ? `出门提醒：${p.note}。` : ""}地点由本人或协助者记录，开放情况请在出发前确认。`;
+  return `${p.position.system === "demo" ? "模拟地点。" : ""}我要去：${p.name}。地址：${p.address || "地址待补充"}。认准这里：${p.landmark || "入口地标待补充"}。${p.openingHours ? `记录的营业时间：${p.openingHours}。` : ""}${p.note ? `出门提醒：${p.note}。` : ""}地点由本人或协助者记录，开放情况请在出发前确认。`;
 }

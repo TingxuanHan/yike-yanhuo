@@ -25,6 +25,7 @@ import { timingSafeEqual, createHash } from "node:crypto";
 import { personalize } from "../core/personalize.js";
 import { cleanJourney } from "../shared/journey.js";
 import { parseResultFile } from "../shared/result-file.js";
+import { MAX_BOOK_BYTES } from "../shared/life.js";
 
 const integer = (
   value: string | undefined,
@@ -232,6 +233,10 @@ export function createApp(
       if (method === "GET" && url.pathname === "/api/config")
         return json(res, 200, config);
       const peer = req.socket.remoteAddress ?? "unknown";
+      if (method === "GET" && url.pathname === "/api/card") {
+        rate("card-read:" + peer, 120);
+        return json(res, 200, life.sharedCard(req.headers["x-yike-card"]));
+      }
       if (method === "POST" && url.pathname === "/api/life/create") {
         rate("create:" + peer, 5, 3600_000);
         const body = await readJson(req);
@@ -262,6 +267,26 @@ export function createApp(
       if (url.pathname.startsWith("/api/life")) {
         const token = tokenOf(req);
         const owner = life.authenticate(token);
+        if (url.pathname === "/api/life/cards") {
+          if (method === "GET") return json(res, 200, life.cards(owner));
+          if (method === "POST") {
+            rate("card-create:" + owner, 20);
+            return json(
+              res,
+              201,
+              life.createCard(owner, (await readJson(req, 90_000)).place),
+            );
+          }
+        }
+        if (method === "DELETE" && url.pathname.startsWith("/api/life/cards/"))
+          return json(
+            res,
+            200,
+            life.revokeCard(
+              owner,
+              url.pathname.slice("/api/life/cards/".length),
+            ),
+          );
         if (method === "GET" && url.pathname === "/api/life")
           return json(res, 200, life.read(owner));
         if (url.pathname === "/api/life/reports") {
@@ -285,7 +310,7 @@ export function createApp(
         }
         if (method === "PUT" && url.pathname === "/api/life") {
           rate("write:" + owner, 120);
-          const body = await readJson(req, 250_000);
+          const body = await readJson(req, MAX_BOOK_BYTES + 1024);
           return json(res, 200, life.write(owner, body.revision, body.book));
         }
         if (method === "POST" && url.pathname === "/api/life/pair") {

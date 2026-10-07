@@ -2,7 +2,13 @@ import { DatabaseSync } from "node:sqlite";
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { cleanBook, emptyBook, type LifeSnapshot } from "../shared/life.js";
+import {
+  cleanBook,
+  cleanPlace,
+  emptyBook,
+  type LifeSnapshot,
+  type PersonalPlace,
+} from "../shared/life.js";
 import { ServiceError } from "./baidu.js";
 import { parseResultFile } from "../shared/result-file.js";
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
@@ -19,7 +25,8 @@ export class LifeStore {
       CREATE TABLE IF NOT EXISTS spaces(id TEXT PRIMARY KEY, revision INTEGER NOT NULL, book TEXT NOT NULL, updated TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS devices(token_hash TEXT PRIMARY KEY, space TEXT NOT NULL, expires INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS pairings(code_hash TEXT PRIMARY KEY, space TEXT NOT NULL, expires INTEGER NOT NULL);
-      CREATE TABLE IF NOT EXISTS reports(space TEXT NOT NULL, id TEXT NOT NULL, body TEXT NOT NULL, saved TEXT NOT NULL, PRIMARY KEY(space,id));`);
+      CREATE TABLE IF NOT EXISTS reports(space TEXT NOT NULL, id TEXT NOT NULL, body TEXT NOT NULL, saved TEXT NOT NULL, PRIMARY KEY(space,id));
+      CREATE TABLE IF NOT EXISTS cards(id TEXT PRIMARY KEY, space TEXT NOT NULL, token_hash TEXT UNIQUE NOT NULL, body TEXT NOT NULL, created TEXT NOT NULL, expires INTEGER NOT NULL);`);
   }
   close() {
     this.db.close();
@@ -112,6 +119,85 @@ export class LifeStore {
       .prepare("INSERT INTO pairings VALUES (?,?,?)")
       .run(hash(code), space, this.now() + 5 * 60_000);
     return { code, expiresAt: new Date(this.now() + 5 * 60_000).toISOString() };
+  }
+  createCard(space: string, value: unknown) {
+    let place: PersonalPlace;
+    try {
+      place = cleanPlace(value);
+    } catch (e) {
+      throw new ServiceError((e as Error).message, 400);
+    }
+    const { favorite: _favorite, ...snapshot } = place;
+    this.db.prepare("DELETE FROM cards WHERE expires<=?").run(this.now());
+    const count = this.db
+      .prepare("SELECT count(*) AS n FROM cards WHERE space=?")
+      .get(space) as { n: number };
+    if (count.n >= 20)
+      throw new ServiceError("最多保留20张有效分享卡，请先撤销旧卡片。", 409);
+    const id = randomUUID(),
+      token = randomBytes(24).toString("base64url");
+    const createdAt = new Date(this.now()).toISOString(),
+      expires = this.now() + 7 * DAY;
+    this.db
+      .prepare("INSERT INTO cards VALUES (?,?,?,?,?,?)")
+      .run(
+        id,
+        space,
+        hash(token),
+        JSON.stringify(snapshot),
+        createdAt,
+        expires,
+      );
+    return { id, token, expiresAt: new Date(expires).toISOString() };
+  }
+  sharedCard(token: unknown) {
+    if (typeof token !== "string" || !/^[A-Za-z0-9_-]{32}$/.test(token))
+      throw new ServiceError(
+        "地点卡链接无效或已过期，请联系分享者重新生成。",
+        404,
+      );
+    const row = this.db
+      .prepare(
+        "SELECT body,created,expires FROM cards WHERE token_hash=? AND expires>?",
+      )
+      .get(hash(token), this.now()) as
+      { body: string; created: string; expires: number } | undefined;
+    if (!row)
+      throw new ServiceError(
+        "地点卡已过期或被撤销，请联系分享者重新生成。",
+        404,
+      );
+    return {
+      place: cleanPlace(JSON.parse(row.body)),
+      createdAt: row.created,
+      expiresAt: new Date(row.expires).toISOString(),
+    };
+  }
+  cards(space: string) {
+    const rows = this.db
+      .prepare(
+        "SELECT id,body,created,expires FROM cards WHERE space=? AND expires>? ORDER BY created DESC",
+      )
+      .all(space, this.now()) as {
+      id: string;
+      body: string;
+      created: string;
+      expires: number;
+    }[];
+    return rows.map((r) => ({
+      id: r.id,
+      name: JSON.parse(r.body).name as string,
+      createdAt: r.created,
+      expiresAt: new Date(r.expires).toISOString(),
+    }));
+  }
+  revokeCard(space: string, id: string) {
+    const result = this.db
+      .prepare("DELETE FROM cards WHERE space=? AND id=?")
+      .run(space, id);
+    if (!result.changes)
+      throw new ServiceError("地点卡不存在或已被撤销。", 404);
+    return { ok: true };
   }
   reports(space: string) {
     const rows = this.db

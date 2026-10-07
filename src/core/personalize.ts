@@ -13,6 +13,7 @@ import { reconcileEvidence } from "./poi-evidence.js";
 export function personalize(
   source: AnalysisResult,
   input: JourneyPreferences,
+  identity?: { id: string; createdAt: string },
 ): AnalysisResult {
   const preferences = cleanJourney(input);
   const transform = (travel: Travel): Travel =>
@@ -63,7 +64,7 @@ export function personalize(
     warnings.push("出行试算：范围触及采样边界，当前面积仅覆盖已采样区域。");
   return reconcileEvidence({
     ...source,
-    id: crypto.randomUUID(),
+    id: identity?.id ?? crypto.randomUUID(),
     contours,
     samples,
     facilities: source.facilities.map((f) => ({
@@ -74,7 +75,7 @@ export function personalize(
     scenario: {
       preferences,
       sourceId: source.scenario?.sourceId ?? source.id,
-      createdAt: new Date().toISOString(),
+      createdAt: identity?.createdAt ?? new Date().toISOString(),
     },
     parameters: {
       ...source.parameters,
