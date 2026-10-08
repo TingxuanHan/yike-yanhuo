@@ -21,10 +21,11 @@ export function movementView(report: ReturnType<typeof planMovement>) {
     returnText: report.complete
       ? `整趟${minutes(report.totalMinutes)} · ${report.finish}返回`
       : "当前营业条件无法完成原定行程",
-    brisk: `稍快走${minutes(report.briskMinutes)}`,
+    brisk: `${report.complete ? "" : "已核算部分 · "}稍快走${minutes(report.briskMinutes)}`,
     other: `等待${minutes(report.waitingMinutes)} · 停留${minutes(report.stayMinutes)}`,
-    extra:
-      report.extraMinutes >= 0
+    extra: !report.complete
+      ? "行程未完成，暂不比较与原方案的用时。"
+      : report.extraMinutes >= 0
         ? `比原方案多用${minutes(report.extraMinutes)}`
         : `比原方案少用${minutes(-report.extraMinutes)}`,
     goal: report.complete

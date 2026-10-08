@@ -9,6 +9,7 @@ import {
 } from "../src/shared/movement.js";
 import { cleanBook, emptyBook, mergeBooks } from "../src/shared/life.js";
 import { estimateJourney } from "../src/shared/journey.js";
+import { movementView } from "../src/mini/movement.js";
 const close = (a: number, b: number) =>
   assert.ok(Math.abs(a - b) < 1e-6, `${a} != ${b}`);
 
@@ -103,6 +104,17 @@ test("pacing rechecks opening windows, total budget, additional time and verifie
   const impossible = planMovement(closed, defaultMovement());
   assert.equal(impossible.complete, false);
   assert.equal(impossible.feasible, false);
+  close(
+    impossible.totalMinutes,
+    impossible.walkingMinutes +
+      impossible.waitingMinutes +
+      impossible.stayMinutes,
+  );
+  close(
+    impossible.walkingMinutes,
+    impossible.legs.reduce((v, l) => v + l.walking, 0),
+  );
+  assert.match(movementView(impossible).extra, /暂不比较/);
   const midnight = demoMovementTrip();
   midnight.prefs.departure = "23:55";
   midnight.stops[0].opening = { start: "23:00", end: "02:00" };

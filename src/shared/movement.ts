@@ -303,13 +303,16 @@ export function planMovement(input: MovementTrip, settings: MovementSettings) {
     longest = Math.max(longest, continuous);
     walked += seconds;
     const arrival = elapsed + seconds + wait;
-    const openingWait =
+    const opening =
       openingDelay(start + arrival / 60, stop.stayMinutes, stop.opening) * 60;
-    if (!Number.isFinite(openingWait)) {
+    const closed = !Number.isFinite(opening);
+    const openingWait = closed ? 0 : opening,
+      stay = closed ? 0 : stop.stayMinutes;
+    if (closed) {
       issues.push(`${stop.name}的停留无法放进所填营业时段。`);
-      break;
     }
     const rests =
+      !closed &&
       !!stop.rest &&
       stop.rest.validUntil >= todayLocal() &&
       stop.stayMinutes >= 1;
@@ -318,9 +321,9 @@ export function planMovement(input: MovementTrip, settings: MovementSettings) {
     if (stop.rest && !rests)
       notes.push(`${stop.name}的休息核验已过期或停留不足，未当作歇脚。`);
     if (rests) continuous = 0;
-    elapsed = arrival + openingWait + stop.stayMinutes * 60;
+    elapsed = arrival + openingWait + stay * 60;
     allWait += wait + openingWait;
-    allStay += stop.stayMinutes * 60;
+    allStay += stay * 60;
     legs.push({
       name: stop.name,
       arrival: formatClock(start + arrival / 60),
@@ -329,10 +332,11 @@ export function planMovement(input: MovementTrip, settings: MovementSettings) {
       walking: seconds / 60,
       signalWait: wait / 60,
       openingWait: openingWait / 60,
-      stay: stop.stayMinutes,
+      stay,
       rests,
       meters: stop.meters,
     });
+    if (closed) break;
   }
   const extra = elapsed / 60 - trip.originalMinutes;
   if (elapsed / 60 > trip.budgetMinutes + 1e-7)
