@@ -66,4 +66,13 @@ module.exports = {
       }),
     );
   },
+  openMovement() {
+    return new Promise((resolve, reject) =>
+      my.navigateTo({
+        url: "/pages/movement/index",
+        success: resolve,
+        fail: () => reject(new Error("步行节奏页面尚未完成平台适配。")),
+      }),
+    );
+  },
 };

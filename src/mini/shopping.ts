@@ -33,6 +33,7 @@ import {
   type OutingScene,
 } from "./outings.js";
 import type { AnalysisResult, QuotaSnapshot } from "../shared/types.js";
+import { movementTrip, type MovementTrip } from "../shared/movement.js";
 export * from "../shared/shopping.js";
 
 const uuid = () =>
@@ -210,6 +211,7 @@ export class ShoppingSession {
   private alive = true;
   private undone: PriceRecord | null = null;
   private undoneItem: ShoppingItem | null = null;
+  private movementTrips: MovementTrip[] = [];
   constructor(
     book: LifeBook,
     report: AnalysisResult | null,
@@ -316,6 +318,7 @@ export class ShoppingSession {
   }
   private clear() {
     this.state.plans = [];
+    this.movementTrips = [];
     this.state.error = "";
     this.state.status = "";
   }
@@ -790,6 +793,26 @@ export class ShoppingSession {
       );
       if (this.cancelled) throw new Error("已停止计算，已读取的路线仍保留。");
       const result = planShopping(bundle, origin, stores, data, s.prefs, rest);
+      const openings = Object.fromEntries(
+        stores
+          .filter((n) => n.open && n.close)
+          .map((n) => [n.id, { start: n.open!, end: n.close! }]),
+      );
+      this.movementTrips = result.plans.map((p) =>
+        movementTrip(
+          p.visits,
+          {
+            source: "shopping",
+            mode: s.demo ? "demo" : "baidu",
+            origin: origin.name,
+            originalMinutes: p.totalMinutes,
+            budgetMinutes: data.options.minutes,
+            prefs: s.prefs,
+          },
+          openings,
+          rest,
+        ),
+      );
       s.plans = result.plans.map((p, i) => ({
         id: `plan-${i}`,
         title: p.labels.join(" · "),
@@ -840,5 +863,10 @@ export class ShoppingSession {
     const p = this.state.plans[index];
     if (!p) return "";
     return `${this.state.label}\n${p.title}\n${p.total}\n${p.cost}；${p.coverage}；${p.budget}\n${p.rows.map((r) => `${r.title}：${r.buy || r.detail}`).join("\n")}\n路线仅表示站点顺序；请确认价格、营业与库存。`;
+  }
+  movement(index: number) {
+    const trip = this.movementTrips[index];
+    if (!trip) throw new Error("请重新选择一个完整的购物行程。");
+    return trip;
   }
 }

@@ -8,6 +8,8 @@ import {
 } from "../mini/shopping.js";
 import { request } from "./api.js";
 import "./shopping.css";
+import { MovementPanel } from "./MovementPanel.js";
+import type { MovementTrip } from "../shared/movement.js";
 
 export function ShoppingPanel({
   book,
@@ -23,6 +25,7 @@ export function ShoppingPanel({
   const saveRef = useRef(save);
   saveRef.current = save;
   const [view, setView] = useState<ShoppingView | null>(null);
+  const [movement, setMovement] = useState<MovementTrip | null>(null);
   const [session] = useState(
     () =>
       new ShoppingSession(book, result, {
@@ -82,6 +85,15 @@ export function ShoppingPanel({
       />
     </label>
   );
+  if (movement)
+    return (
+      <MovementPanel
+        trip={movement}
+        book={book}
+        save={save}
+        back={() => setMovement(null)}
+      />
+    );
   return (
     <section className="shopping-panel outing-panel">
       <button className="subtle" onClick={back} disabled={s.busy}>
@@ -515,6 +527,18 @@ export function ShoppingPanel({
                     onClick={() => session.change("tab", "prices")}
                   >
                     买完补记价格
+                  </button>
+                  <button
+                    className="subtle"
+                    onClick={() => {
+                      try {
+                        setMovement(session.movement(i));
+                      } catch (e) {
+                        session.message((e as Error).message, true);
+                      }
+                    }}
+                  >
+                    这趟顺路动一动
                   </button>
                 </div>
               </article>

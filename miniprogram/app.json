@@ -3,7 +3,8 @@
     "pages/home/index",
     "pages/card/index",
     "pages/outings/index",
-    "pages/shopping/index"
+    "pages/shopping/index",
+    "pages/movement/index"
   ],
   "window": {
     "navigationBarTitleText": "一刻烟火",

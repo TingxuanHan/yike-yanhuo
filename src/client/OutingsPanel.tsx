@@ -31,6 +31,12 @@ import { post, request } from "./api.js";
 import { preparePlacePhoto } from "./place-photo.js";
 import "./outings.css";
 import { ShoppingPanel } from "./ShoppingPanel.js";
+import { MovementPanel } from "./MovementPanel.js";
+import {
+  movementTrip,
+  demoMovementTrip,
+  type MovementTrip,
+} from "../shared/movement.js";
 
 const tabs = [
   ["errands", "一趟办齐"],
@@ -49,6 +55,7 @@ export function OutingsPanel({
   result: AnalysisResult | null;
 }) {
   const [shopping, setShopping] = useState(false);
+  const [movement, setMovement] = useState<MovementTrip | null>(null);
   const [tab, setTab] = useState<(typeof tabs)[number][0]>("errands"),
     [example, setExample] = useState(result?.mode !== "baidu");
   const scene = useMemo(
@@ -68,7 +75,9 @@ export function OutingsPanel({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [status, setStatus] = useState("");
-  const [plans, setPlans] = useState<ReturnType<typeof itineraryText>[]>([]),
+  const [plans, setPlans] = useState<
+      (ReturnType<typeof itineraryText> & { movement: MovementTrip })[]
+    >([]),
     [restResult, setRestResult] = useState<ReturnType<
       typeof planRestJourney
     > | null>(null),
@@ -235,6 +244,15 @@ export function OutingsPanel({
       0,
     );
   };
+  if (movement)
+    return (
+      <MovementPanel
+        book={book}
+        save={save}
+        trip={movement}
+        back={() => setMovement(null)}
+      />
+    );
   if (shopping)
     return (
       <ShoppingPanel
@@ -360,6 +378,13 @@ export function OutingsPanel({
             onClick={() => setShopping(true)}
           >
             顺路好买 · 按清单与预算安排
+          </button>
+          <button
+            className="outing-entry subtle"
+            disabled={busy}
+            onClick={() => setMovement(demoMovementTrip())}
+          >
+            顺路动一动 · 先看离线示例
           </button>
           <fieldset className="outing-form no-print" disabled={busy}>
             <legend>这趟想做什么</legend>
@@ -502,7 +527,23 @@ export function OutingsPanel({
                     budget,
                     windows,
                   );
-                  setPlans(r.plans.map(itineraryText));
+                  setPlans(
+                    r.plans.map((p) => ({
+                      ...itineraryText(p),
+                      movement: movementTrip(
+                        p.visits,
+                        {
+                          source: "errands",
+                          mode: scene.mode,
+                          origin: scene.origin.name,
+                          originalMinutes: p.totalMinutes,
+                          budgetMinutes: budget,
+                          prefs: validPrefs,
+                        },
+                        windows,
+                      ),
+                    })),
+                  );
                   setStatus(
                     r.plans.length
                       ? "已计入返程、停留和所填的营业时间。"
@@ -535,6 +576,12 @@ export function OutingsPanel({
                     {n}
                   </p>
                 ))}
+                <button
+                  className="subtle"
+                  onClick={() => setMovement(p.movement)}
+                >
+                  这趟顺路动一动
+                </button>
               </article>
             ))}
           </div>

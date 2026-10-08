@@ -224,6 +224,17 @@ Page({
     await this.session.calculate();
     if (this.data.plans.length) platform.reveal?.(".shopping-result");
   },
+  async movement(e) {
+    try {
+      platform.set(
+        "yike-movement-trip",
+        this.session.movement(Number(e.currentTarget.dataset.index)),
+      );
+      await platform.openMovement();
+    } catch (e) {
+      this.session.message(e.message, true);
+    }
+  },
   async copy(e) {
     try {
       await platform.clipboard(

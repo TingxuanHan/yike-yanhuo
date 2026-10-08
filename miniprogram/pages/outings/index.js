@@ -3,6 +3,7 @@ const api = require("../../services/api.js");
 const { emptyBook, cleanBook } = require("../../shared/life.js");
 const { cleanJourney } = require("../../shared/journey.js");
 const outing = require("../../shared/outings-ui.js");
+const { movementTrip, demoMovementTrip } = require("../../shared/movement.js");
 const experience = require("../../shared/experience.js");
 const blankStep = () => ({ title: "", instruction: "" });
 Page({
@@ -128,6 +129,20 @@ Page({
     this.cancelled = true;
     this.releasePrivacy?.();
   },
+  async movement(e) {
+    try {
+      const index = e.currentTarget.dataset.index;
+      const trip =
+        index === undefined
+          ? demoMovementTrip()
+          : this.movementTrips?.[Number(index)];
+      if (!trip) throw new Error("请先重新计算并选择一趟完整行程。");
+      platform.set("yike-movement-trip", trip);
+      await platform.openMovement();
+    } catch (e) {
+      this.setData({ error: e.message });
+    }
+  },
   privacyAgree() {
     this.resolvePrivacy?.(true);
   },
@@ -142,6 +157,7 @@ Page({
     }
   },
   clearResults() {
+    this.movementTrips = [];
     this.setData({ plans: [], restPlans: [], impact: null });
   },
   rebuild() {
@@ -396,6 +412,20 @@ Page({
             : "当前候选中没有符合时间预算的方案；可延长时间、减少任务或检查缺失路线。",
         },
         () => platform.reveal?.(r.plans.length ? ".outing-result" : ".notice"),
+      );
+      this.movementTrips = r.plans.map((p) =>
+        movementTrip(
+          p.visits,
+          {
+            source: "errands",
+            mode: this.scene.mode,
+            origin: this.scene.origin.name,
+            originalMinutes: p.totalMinutes,
+            budgetMinutes: this.data.budget,
+            prefs,
+          },
+          windows,
+        ),
       );
     });
   },

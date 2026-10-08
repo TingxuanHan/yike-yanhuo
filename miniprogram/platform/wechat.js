@@ -207,6 +207,16 @@ module.exports = {
       }),
     );
   },
+  openMovement() {
+    return new Promise((resolve, reject) =>
+      wx.navigateTo({
+        url: "/pages/movement/index",
+        success: resolve,
+        fail: () =>
+          reject(new Error("步行节奏页面未能打开，请重新编译后重试。")),
+      }),
+    );
+  },
   revealSelected() {
     wx.pageScrollTo?.({ selector: ".selected-place", duration: 200 });
   },

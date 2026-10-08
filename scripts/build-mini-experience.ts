@@ -37,6 +37,16 @@ await build({
   legalComments: "inline",
 });
 demo.id = "offline-neighborhood-v1";
+await build({
+  entryPoints: ["src/mini/movement.ts"],
+  outfile: "miniprogram/shared/movement-ui.js",
+  bundle: true,
+  platform: "neutral",
+  format: "cjs",
+  target: "es2020",
+  minify: true,
+  legalComments: "inline",
+});
 demo.generatedAt = "2026-10-07T00:00:00.000Z";
 demo.elapsedMs = 0;
 await writeFile(
