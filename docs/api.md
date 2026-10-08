@@ -81,3 +81,11 @@
 `book`增加两个可选数组：`familiarRoutes`最多12条，字段为`id,name,checkedOn,steps:[{title,instruction,photo?}]`；每条2—8步，照片规则与个人地点一致。`restPoints`最多30条，字段为`id,name,position,checkedOn,validUntil,note`，核验日期不能晚于今天，有效期不超过90天。仍使用`yike-life-v1`和750000字节总上限，旧无新字段的文件可读取。当前两端合并同时保留这两类记录，同编号冲突保留本机值。
 
 办事顺序、营业等待、休息规划及补点计算在两端共用`src/shared/outings.ts`，不是新的百度接口。算法及受限候选含义见[出门办事](outings.md)。
+
+## 购物记录与预算
+
+`book.shopping`是可选对象，包含`items,options,prices,blocked`。`items`最多5项，保存名称、规格、单位、品牌、1—99整数数量和是否接受其他品牌；`options`保存金额、整趟时间、最多到店数、额外时间、停留与休息条件。`prices`最多150条，每条包含`id,store,product,kind,low,high,observedOn,validDays,stock,source,liked`。`kind`为商品单价、每人或每次消费参考；价格两端同为`null`表示未知。日期不得在未来，参考期1—90天，金额至多两位小数。`blocked`最多100个标准商品标识。
+
+旧地点簿不需要该字段。继续使用原有私人空间API、版本检查与整本750000字节上限；白名单校验丢弃额外字段。手动合并保留本机清单和预算，价格按编号合并且同编号本机优先，排除偏好取并集。
+
+购物算法在两端共用`src/shared/shopping.ts`，真实路线复用`POST /api/outings/routes`；无新增百度数据源或价格查询接口。先验证候选、清单与可比记录，再读取最多30个有向路段；未知价格不计为完整报价。详细限制见[顺路好买](shopping.md)。
