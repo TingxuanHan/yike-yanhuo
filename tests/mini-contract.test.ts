@@ -6,6 +6,7 @@ import { resolve, dirname, sep } from "node:path";
 import { once } from "node:events";
 import type { AddressInfo } from "node:net";
 import { createApp } from "../src/server/app.js";
+import { defaultShopping } from "../src/shared/shopping.js";
 
 // Execute the actual page and platform adapter against a real keyless HTTP server.
 // This checks contracts, not WeChat rendering, permissions or phone compatibility.
@@ -108,6 +109,39 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
       note: "座位在北侧",
     },
   ];
+  page.data.book.shopping = {
+    ...defaultShopping(),
+    items: [
+      {
+        id: "milk",
+        name: "牛奶",
+        spec: "250毫升",
+        unit: "盒",
+        brand: "甲",
+        quantity: 2,
+        alternatives: false,
+      },
+    ],
+    prices: [
+      {
+        id: "milk-paid",
+        store: {
+          id: "p-shop",
+          name: "未收录小店",
+          position: page.data.book.places[0].position,
+        },
+        product: { name: "牛奶", spec: "250毫升", unit: "盒", brand: "甲" },
+        kind: "item",
+        low: 3.5,
+        high: 3.5,
+        observedOn: "2026-10-01",
+        validDays: 7,
+        stock: "seen",
+        source: "paid",
+        liked: true,
+      },
+    ],
+  };
   await page.push();
   assert.equal(page.data.revision, 1);
   await page.pair();
@@ -127,6 +161,9 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
   assert.equal(snapshot.book.places[0].name, "未收录小店");
   assert.equal(snapshot.book.familiarRoutes[0].steps[1].title, "蓝色雨棚");
   assert.equal(snapshot.book.restPoints[0].position.system, "gcj02");
+  assert.equal(snapshot.book.shopping.prices[0].low, 3.5);
+  assert.equal(snapshot.book.shopping.items[0].quantity, 2);
+  snapshot.book.shopping.items[0].quantity = 3;
   snapshot.book.familiarRoutes[0].steps[1].instruction = "从Web补充：东侧入口";
   snapshot.book.places[0].landmark = "东门雨棚";
   await call("/api/life", "PUT", snapshot);
@@ -137,6 +174,8 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
   await page.pull();
   await page.applyIncoming({ currentTarget: { dataset: { merge: false } } });
   assert.equal(page.data.book.places[0].landmark, "东门雨棚");
+  assert.equal(page.data.book.shopping.items[0].quantity, 3);
+  assert.equal(page.data.book.shopping.prices[0].liked, true);
   assert.equal(
     page.data.book.familiarRoutes[0].steps[1].instruction,
     "从Web补充：东侧入口",

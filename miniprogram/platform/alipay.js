@@ -57,4 +57,13 @@ module.exports = {
       }),
     );
   },
+  openShopping() {
+    return new Promise((resolve, reject) =>
+      my.navigateTo({
+        url: "/pages/shopping/index",
+        success: resolve,
+        fail: () => reject(new Error("购物页面尚未完成平台适配。")),
+      }),
+    );
+  },
 };

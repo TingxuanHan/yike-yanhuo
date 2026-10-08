@@ -30,6 +30,7 @@ import {
 import { post, request } from "./api.js";
 import { preparePlacePhoto } from "./place-photo.js";
 import "./outings.css";
+import { ShoppingPanel } from "./ShoppingPanel.js";
 
 const tabs = [
   ["errands", "一趟办齐"],
@@ -47,6 +48,7 @@ export function OutingsPanel({
   save: (b: LifeBook) => void;
   result: AnalysisResult | null;
 }) {
+  const [shopping, setShopping] = useState(false);
   const [tab, setTab] = useState<(typeof tabs)[number][0]>("errands"),
     [example, setExample] = useState(result?.mode !== "baidu");
   const scene = useMemo(
@@ -233,6 +235,15 @@ export function OutingsPanel({
       0,
     );
   };
+  if (shopping)
+    return (
+      <ShoppingPanel
+        book={book}
+        save={save}
+        result={result}
+        back={() => setShopping(false)}
+      />
+    );
   return (
     <div className="outing-panel">
       <div className="life-heading no-print">
@@ -343,6 +354,13 @@ export function OutingsPanel({
       )}
       {tab === "errands" && (
         <>
+          <button
+            className="outing-entry primary"
+            disabled={busy}
+            onClick={() => setShopping(true)}
+          >
+            顺路好买 · 按清单与预算安排
+          </button>
           <fieldset className="outing-form no-print" disabled={busy}>
             <legend>这趟想做什么</legend>
             <label>

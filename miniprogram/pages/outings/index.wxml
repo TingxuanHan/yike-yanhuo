@@ -9,6 +9,7 @@
     <view class="outing-fields"><label>出发时间<picker mode="time" value="{{prefs.departure}}" data-key="prefs.departure" bindchange="field" disabled="{{busy}}"><view class="picker">{{prefs.departure}}</view></picker></label><label>步速（米/秒）<input type="digit" value="{{prefs.speedMps}}" data-key="prefs.speedMps" data-number="true" bindinput="field" disabled="{{busy}}"/></label></view><text class="muted">{{prefs.signals.enabled?'沿用出行偏好的等灯假设，未接入实时行人信号。':'未计入等灯。可在“我的”出行偏好中设置等待假设。'}}</text></view>
   </view>
   <view wx:if="{{tab==='errands'}}">
+    <button class="primary" id="shopping-entry" bindtap="shopping" disabled="{{busy}}">顺路好买 · 按清单与预算安排</button>
     <view class="section"><text class="heading">这趟想做什么</text><label>出门到回来的总时间（分钟）<input type="number" value="{{budget}}" data-key="budget" data-number="true" bindinput="field" disabled="{{busy}}"/></label>
       <view class="task-row" wx:for="{{taskRows}}" wx:key="id"><button data-index="{{index}}" bindtap="task" disabled="{{busy}}" class="{{item.checked?'primary':'secondary'}}">{{item.checked?'✓ ':''}}{{item.label}}</button><label wx:if="{{item.checked}}">停留（分钟）<input type="number" value="{{item.stay}}" data-index="{{index}}" bindinput="stay" disabled="{{busy}}"/></label></view>
       <text class="muted">最多三件事，每件事比较最多两处地点，整趟最多五处候选。</text>

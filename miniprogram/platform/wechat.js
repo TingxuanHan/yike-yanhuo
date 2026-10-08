@@ -198,6 +198,15 @@ module.exports = {
       }),
     );
   },
+  openShopping() {
+    return new Promise((resolve, reject) =>
+      wx.navigateTo({
+        url: "/pages/shopping/index",
+        success: resolve,
+        fail: () => reject(new Error("购物页面未能打开，请重新编译后重试。")),
+      }),
+    );
+  },
   revealSelected() {
     wx.pageScrollTo?.({ selector: ".selected-place", duration: 200 });
   },

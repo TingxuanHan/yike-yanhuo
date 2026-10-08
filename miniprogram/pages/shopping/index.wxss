@@ -1,0 +1,132 @@
+.shopping-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin: 12rpx 0 28rpx;
+}
+.shopping-heading button {
+  margin: 0;
+  font-size: 25rpx;
+  padding: 10rpx 16rpx;
+}
+.shopping-page button {
+  white-space: normal;
+  word-break: break-word;
+  font-size: 28rpx;
+  line-height: 1.5;
+  min-height: 88rpx;
+  padding: 20rpx 16rpx;
+}
+.shopping-page .row {
+  display: flex;
+  gap: 16rpx;
+}
+.row > label,
+.row > button {
+  flex: 1;
+  min-width: 0;
+}
+.row > button {
+  margin: 14rpx 0;
+}
+.source {
+  border-left: 6rpx solid #146c5d;
+}
+.shopping-item {
+  padding: 22rpx 0;
+  border-bottom: 2rpx solid #dce6e2;
+}
+.shopping-item:first-of-type {
+  padding-top: 0;
+}
+.item-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14rpx;
+}
+.item-heading .small {
+  margin: 0;
+  padding: 10rpx 24rpx;
+  font-size: 25rpx;
+  min-height: 76rpx;
+}
+.shopping-page .choice {
+  font-size: 25rpx;
+  padding: 18rpx 12rpx;
+  background: #edf5f1;
+}
+.shopping-page .row label {
+  font-size: 25rpx;
+}
+.shopping-page input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 88rpx;
+  min-height: 88rpx;
+}
+.store-row {
+  border-top: 1rpx solid #dce6e2;
+  padding: 18rpx 0;
+}
+.shopping-result {
+  border-top: 8rpx solid #146c5d;
+  border-radius: 0 0 18rpx 18rpx;
+}
+.shopping-result > text {
+  display: block;
+  margin: 16rpx 0;
+}
+.shopping-result .total {
+  font-size: 44rpx;
+  font-weight: 650;
+}
+.comparison {
+  border-top: 2rpx dashed #a9bdb5;
+  border-bottom: 2rpx dashed #a9bdb5;
+  padding: 20rpx 0;
+}
+.timeline {
+  border-left: 5rpx solid #146c5d;
+  margin: 26rpx 0;
+  padding-left: 22rpx;
+}
+.timeline > view {
+  margin: 24rpx 0;
+  padding-bottom: 18rpx;
+  border-bottom: 1rpx solid #dce6e2;
+}
+.timeline text {
+  display: block;
+  margin: 12rpx 0;
+}
+.price-record .place-name,
+.price-record .price {
+  display: block;
+  margin: 14rpx 0;
+}
+.price {
+  font-size: 34rpx;
+  font-weight: 650;
+}
+.care-mode .row {
+  flex-direction: column;
+  gap: 0;
+}
+.care-mode .row > label,
+.care-mode .row > button {
+  flex: auto;
+}
+.care-mode .row label,
+.care-mode button {
+  font-size: 34rpx;
+}
+.care-mode .shopping-result .total {
+  font-size: 48rpx;
+}
+.care-mode input {
+  height: 104rpx;
+  min-height: 104rpx;
+}

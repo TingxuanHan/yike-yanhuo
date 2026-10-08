@@ -71,12 +71,15 @@ test("large photo books render in bounded updates and privacy denial preserves d
   page.onUnload();
 });
 test("mini templates use reactive conditions and bind existing page methods", () => {
-  for (const name of ["home", "card", "outings"]) {
+  for (const name of ["home", "card", "outings", "shopping"]) {
     const runtime = miniRuntime(),
       page = runtime.page(name);
+    const source = readFileSync(`miniprogram/pages/${name}/index.wxml`, "utf8");
     const template =
-      readFileSync(`miniprogram/pages/${name}/index.wxml`, "utf8") +
-      readFileSync("miniprogram/components/privacy.wxml", "utf8");
+      source +
+      (source.includes("/components/privacy.wxml")
+        ? readFileSync("miniprogram/components/privacy.wxml", "utf8")
+        : "");
     for (const match of template.matchAll(/\{\{([\s\S]+?)\}\}/g))
       assert.doesNotThrow(
         () => new vm.Script(`(${match[1]})`),

@@ -116,6 +116,13 @@ Page({
     this.releasePrivacy?.();
     this.releasePrivacy = null;
   },
+  async shopping() {
+    try {
+      await platform.openShopping();
+    } catch (e) {
+      this.setData({ error: e.message });
+    }
+  },
   onUnload() {
     this.alive = false;
     this.cancelled = true;
