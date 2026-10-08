@@ -9,6 +9,7 @@ import {
   type FamiliarRoute,
   type RestPoint,
 } from "./outings.js";
+import { cleanShopping, mergeShopping, type ShoppingBook } from "./shopping.js";
 export type PlacePosition =
   | { system: "demo"; x: number; y: number }
   | { system: "bd09" | "gcj02" | "wgs84"; lng: number; lat: number };
@@ -45,6 +46,7 @@ export interface LifeBook {
   places: PersonalPlace[];
   familiarRoutes?: FamiliarRoute[];
   restPoints?: RestPoint[];
+  shopping?: ShoppingBook;
 }
 export interface LifeSnapshot {
   revision: number;
@@ -138,6 +140,9 @@ export function cleanBook(value: unknown): LifeBook {
     ...(b.restPoints !== undefined
       ? { restPoints: cleanItems(b.restPoints, cleanRestPoint, 30) }
       : {}),
+    ...(b.shopping !== undefined
+      ? { shopping: cleanShopping(b.shopping) }
+      : {}),
   };
   if (utf8Bytes(JSON.stringify(result)) > MAX_BOOK_BYTES)
     throw new Error("地点簿已接近本机容量，请备份并移除部分入口照片后重试。");
@@ -167,6 +172,9 @@ export function mergeBooks(local: LifeBook, incoming: LifeBook): LifeBook {
       incoming.familiarRoutes ?? [],
     ),
     restPoints: merge(local.restPoints ?? [], incoming.restPoints ?? []),
+    ...(local.shopping || incoming.shopping
+      ? { shopping: mergeShopping(local.shopping, incoming.shopping) }
+      : {}),
   });
 }
 export function placeCardText(p: PersonalPlace) {

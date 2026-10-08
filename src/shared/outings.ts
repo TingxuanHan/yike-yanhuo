@@ -273,7 +273,7 @@ function edgeTravel(bundle: RouteBundle, from: string, to: string) {
     ? t
     : null;
 }
-function leg(
+export function leg(
   bundle: RouteBundle,
   from: string,
   to: string,
@@ -290,7 +290,7 @@ function leg(
     total: e.seconds / 60,
   };
 }
-function openingDelay(at: number, stay: number, w?: OpeningWindow) {
+export function openingDelay(at: number, stay: number, w?: OpeningWindow) {
   if (!w) return 0;
   const a = clockMinute(w.start),
     b = clockMinute(w.end);
