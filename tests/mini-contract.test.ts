@@ -7,6 +7,7 @@ import { once } from "node:events";
 import type { AddressInfo } from "node:net";
 import { createApp } from "../src/server/app.js";
 import { defaultShopping } from "../src/shared/shopping.js";
+import { defaultMovement } from "../src/shared/movement.js";
 
 // Execute the actual page and platform adapter against a real keyless HTTP server.
 // This checks contracts, not WeChat rendering, permissions or phone compatibility.
@@ -142,6 +143,7 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
       },
     ],
   };
+  page.data.book.movement = { ...defaultMovement(), targetMinutes: 25 };
   await page.push();
   assert.equal(page.data.revision, 1);
   await page.pair();
@@ -163,6 +165,8 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
   assert.equal(snapshot.book.restPoints[0].position.system, "gcj02");
   assert.equal(snapshot.book.shopping.prices[0].low, 3.5);
   assert.equal(snapshot.book.shopping.items[0].quantity, 2);
+  assert.equal(snapshot.book.movement.targetMinutes, 25);
+  snapshot.book.movement.targetMinutes = 30;
   snapshot.book.shopping.items[0].quantity = 3;
   snapshot.book.familiarRoutes[0].steps[1].instruction = "从Web补充：东侧入口";
   snapshot.book.places[0].landmark = "东门雨棚";
@@ -175,6 +179,7 @@ test("mini page records a location, pairs with Web, preserves a conflicting draf
   await page.applyIncoming({ currentTarget: { dataset: { merge: false } } });
   assert.equal(page.data.book.places[0].landmark, "东门雨棚");
   assert.equal(page.data.book.shopping.items[0].quantity, 3);
+  assert.equal(page.data.book.movement.targetMinutes, 30);
   assert.equal(page.data.book.shopping.prices[0].liked, true);
   assert.equal(
     page.data.book.familiarRoutes[0].steps[1].instruction,

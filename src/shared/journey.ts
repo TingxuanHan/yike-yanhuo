@@ -88,6 +88,18 @@ const inBand = (minute: number, start: string, end: string) => {
     b = clockMinute(end);
   return a < b ? minute >= a && minute < b : minute >= a || minute < b;
 };
+export function signalWaitSeconds(
+  p: JourneyPreferences,
+  elapsedSeconds: number,
+) {
+  if (!p.signals.enabled) return 0;
+  const minute = (clockMinute(p.departure) + elapsedSeconds / 60) % 1440;
+  const s = p.signals;
+  return inBand(minute, s.morningStart, s.morningEnd) ||
+    inBand(minute, s.eveningStart, s.eveningEnd)
+    ? s.peakSeconds
+    : s.offPeakSeconds;
+}
 // Scenario crossings are evenly spaced along route distance, not observed junctions.
 // Evaluate the wait at arrival, including delays accumulated at previous crossings.
 export function estimateJourney(
@@ -111,18 +123,12 @@ export function estimateJourney(
     ? Math.floor((meters * s.crossingsPerKm) / 1000)
     : 0;
   for (let i = 1; i <= crossings; i++) {
-    const arrival =
-      (clockMinute(p.departure) +
-        (elapsedSeconds +
-          (i * 1000) / s.crossingsPerKm / p.speedMps +
-          waitingSeconds) /
-          60) %
-      1440;
-    waitingSeconds +=
-      inBand(arrival, s.morningStart, s.morningEnd) ||
-      inBand(arrival, s.eveningStart, s.eveningEnd)
-        ? s.peakSeconds
-        : s.offPeakSeconds;
+    waitingSeconds += signalWaitSeconds(
+      p,
+      elapsedSeconds +
+        (i * 1000) / s.crossingsPerKm / p.speedMps +
+        waitingSeconds,
+    );
   }
   return {
     walkingSeconds,
