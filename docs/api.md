@@ -89,3 +89,9 @@
 旧地点簿不需要该字段。继续使用原有私人空间API、版本检查与整本750000字节上限；白名单校验丢弃额外字段。手动合并保留本机清单和预算，价格按编号合并且同编号本机优先，排除偏好取并集。
 
 购物算法在两端共用`src/shared/shopping.ts`，真实路线复用`POST /api/outings/routes`；无新增百度数据源或价格查询接口。先验证候选、清单与可比记录，再读取最多30个有向路段；未知价格不计为完整报价。详细限制见[顺路好买](shopping.md)。
+
+## 步行节奏偏好
+
+`book.movement`为可选对象：`mode:easy|alternating`、`easyMps,briskMps,targetMinutes,maxExtraMinutes,warmMinutes,briskMinutes,recoverMinutes,returnEasy,continuousMinutes`。数值范围与字段白名单见`src/shared/movement.ts`；交替模式的稍快步速必须高于轻松步速。旧地点簿兼容，仍使用原空间API、版本冲突机制和总大小限制，手动合并优先保留本机步行偏好。
+
+已选行程快照与未保存设置仅留在设备本地，快照包含有向距离、地点名称、出发偏好和营业／歇脚信息，不包含坐标。核心`planMovement`与两端共用`MovementSession`无网络依赖，不产生已完成运动记录，没有新增运动、模型或百度接口。
