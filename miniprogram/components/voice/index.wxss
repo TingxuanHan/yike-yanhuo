@@ -1,0 +1,52 @@
+.voice {
+  margin: 24rpx 0;
+  padding: 24rpx;
+  background: #edf4f0;
+  border-radius: 16rpx;
+}
+.title {
+  display: block;
+  font-weight: 600;
+}
+.note {
+  display: block;
+  font-size: 26rpx;
+  color: #526b68;
+  margin: 12rpx 0;
+  line-height: 1.65;
+}
+button {
+  font-size: 30rpx;
+  min-height: 88rpx;
+  margin: 12rpx 0;
+  color: #146c5d;
+}
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 16rpx;
+  background: white;
+  font-size: 32rpx;
+  min-height: 144rpx;
+}
+.error {
+  display: block;
+  color: #a24625;
+}
+.privacy-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(22, 46, 41, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28rpx;
+}
+.privacy-dialog {
+  padding: 32rpx;
+  background: white;
+  border-radius: 20rpx;
+  max-height: 85vh;
+  overflow: auto;
+}

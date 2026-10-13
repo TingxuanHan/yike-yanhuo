@@ -11,6 +11,7 @@ import {
 } from "./outings.js";
 import { cleanShopping, mergeShopping, type ShoppingBook } from "./shopping.js";
 import { cleanMovement, type MovementSettings } from "./movement.js";
+import { cleanTripFeedback, type TripFeedback } from "./trip-feedback.js";
 export type PlacePosition =
   | { system: "demo"; x: number; y: number }
   | { system: "bd09" | "gcj02" | "wgs84"; lng: number; lat: number };
@@ -49,6 +50,7 @@ export interface LifeBook {
   restPoints?: RestPoint[];
   shopping?: ShoppingBook;
   movement?: MovementSettings;
+  trips?: TripFeedback[];
 }
 export interface LifeSnapshot {
   revision: number;
@@ -148,6 +150,9 @@ export function cleanBook(value: unknown): LifeBook {
     ...(b.movement !== undefined
       ? { movement: cleanMovement(b.movement) }
       : {}),
+    ...(b.trips !== undefined
+      ? { trips: cleanItems(b.trips, cleanTripFeedback, 30) }
+      : {}),
   };
   if (utf8Bytes(JSON.stringify(result)) > MAX_BOOK_BYTES)
     throw new Error("地点簿已接近本机容量，请备份并移除部分入口照片后重试。");
@@ -159,10 +164,10 @@ function cleanItems<T extends { id: string }>(
   max: number,
 ): T[] {
   if (!Array.isArray(items) || items.length > max)
-    throw new Error("熟路或休息点数量超出本机容量。");
+    throw new Error("私人记录数量超出本机容量。");
   const result = items.map(clean);
   if (new Set(result.map((r) => r.id)).size !== result.length)
-    throw new Error("熟路或休息点编号重复。");
+    throw new Error("私人记录编号重复。");
   return result;
 }
 export function mergeBooks(local: LifeBook, incoming: LifeBook): LifeBook {
@@ -182,6 +187,13 @@ export function mergeBooks(local: LifeBook, incoming: LifeBook): LifeBook {
       : {}),
     ...(local.movement || incoming.movement
       ? { movement: local.movement ?? incoming.movement }
+      : {}),
+    ...(local.trips || incoming.trips
+      ? {
+          trips: merge(local.trips ?? [], incoming.trips ?? [])
+            .sort((a, b) => b.date.localeCompare(a.date))
+            .slice(0, 30),
+        }
       : {}),
   });
 }

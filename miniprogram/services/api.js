@@ -21,7 +21,7 @@ async function request(path, method = "GET", data) {
     timeout:
       path === "/api/outings/routes"
         ? 60000
-        : path === "/api/ai/parse"
+        : path === "/api/ai/parse" || path === "/api/ai/voice"
           ? 35000
           : 15000,
     header: {

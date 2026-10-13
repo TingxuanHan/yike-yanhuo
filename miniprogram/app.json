@@ -5,7 +5,8 @@
     "pages/outings/index",
     "pages/shopping/index",
     "pages/movement/index",
-    "pages/planning/index"
+    "pages/planning/index",
+    "pages/trip/index"
   ],
   "window": {
     "navigationBarTitleText": "一刻烟火",
@@ -14,6 +15,7 @@
     "backgroundColor": "#f4f8f7"
   },
   "permission": {
+    "scope.record": { "desc": "仅在你主动录音时，将出门需求转成可核对的文字" },
     "scope.userLocation": {
       "desc": "仅在你选择记录地点时，用于标记小店或常去地点的位置"
     }

@@ -1,0 +1,126 @@
+.trip-panel {
+  max-width: 1050px;
+  margin: auto;
+}
+.trip-summary {
+  padding: 8px 0 18px;
+}
+.trip-plans,
+.trip-panel .planning-error,
+.trip-panel .planning-status {
+  scroll-margin-top: 24px;
+}
+.trip-check {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  margin: 8px 0;
+}
+.trip-check input {
+  width: 22px !important;
+  min-height: 22px !important;
+  flex: 0 0 22px;
+}
+.trip-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  font-variant-numeric: tabular-nums;
+}
+.trip-metrics strong {
+  font-size: 1.2em;
+  color: #146c5d;
+}
+.trip-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
+.trip-timeline li {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 18px;
+  padding: 0 0 24px;
+}
+.trip-timeline li > div {
+  border-left: 2px solid #c8dfd6;
+  padding-left: 18px;
+}
+.trip-timeline time {
+  font-variant-numeric: tabular-nums;
+  color: #146c5d;
+  font-weight: 600;
+}
+.trip-timeline p {
+  margin: 4px 0;
+}
+.trip-plan > button,
+.trip-calculate {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 16px;
+}
+.trip-big-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 24px 0;
+}
+.trip-big-actions button {
+  min-height: 64px;
+  font-size: 1.15rem;
+}
+.trip-diff {
+  border-left: 4px solid #146c5d;
+  padding: 12px 16px;
+  background: #edf4f0;
+  margin-top: 20px;
+}
+.voice-input {
+  margin: 16px 0;
+  border-top: 1px solid #d5e3df;
+  padding-top: 12px;
+}
+.voice-input summary,
+.trip-panel summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+  color: #146c5d;
+  font-weight: 600;
+}
+.trip-active h3 {
+  font-size: 1.7rem;
+}
+.trip-panel textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 80px;
+}
+.trip-panel select {
+  min-height: 44px;
+  max-width: 100%;
+}
+@media (max-width: 480px) {
+  .trip-timeline li {
+    grid-template-columns: 66px 1fr;
+    gap: 8px;
+  }
+  .trip-big-actions {
+    grid-template-columns: 1fr;
+  }
+  .trip-metrics {
+    display: grid;
+    gap: 8px;
+  }
+  .trip-panel .planning-actions > * {
+    max-width: 100%;
+  }
+}
+@media print {
+  .trip-plan button,
+  .voice-input {
+    display: none;
+  }
+}

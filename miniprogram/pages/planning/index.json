@@ -1,1 +1,4 @@
-{ "navigationBarTitleText": "一句话安排" }
+{
+  "navigationBarTitleText": "一句话安排",
+  "usingComponents": { "voice-input": "/components/voice/index" }
+}

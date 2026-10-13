@@ -12,6 +12,7 @@ export type AiTransport = (
   config: ModelConfig,
   prompt: string,
   signal: AbortSignal,
+  system?: string,
 ) => Promise<string>;
 export const MAX_COMPLETION = 800;
 export const MAX_THINKING = 128;
@@ -88,14 +89,18 @@ export function cleanModelConfig(
     key: p.key,
   };
 }
-export function planningRequest(config: ModelConfig, prompt: string) {
+export function planningRequest(
+  config: ModelConfig,
+  prompt: string,
+  system = PLANNING_SYSTEM,
+) {
   const siliconflow = new URL(config.baseUrl).hostname === "api.siliconflow.cn";
   const compactXing = siliconflow && config.model === "XingChenAGI/Xing4.0-29B";
   const compactQwen = siliconflow && config.model === "Qwen/Qwen3-8B";
   return {
     model: config.model,
     messages: [
-      { role: "system", content: PLANNING_SYSTEM },
+      { role: "system", content: system },
       { role: "user", content: prompt },
     ],
     max_tokens: MAX_COMPLETION,
@@ -109,14 +114,19 @@ export function planningRequest(config: ModelConfig, prompt: string) {
       : {}),
   };
 }
-export const chatTransport: AiTransport = async (config, prompt, signal) => {
+export const chatTransport: AiTransport = async (
+  config,
+  prompt,
+  signal,
+  system,
+) => {
   const url = new URL(config.baseUrl + "/chat/completions");
   const records = await lookup(url.hostname, { all: true });
   signal.throwIfAborted();
   if (!records.length || records.some((r) => !publicAddress(r.address)))
     throw new ServiceError("接口域名未解析到允许的公网地址。", 400);
   const chosen = records[0];
-  const body = JSON.stringify(planningRequest(config, prompt));
+  const body = JSON.stringify(planningRequest(config, prompt, system));
   return new Promise<string>((resolve, reject) => {
     const req = request(
       url,

@@ -8,6 +8,7 @@ import {
   type PlanningView,
 } from "../mini/planning.js";
 import { request } from "./api.js";
+import { VoiceInput } from "./VoiceInput.js";
 import "./planning.css";
 
 export function PlanningPanel({
@@ -15,7 +16,10 @@ export function PlanningPanel({
   back,
   connect,
 }: {
-  apply: (draft: PlanningDraft, target: "errands" | "shopping") => void;
+  apply: (
+    draft: PlanningDraft,
+    target: "errands" | "shopping" | "trip",
+  ) => void;
   back: () => void;
   connect: () => void;
 }) {
@@ -40,7 +44,7 @@ export function PlanningPanel({
     return () => session.close();
   }, [session]);
   const s = view ?? session.state;
-  const confirm = (target: "errands" | "shopping") => {
+  const confirm = (target: "errands" | "shopping" | "trip") => {
     try {
       apply(session.confirm(), target);
     } catch (e) {
@@ -89,6 +93,7 @@ export function PlanningPanel({
             </button>
           ))}
         </div>
+        <VoiceInput useText={(t) => session.set("text", t)} disabled={s.busy} />
         {s.mode !== "manual" && (
           <>
             <p className="muted">
@@ -308,6 +313,13 @@ export function PlanningPanel({
               onClick={() => confirm("errands")}
             >
               确认，带入办事
+            </button>
+            <button
+              className="primary"
+              disabled={s.busy}
+              onClick={() => confirm("trip")}
+            >
+              确认，合成一趟出门
             </button>
             <button
               className="secondary"

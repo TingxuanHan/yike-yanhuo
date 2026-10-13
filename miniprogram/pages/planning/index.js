@@ -95,7 +95,7 @@ Page({
     try {
       const p = this.session.confirm(),
         target = e.currentTarget.dataset.target;
-      if (!["errands", "shopping"].includes(target)) return;
+      if (!["errands", "shopping", "trip"].includes(target)) return;
       if (
         !(await platform.confirm(
           target === "shopping" && p.items.length
@@ -111,10 +111,14 @@ Page({
       platform.set("yike-life", book);
       if (book.movement) platform.set("yike-movement-draft", book.movement);
       platform.set("yike-planning-handoff", { target, draft: p });
-      if (target === "shopping") await platform.openShopping();
+      if (target === "trip") await platform.openTrip();
+      else if (target === "shopping") await platform.openShopping();
       else await platform.openOutings();
     } catch (e) {
       this.session.message(e.message);
     }
+  },
+  transcript(e) {
+    this.session.set("text", e.detail.text);
   },
 });

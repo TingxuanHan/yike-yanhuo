@@ -164,6 +164,9 @@ Page({
   openPlanning() {
     return this.action(() => platform.openPlanning());
   },
+  openTrip() {
+    return this.action(() => platform.openTrip());
+  },
   field(e) {
     this.setData({ [e.currentTarget.dataset.key]: e.detail.value });
     if (e.currentTarget.dataset.key.startsWith("form.")) this.stashDraft();

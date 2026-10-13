@@ -1,0 +1,4 @@
+{
+  "navigationBarTitleText": "一趟出门",
+  "usingComponents": { "voice-input": "/components/voice/index" }
+}

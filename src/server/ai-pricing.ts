@@ -3,7 +3,7 @@ import { ServiceError } from "./baidu.js";
 
 export const SILICONFLOW_PRICING = "https://www.siliconflow.cn/pricing";
 
-export function hasZeroTokenPrice(html: string, model: string): boolean {
+function priceRows(html: string, model: string) {
   const flight = [
     ...html.matchAll(
       /<script[^>]*>self\.__next_f\.push\(([\s\S]*?)\)<\/script>/g,
@@ -36,6 +36,10 @@ export function hasZeroTokenPrice(html: string, model: string): boolean {
       /* Non-JSON flight records do not contain pricing rows. */
     }
   }
+  return rows;
+}
+export function hasZeroTokenPrice(html: string, model: string): boolean {
+  const rows = priceRows(html, model);
   return (
     ["input-tokens", "output-tokens"].every((code) =>
       rows.some((r) => r.componentCode === code),
@@ -45,6 +49,20 @@ export function hasZeroTokenPrice(html: string, model: string): boolean {
         typeof r.realTimePriceCnyUnit === "string" &&
         /^0+(?:\.0+)?$/.test(r.realTimePriceCnyUnit) &&
         r.unitZhCnName === "K tokens",
+    )
+  );
+}
+export function hasZeroVoicePrice(html: string, model: string): boolean {
+  const rows = priceRows(html, model);
+  return (
+    model === "FunAudioLLM/SenseVoiceSmall" &&
+    rows.length > 0 &&
+    rows.every(
+      (r) =>
+        r.componentCode === "utf8-bytes" &&
+        r.unitZhCnName === "千字符（UTF-8）" &&
+        typeof r.realTimePriceCnyUnit === "string" &&
+        /^0+(?:\.0+)?$/.test(r.realTimePriceCnyUnit),
     )
   );
 }
@@ -80,10 +98,14 @@ export async function requireZeroPrice(
       await reader.cancel();
     }
     if (
-      !hasZeroTokenPrice(Buffer.concat(chunks).toString("utf8"), config.model)
+      !(
+        config.model === "FunAudioLLM/SenseVoiceSmall"
+          ? hasZeroVoicePrice
+          : hasZeroTokenPrice
+      )(Buffer.concat(chunks).toString("utf8"), config.model)
     )
       throw new ServiceError(
-        "官网未确认此模型输入和输出均免费，已停止调用。请手工填写。",
+        "官网未确认此模型仍免费，已停止调用。请手工填写。",
         503,
       );
     signal.throwIfAborted();

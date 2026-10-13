@@ -114,6 +114,7 @@ export function createApp(
   gatewayOverride?: BaiduGateway,
   aiTransport?: AiTransport,
   aiPriceCheck?: typeof requireZeroPrice,
+  voiceTransport?: import("./voice-transport.js").VoiceTransport,
 ) {
   const publicServer =
     Boolean(env.PUBLIC_ORIGIN) ||
@@ -124,7 +125,13 @@ export function createApp(
       "外部部署须配置 HTTPS PUBLIC_ORIGIN，私人地点簿不能通过明文公网传输。",
     );
   const life = new LifeStore(env.PERSONAL_DATA_PATH);
-  const ai = new AiService(env, aiTransport, undefined, aiPriceCheck);
+  const ai = new AiService(
+    env,
+    aiTransport,
+    undefined,
+    aiPriceCheck,
+    voiceTransport,
+  );
   const tokenOf = (req: IncomingMessage) =>
     req.headers.authorization?.replace(/^Bearer /, "") ??
     req.headers.cookie
@@ -276,6 +283,14 @@ export function createApp(
           space = life.authenticate(token);
         if (method === "GET" && url.pathname === "/api/ai/status")
           return json(res, 200, ai.status(token!, space));
+        if (method === "GET" && url.pathname === "/api/ai/voice")
+          return json(res, 200, ai.voiceStatus());
+        if (method === "POST" && url.pathname === "/api/ai/voice")
+          return json(
+            res,
+            200,
+            await ai.transcribe(token!, space, await readJson(req, 2_800_000)),
+          );
         if (method === "PUT" && url.pathname === "/api/ai/settings") {
           rate(`ai-settings:${space}`, 20);
           ai.save(token!, await readJson(req));

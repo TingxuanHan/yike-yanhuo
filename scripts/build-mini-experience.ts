@@ -4,6 +4,20 @@ import { analyze } from "../src/core/analyze.js";
 import { DemoProvider, DEMO_CENTERS } from "../src/core/demo.js";
 await mkdir("miniprogram/shared", { recursive: true });
 await mkdir("miniprogram/assets", { recursive: true });
+for (const [entry, name] of [
+  ["trip", "trip-ui"],
+  ["voice", "voice-ui"],
+])
+  await build({
+    entryPoints: [`src/mini/${entry}.ts`],
+    outfile: `miniprogram/shared/${name}.js`,
+    bundle: true,
+    platform: "neutral",
+    format: "cjs",
+    target: "es2020",
+    minify: true,
+    legalComments: "inline",
+  });
 await build({
   entryPoints: ["src/mini/experience.ts"],
   outfile: "miniprogram/shared/experience.js",

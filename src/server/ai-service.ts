@@ -7,7 +7,16 @@ import {
 } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
-import { parsePlanningAnswer, type AiStatus } from "../shared/planning.js";
+import {
+  cleanPlanning,
+  parsePlanningAnswer,
+  type AiStatus,
+} from "../shared/planning.js";
+import {
+  EDIT_SYSTEM,
+  applyPlanningEdit,
+  planningDiff,
+} from "../shared/planning-edit.js";
 import {
   chatTransport,
   cleanModelConfig,
@@ -19,6 +28,12 @@ import {
 } from "./ai-transport.js";
 import { ServiceError } from "./baidu.js";
 import { requireZeroPrice } from "./ai-pricing.js";
+import {
+  cleanAudio,
+  voiceTransport,
+  VOICE_MODEL,
+  type VoiceTransport,
+} from "./voice-transport.js";
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 const day = (now: number) =>
   new Date(now + 8 * 3600000).toISOString().slice(0, 10);
@@ -46,6 +61,7 @@ export class AiService {
     private transport: AiTransport = chatTransport,
     private now = () => Date.now(),
     private verifyFree = requireZeroPrice,
+    private voice = voiceTransport as VoiceTransport,
   ) {
     const path =
       env.AI_DATA_PATH ||
@@ -218,6 +234,8 @@ export class AiService {
       !/^[A-Za-z0-9_-]{12,80}$/.test(input.requestId)
     )
       throw new ServiceError("请填写600字内需求并明确选择模型来源。", 400);
+    const current =
+      input.current === undefined ? null : cleanPlanning(input.current);
     if (this.busy)
       throw new ServiceError("正在整理另一条需求，请稍后再试。", 429);
     const owner = hash(token),
@@ -230,7 +248,7 @@ export class AiService {
         503,
       );
     const id = hash(owner + ":" + input.requestId),
-      tokens = this.reservation(600);
+      tokens = this.reservation(current ? 1800 : 600);
     this.db.exec("BEGIN IMMEDIATE");
     try {
       this.db
@@ -288,15 +306,25 @@ export class AiService {
           controller.signal.throwIfAborted();
           return this.transport(
             config,
-            input.text as string,
+            current
+              ? JSON.stringify({ current, text: input.text })
+              : (input.text as string),
             controller.signal,
+            current ? EDIT_SYSTEM : undefined,
           );
         })(),
         timeout,
       ]);
       if (answer.includes(config.key)) throw new Error();
-      const draft = parsePlanningAnswer(answer, input.text);
-      return { draft, source: input.mode, model: config.model };
+      const draft = current
+        ? applyPlanningEdit(current, input.text, answer)
+        : parsePlanningAnswer(answer, input.text);
+      return {
+        draft,
+        source: input.mode,
+        model: config.model,
+        changes: current ? planningDiff(current, draft) : [],
+      };
     } catch (e) {
       // Never relay provider text, credentials, raw JSON or a prompt back as an error.
       if (e instanceof ServiceError) throw e;
@@ -307,6 +335,89 @@ export class AiService {
     } finally {
       clearTimeout(timer);
       controller.abort();
+      this.active = null;
+      this.busy = false;
+      if (!this.closed) this.db.prepare("DELETE FROM lease WHERE id=1").run();
+    }
+  }
+  voiceStatus() {
+    return {
+      configured:
+        !!this.platform &&
+        this.platform.baseUrl === "https://api.siliconflow.cn/v1",
+      model: VOICE_MODEL,
+      maxSeconds: 45,
+    };
+  }
+  async transcribe(
+    token: string,
+    space: string,
+    input: Record<string, unknown>,
+  ) {
+    if (!this.voiceStatus().configured || !this.platform)
+      throw new ServiceError("语音服务尚未配置，请先打字。", 503);
+    if (
+      typeof input.requestId !== "string" ||
+      !/^[A-Za-z0-9_-]{12,80}$/.test(input.requestId)
+    )
+      throw new ServiceError("语音请求编号无效。", 400);
+    const clip = cleanAudio(input),
+      id = hash(hash(token) + ":voice:" + input.requestId),
+      config = { ...this.platform, model: VOICE_MODEL };
+    if (this.busy)
+      throw new ServiceError("正在处理另一条需求，请稍后再试。", 429);
+    this.db.exec("BEGIN IMMEDIATE");
+    try {
+      this.db
+        .prepare("DELETE FROM requests WHERE day<?")
+        .run(day(this.now() - 7 * 86400000));
+      const lease = this.db
+        .prepare("SELECT until FROM lease WHERE id=1")
+        .get() as { until: number } | undefined;
+      if (lease && lease.until > this.now())
+        throw new ServiceError("模型服务正在处理请求，请稍后再试。", 429);
+      if (this.db.prepare("SELECT id FROM requests WHERE id=?").get(id))
+        throw new ServiceError("本段语音已发送，请核对结果后再主动重试。", 409);
+      this.db
+        .prepare("INSERT INTO requests VALUES (?,?,?,?,?,?)")
+        .run(id, day(this.now()), hash(token), space, "voice", 0);
+      this.db
+        .prepare("INSERT OR REPLACE INTO lease VALUES(1,?)")
+        .run(this.now() + 35000);
+      this.db.exec("COMMIT");
+    } catch (e) {
+      this.db.exec("ROLLBACK");
+      throw e;
+    }
+    const controller = new AbortController();
+    this.active = controller;
+    this.busy = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const timeout = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          controller.abort();
+          reject(new ServiceError("语音识别超时，请主动重试或直接打字。", 504));
+        }, 30000);
+      });
+      const text = await Promise.race([
+        (async () => {
+          await this.verifyFree(config, controller.signal);
+          controller.signal.throwIfAborted();
+          return this.voice(config, clip, controller.signal);
+        })(),
+        timeout,
+      ]);
+      if (text.includes(config.key) || text.length > 600 || !text.trim())
+        throw new ServiceError("语音结果无效，请重新录制。", 502);
+      return { text, model: VOICE_MODEL };
+    } catch (e) {
+      if (e instanceof ServiceError) throw e;
+      throw new ServiceError("语音识别未完成，请主动重试或直接打字。", 502);
+    } finally {
+      clearTimeout(timer);
+      controller.abort();
+      clip.bytes.fill(0);
       this.active = null;
       this.busy = false;
       if (!this.closed) this.db.prepare("DELETE FROM lease WHERE id=1").run();

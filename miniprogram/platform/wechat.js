@@ -295,4 +295,13 @@ module.exports = {
       }),
     );
   },
+  openTrip() {
+    return new Promise((resolve, reject) =>
+      wx.navigateTo({
+        url: "/pages/trip/index",
+        success: resolve,
+        fail: () => reject(new Error("整趟行程页面未能打开，请重新编译。")),
+      }),
+    );
+  },
 };

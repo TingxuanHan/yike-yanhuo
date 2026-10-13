@@ -3,6 +3,7 @@
   <view class="panel">
     <text class="label">这次想做什么</text>
     <textarea id="planning-text" data-key="text" value="{{text}}" bindinput="field" maxlength="600" disabled="{{busy}}" placeholder="带50元买菜，45分钟内回来，想顺便走20分钟，买完慢慢回家。" />
+    <voice-input disabled="{{busy}}" bind:transcript="transcript"/>
     <view class="modes"><button id="planning-free" data-mode="free" bindtap="mode" class="{{mode === 'free' ? 'primary' : ''}}" disabled="{{busy}}">基础免费AI</button><button data-mode="own" bindtap="mode" class="{{mode === 'own' ? 'primary' : ''}}" disabled="{{busy}}">我的API</button><button id="planning-manual" data-mode="manual" bindtap="mode" class="{{mode === 'manual' ? 'primary' : ''}}" disabled="{{busy}}">手工填写</button></view>
     <block wx:if="{{mode !== 'manual'}}">
       <text class="muted">点击整理，仅发送上面这段文字到所选模型；请避免填写家庭住址等私人信息。</text>
@@ -34,6 +35,7 @@
     <label>返程轻松走<picker range="{{returnChoices}}" value="{{returnIndex}}" bindchange="returnChange" disabled="{{busy}}"><view class="picker-value">{{returnChoices[returnIndex]}}</view></picker></label>
     <text class="muted">确认后保存明确填写的步速、出发时刻和步行目标。带入购物时，商品名称替换购物草稿，请在下一步补全规格和数量。</text>
     <text class="muted" wx:for="{{notes}}" wx:key="*this">{{item}}</text>
+    <button class="primary" bindtap="apply" data-target="trip" disabled="{{busy}}">确认，合成一趟出门</button>
     <button id="planning-apply-errands" class="primary" bindtap="apply" data-target="errands" disabled="{{busy}}">确认，带入办事</button><button id="planning-apply-shopping" bindtap="apply" data-target="shopping" disabled="{{busy}}">确认，带入购物</button>
   </view>
 </view>

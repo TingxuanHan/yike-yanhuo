@@ -18,6 +18,7 @@ import { preparePlacePhoto } from "./place-photo.js";
 import { OutingsPanel } from "./OutingsPanel.js";
 import { PlanningPanel } from "./PlanningPanel.js";
 import { ShoppingPanel } from "./ShoppingPanel.js";
+import { TripPanel } from "./TripPanel.js";
 import { planningBook, type PlanningDraft } from "../shared/planning.js";
 
 const KEY = "yike-life-v1";
@@ -56,9 +57,10 @@ export function LifePanel({
   const [initial] = useState(readLocal);
   const [showOutings, setShowOutings] = useState(false);
   const [planning, setPlanning] = useState(false);
+  const [trip, setTrip] = useState(false);
   const [planningSeed, setPlanningSeed] = useState<{
     draft: PlanningDraft;
-    target: "errands" | "shopping";
+    target: "errands" | "shopping" | "trip";
   } | null>(null);
   const [book, setBook] = useState<LifeBook>(initial.book);
   const [prefs, setPrefs] = useState(book.preferences);
@@ -188,6 +190,36 @@ export function LifePanel({
     speech.onerror = () => setError("朗读不可用，请查看大字卡片或打印。");
     window.speechSynthesis.speak(speech);
   };
+  if (trip)
+    return (
+      <TripPanel
+        book={book}
+        save={save}
+        result={result}
+        seed={planningSeed?.target === "trip" ? planningSeed.draft : undefined}
+        back={() => {
+          setTrip(false);
+          setPlanningSeed(null);
+        }}
+        shopping={() => {
+          setTrip(false);
+          setPlanningSeed({
+            target: "shopping",
+            draft: {
+              tripMinutes: null,
+              shoppingBudget: null,
+              departure: null,
+              speedMps: null,
+              walkingMinutes: null,
+              returnEasy: null,
+              tasks: [],
+              items: [],
+            },
+          });
+          setShowOutings(true);
+        }}
+      />
+    );
   if (planning)
     return (
       <PlanningPanel
@@ -206,7 +238,8 @@ export function LifePanel({
             );
           setPlanningSeed({ draft: p, target });
           setPlanning(false);
-          setShowOutings(true);
+          if (target === "trip") setTrip(true);
+          else setShowOutings(true);
         }}
       />
     );
@@ -249,6 +282,9 @@ export function LifePanel({
         <p className="eyebrow">自己记，也可以请家人帮忙记</p>
         <h2>我的日常</h2>
         <p>按自己的节奏出门，把熟悉的小店和入口留下来。</p>
+        <button className="primary outing-entry" onClick={() => setTrip(true)}>
+          一趟出门 · 边办事边走走
+        </button>
         <button
           className="primary outing-entry"
           onClick={() => setShowOutings(true)}
@@ -931,7 +967,8 @@ export function LifePanel({
               服务器有 {incoming.book.places.length} 个地点、
               {incoming.book.familiarRoutes?.length ?? 0} 条熟路、
               {incoming.book.restPoints?.length ?? 0} 个休息点、
-              {incoming.book.shopping?.prices.length ?? 0} 条价格记录，版本{" "}
+              {incoming.book.shopping?.prices.length ?? 0} 条价格记录、
+              {incoming.book.trips?.length ?? 0} 条行后记录，版本{" "}
               {incoming.revision}。选择后仍需手动同步，才会修改服务器。
             </p>
             <div className="life-actions">
