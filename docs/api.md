@@ -120,3 +120,24 @@
 `book.trips`为可选数组，最多30条，字段为`id,date,mode,origin,completed,difficult,totalMinutes,walkingMinutes,meters,spent,note`。明确区分`demo`和`baidu`，纯步行分钟与实付金额可为null，难走地点必须来自已确认到达的集合。字段白名单和大小检查位于`trip-feedback.ts`。旧地点簿兼容；合并同编号保留本机记录，按日期保留最近30条，仍受整本750000字节上限约束。同步预览会显示行后记录数量。
 
 `meters`是已确认路段的已知道路长度合计，不是GPS实测轨迹。只有符合条件的真实记录才可另经确认更新步速；音频、设备凭证和模型密钥不属于该结构。完整步骤见[一趟出门与语音](trip-and-voice.md)。
+
+## 单次行程协助
+
+拥有者接口沿用私人空间设备鉴权；家人接口仅接受`X-Yike-Assist`能力令牌，不附带拥有者Cookie或Bearer。Web邀请将密钥放在URL片段中，家人请求省略Cookie、禁止重定向并使用`no-referrer`。微信邀请通过页面参数携带能力令牌和服务地址，请求只发给该地址，绝不附带本机私人空间的设备凭证。
+
+| 接口 | 用途 |
+| --- | --- |
+| `GET /api/life/assistance` | 列出当前私人空间未结束的协助。 |
+| `POST /api/life/assistance` | `{snapshot}`，创建1小时会话并仅在创建响应返回`{view,invite}`。同一行程限1个、同一空间限3个有效会话。 |
+| `GET /api/life/assistance/:id` | 拥有者读取当前会话。 |
+| `PUT /api/life/assistance/:id` | `{revision,snapshot}`，更新进度或明确选择的入口照片。快照变化递增`snapshotVersion`并使旧建议失效。 |
+| `POST /api/life/assistance/:id/decision` | `{revision,proposalId,decision:"accepted"或"rejected"}`，拥有者确认处理建议；该接口只记录结果，行程修改由本人客户端核算并保存。 |
+| `DELETE /api/life/assistance/:id` | 立即撤销能力令牌访问，清空会话正文。重复结束仍成功。 |
+| `GET /api/assistance/:id` | 家人读取仅含本次行程信息的`AssistView`。 |
+| `POST /api/assistance/:id` | `{revision,proposal}`，提交一条待确认建议；不直接修改地点簿或行程。 |
+
+快照字段为`tripId,basis,mode,currentId,phase,confirmedAt,stops,homeId,remaining,speedMps,finish,request,guide`；最多6个地点，只包含名称及内部编号。`basis`用于客户端检测本机进度变化。建议包含`id,kind,helper,note,snapshotVersion,change,marker`；类型为`message|plan|entrance`，路线建议仅能选择当前剩余地点，坐标标记是图片内部0—1的归一化位置。所有载荷经过白名单清理与大小校验，格式定义见`shared/assistance.ts`。
+
+版本冲突返回409，已结束或到期返回410，其他空间或错误能力令牌返回404；没有拥有者设备鉴权返回401。能力令牌使用32字节随机数、数据库仅存SHA-256散列。过期访问立即拒绝，清理任务清空正文，过期24小时后的记录删除。服务端沿用来源限制，并为协助读写设置独立请求频率保护，不更改百度或模型配额，也不调用这些服务。
+
+`book.entrances`为可选数组，最多12张私人入口卡，字段为`id,name,photo,x,y,instruction,observedOn,source`。照片沿用已有压缩JPEG/PNG数据格式上限；`source`区分本人记录和家人建议，不构成现场核验。入口卡计入750000字节整本限制，合并同编号保留本机卡，容量溢出时拒绝合并而保留原数据。进行中的协助、邀请密钥及电话不随地点簿同步。
