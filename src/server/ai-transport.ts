@@ -121,7 +121,7 @@ export const chatTransport: AiTransport = async (config, prompt, signal) => {
       },
       (res) => {
         if (res.statusCode !== 200) {
-          res.resume();
+          res.destroy();
           return reject(
             new ServiceError(
               res.statusCode === 429

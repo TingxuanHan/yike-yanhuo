@@ -16,6 +16,9 @@ import type { AnalysisResult, Facility } from "../shared/types.js";
 import { downloadJson, post, request } from "./api.js";
 import { preparePlacePhoto } from "./place-photo.js";
 import { OutingsPanel } from "./OutingsPanel.js";
+import { PlanningPanel } from "./PlanningPanel.js";
+import { ShoppingPanel } from "./ShoppingPanel.js";
+import { planningBook, type PlanningDraft } from "../shared/planning.js";
 
 const KEY = "yike-life-v1";
 function readLocal() {
@@ -52,6 +55,11 @@ export function LifePanel({
 }) {
   const [initial] = useState(readLocal);
   const [showOutings, setShowOutings] = useState(false);
+  const [planning, setPlanning] = useState(false);
+  const [planningSeed, setPlanningSeed] = useState<{
+    draft: PlanningDraft;
+    target: "errands" | "shopping";
+  } | null>(null);
   const [book, setBook] = useState<LifeBook>(initial.book);
   const [prefs, setPrefs] = useState(book.preferences);
   const [status, setStatus] = useState("");
@@ -180,16 +188,59 @@ export function LifePanel({
     speech.onerror = () => setError("朗读不可用，请查看大字卡片或打印。");
     window.speechSynthesis.speak(speech);
   };
+  if (planning)
+    return (
+      <PlanningPanel
+        back={() => setPlanning(false)}
+        connect={() => {
+          setPlanning(false);
+          onSection("sync");
+        }}
+        apply={(p, target) => {
+          const next = planningBook(book, p);
+          save(next);
+          if (next.movement)
+            localStorage.setItem(
+              "yike-movement-draft",
+              JSON.stringify(next.movement),
+            );
+          setPlanningSeed({ draft: p, target });
+          setPlanning(false);
+          setShowOutings(true);
+        }}
+      />
+    );
   if (showOutings)
     return (
       <div className="life-panel">
         <button
           className="secondary no-print"
-          onClick={() => setShowOutings(false)}
+          onClick={() => {
+            setShowOutings(false);
+            setPlanningSeed(null);
+          }}
         >
           返回我的日常
         </button>
-        <OutingsPanel book={book} save={save} result={result} />
+        {planningSeed?.target === "shopping" ? (
+          <ShoppingPanel
+            book={book}
+            save={save}
+            result={result}
+            seed={planningSeed.draft}
+            back={() => {
+              setShowOutings(false);
+              setPlanningSeed(null);
+            }}
+          />
+        ) : (
+          <OutingsPanel
+            book={book}
+            save={save}
+            result={result}
+            seed={planningSeed?.draft}
+          />
+        )}
       </div>
     );
   return (
@@ -203,6 +254,12 @@ export function LifePanel({
           onClick={() => setShowOutings(true)}
         >
           出门办事 · 熟路与歇脚
+        </button>
+        <button
+          className="secondary outing-entry"
+          onClick={() => setPlanning(true)}
+        >
+          一句话安排 · AI辅助
         </button>
       </div>
       <div className="life-tabs no-print" role="group" aria-label="日常功能">

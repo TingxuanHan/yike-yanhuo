@@ -16,6 +16,7 @@
     "pretest": "npm run build:mini",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:ui": "playwright test",
+    "test:planning-live": "node --import tsx scripts/test-planning-live.ts",
     "check": "tsc --noEmit",
     "format": "prettier --write src tests scripts miniprogram *.json *.ts .github/workflows/*.yml",
     "format:check": "prettier --check src tests scripts miniprogram *.json *.ts .github/workflows/*.yml",

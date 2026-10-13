@@ -18,7 +18,12 @@ async function request(path, method = "GET", data) {
     url: base + path,
     method,
     data,
-    timeout: path === "/api/outings/routes" ? 60000 : 15000,
+    timeout:
+      path === "/api/outings/routes"
+        ? 60000
+        : path === "/api/ai/parse"
+          ? 35000
+          : 15000,
     header: {
       "content-type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

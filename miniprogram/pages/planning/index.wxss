@@ -1,0 +1,128 @@
+.planning-page .heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin: 20rpx 0 32rpx;
+}
+.planning-page .panel {
+  background: white;
+  border: 2rpx solid #dce6e2;
+  border-radius: 18rpx;
+  padding: 28rpx;
+  margin: 24rpx 0;
+}
+.planning-page input {
+  border: 2rpx solid #a9bdb5;
+  border-radius: 10rpx;
+  padding: 12rpx 18rpx;
+}
+.planning-page textarea {
+  font-size: 30rpx;
+}
+.planning-page .error,
+.planning-page .status {
+  padding: 24rpx;
+  margin: 20rpx 0;
+  border-left: 6rpx solid #a63724;
+  background: #fff4ef;
+}
+.planning-page .status {
+  border-color: #146c5d;
+  background: #edf5ef;
+}
+.planning-page .title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 650;
+  margin-top: 10rpx;
+}
+.planning-page .subtitle {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  margin: 16rpx 0 24rpx;
+}
+.planning-page .eyebrow {
+  display: block;
+  font-size: 26rpx;
+  color: #146c5d;
+}
+.planning-page label {
+  display: block;
+  margin: 26rpx 0;
+}
+.planning-page input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 88rpx;
+  min-height: 88rpx;
+  margin-top: 12rpx;
+}
+.planning-page textarea {
+  box-sizing: border-box;
+  width: 100%;
+  height: 240rpx;
+  background: #f4f8f7;
+  padding: 20rpx;
+  margin: 20rpx 0;
+  border-radius: 14rpx;
+}
+.planning-page button {
+  min-height: 88rpx;
+  line-height: 1.5;
+  padding: 20rpx 16rpx;
+  white-space: normal;
+  word-break: break-word;
+  margin: 16rpx 0;
+}
+.planning-page .modes,
+.planning-page .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.planning-page .modes button {
+  flex: 1;
+  min-width: 0;
+  padding: 18rpx 8rpx;
+  font-size: 26rpx;
+}
+.planning-page .muted,
+.planning-page .notice {
+  display: block;
+  margin: 20rpx 0;
+  line-height: 1.65;
+  word-break: break-all;
+}
+.planning-page .notice {
+  color: #146c5d;
+}
+.planning-page .review {
+  border-top: 8rpx solid #146c5d;
+}
+.planning-page .picker-value {
+  min-height: 88rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+  background: #edf3ef;
+}
+.planning-page.care input {
+  height: 104rpx;
+  min-height: 104rpx;
+}
+.planning-page.care button {
+  font-size: 34rpx;
+  min-height: 104rpx;
+}
+.planning-page.care .modes {
+  display: block;
+}
+.planning-page.care {
+  font-size: 36rpx;
+}
+.planning-page.care input,
+.planning-page.care textarea {
+  font-size: 36rpx;
+}

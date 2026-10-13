@@ -1,5 +1,14 @@
 // Platform access stays here so pages and the server contract remain portable.
 module.exports = {
+  openPlanning() {
+    return new Promise((resolve, reject) =>
+      wx.navigateTo({
+        url: "/pages/planning/index",
+        success: resolve,
+        fail: () => reject(new Error("条件整理页面未能打开，请重新编译。")),
+      }),
+    );
+  },
   reveal(selector) {
     wx.pageScrollTo?.({ selector, duration: 0 });
   },

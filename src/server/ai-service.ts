@@ -32,6 +32,7 @@ export class AiService {
   private hosts: Set<string>;
   private platform: ModelConfig | null;
   private busy = false;
+  private closed = false;
   private active: AbortController | null = null;
   private freeLimit: number;
   private globalLimit: number;
@@ -43,7 +44,7 @@ export class AiService {
     private now = () => Date.now(),
   ) {
     const path =
-      env.AI_DATA_PATH ??
+      env.AI_DATA_PATH ||
       (env.PERSONAL_DATA_PATH && env.PERSONAL_DATA_PATH !== ":memory:"
         ? `${env.PERSONAL_DATA_PATH}.ai`
         : ":memory:");
@@ -99,6 +100,8 @@ export class AiService {
       CREATE TABLE IF NOT EXISTS lease(id INTEGER PRIMARY KEY, until INTEGER NOT NULL);`);
   }
   close() {
+    if (this.closed) return;
+    this.closed = true;
     this.active?.abort();
     this.db.close();
     this.key.fill(0);
@@ -284,9 +287,10 @@ export class AiService {
       );
     } finally {
       clearTimeout(timer);
+      controller.abort();
       this.active = null;
       this.busy = false;
-      if (this.db.isOpen) this.db.prepare("DELETE FROM lease WHERE id=1").run();
+      if (!this.closed) this.db.prepare("DELETE FROM lease WHERE id=1").run();
     }
   }
 }

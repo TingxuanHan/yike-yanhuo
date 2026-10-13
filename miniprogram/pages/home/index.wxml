@@ -17,6 +17,7 @@
   >
   <view wx:if="{{tab==='nearby'}}">
     <button class="outing-entry primary" bindtap="openOutings" disabled="{{busy}}">出门办事 · 熟路与歇脚</button>
+    <button class="outing-entry" id="open-planning" bindtap="openPlanning" disabled="{{busy}}">一句话安排 · AI辅助</button>
     <view class="section"
       ><text class="eyebrow">这次想走多远</text
       ><view class="time-row"

@@ -254,3 +254,60 @@ test("shared planning session preserves text on error, clears keys and waits for
   assert.throws(() => session.confirm(), /超过/);
   session.close();
 });
+
+test("shared database lease also serializes separate service instances and empty path uses persistent default", async () => {
+  const root = mkdtempSync(join(tmpdir(), "yike-ai-lease-"));
+  const settings = {
+    ...env,
+    PERSONAL_DATA_PATH: join(root, "life.sqlite"),
+    AI_DATA_PATH: "",
+  };
+  let finish: (s: string) => void = () => {},
+    calls = 0;
+  const a = new AiService(
+    settings,
+    () =>
+      new Promise((r) => {
+        finish = r;
+      }),
+  );
+  const b = new AiService(settings, async () => {
+    calls++;
+    return answer;
+  });
+  try {
+    a.save("a", config);
+    assert.equal(b.status("a", "s").own.configured, true);
+    const pending = a.run("a", "s", input(1));
+    await assert.rejects(b.run("b", "t", input(2)), /正在/);
+    finish(answer);
+    await pending;
+    await b.run("b", "t", input(3));
+    assert.equal(calls, 1);
+  } finally {
+    a.close();
+    b.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+test("deadline aborts the provider, spends one reservation and never retries", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  let signal: AbortSignal | undefined,
+    calls = 0;
+  const ai = new AiService(env, async (_c, _p, s) => {
+    signal = s;
+    calls++;
+    return new Promise<string>(() => {});
+  });
+  try {
+    const pending = ai.run("a", "s", input(1));
+    const rejected = assert.rejects(pending, /超时/);
+    t.mock.timers.tick(25001);
+    await rejected;
+    assert.equal(signal?.aborted, true);
+    assert.equal(calls, 1);
+    assert.equal(ai.status("a", "s").free.remaining, 2);
+  } finally {
+    ai.close();
+  }
+});

@@ -3,6 +3,7 @@ const api = require("../../services/api.js");
 const { emptyBook, cleanBook } = require("../../shared/life.js");
 const { cleanJourney } = require("../../shared/journey.js");
 const outing = require("../../shared/outings-ui.js");
+const { cleanPlanning } = require("../../shared/planning-ui.js");
 const { movementTrip, demoMovementTrip } = require("../../shared/movement.js");
 const experience = require("../../shared/experience.js");
 const blankStep = () => ({ title: "", instruction: "" });
@@ -90,6 +91,19 @@ Page({
         careMode: !!platform.get("yike-care-mode"),
       });
       this.refreshBook();
+      const handoff = platform.get("yike-planning-handoff");
+      if (handoff?.target === "errands") {
+        const p = cleanPlanning(handoff.draft);
+        this.setData({
+          budget: p.tripMinutes ?? this.data.budget,
+          taskRows: this.data.taskRows.map((t) => ({
+            ...t,
+            checked: p.tasks.length ? p.tasks.includes(t.id) : t.checked,
+          })),
+          status: "已带入确认的条件，请核对后计算。",
+        });
+        platform.remove("yike-planning-handoff");
+      }
       this.setData({ showRouteEditor: !this.book.familiarRoutes?.length });
       this.rebuild();
       const draft = platform.get("yike-familiar-draft");

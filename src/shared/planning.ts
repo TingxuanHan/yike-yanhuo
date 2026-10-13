@@ -31,7 +31,11 @@ export function cleanPlanning(value: unknown): PlanningDraft {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new Error("条件格式无效，请重新整理或手工填写。");
   const p = value as Record<string, unknown>;
-  if (Object.keys(p).some((k) => !(k in emptyPlanning())))
+  if (
+    Object.keys(p).some(
+      (k) => !Object.prototype.hasOwnProperty.call(emptyPlanning(), k),
+    )
+  )
     throw new Error("条件包含不支持的内容，请重新整理或手工填写。");
   const n = (key: string, min: number, max: number) => {
     const v = p[key];

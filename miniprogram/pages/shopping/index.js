@@ -32,16 +32,24 @@ Page({
         raw = platform.get("yike-last-report"),
         report = raw ? parseResultFile(JSON.stringify(raw)) : null;
       this.bookStamp = JSON.stringify(book);
-      this.session = new ShoppingSession(book, report, {
-        get: (k) => platform.get(k),
-        set: (k, v) => platform.set(k, v),
-        save: (b) => {
-          platform.set("yike-life", cleanBook(b));
-          this.bookStamp = JSON.stringify(b);
+      const handoff = platform.get("yike-planning-handoff");
+      this.session = new ShoppingSession(
+        book,
+        report,
+        {
+          get: (k) => platform.get(k),
+          set: (k, v) => platform.set(k, v),
+          save: (b) => {
+            platform.set("yike-life", cleanBook(b));
+            this.bookStamp = JSON.stringify(b);
+          },
+          request: (path, method, body) => api.request(path, method, body),
+          notify: (s) => this.render(s),
         },
-        request: (path, method, body) => api.request(path, method, body),
-        notify: (s) => this.render(s),
-      });
+        handoff?.target === "shopping" ? handoff.draft : undefined,
+      );
+      if (handoff?.target === "shopping" && !this.session.state.error)
+        platform.remove("yike-planning-handoff");
       this.setData({ ready: true, careMode: !!platform.get("yike-care-mode") });
       this.render(this.session.state);
     } catch (e) {

@@ -27,6 +27,16 @@ await build({
 });
 const demo = await analyze(new DemoProvider(), DEMO_CENTERS[0]);
 await build({
+  entryPoints: ["src/mini/planning.ts"],
+  outfile: "miniprogram/shared/planning-ui.js",
+  bundle: true,
+  platform: "neutral",
+  format: "cjs",
+  target: "es2020",
+  minify: true,
+  legalComments: "inline",
+});
+await build({
   entryPoints: ["src/mini/shopping.ts"],
   outfile: "miniprogram/shared/shopping-ui.js",
   bundle: true,

@@ -30,6 +30,7 @@ import {
 import { post, request } from "./api.js";
 import { preparePlacePhoto } from "./place-photo.js";
 import "./outings.css";
+import type { PlanningDraft } from "../shared/planning.js";
 import { ShoppingPanel } from "./ShoppingPanel.js";
 import { MovementPanel } from "./MovementPanel.js";
 import {
@@ -49,10 +50,12 @@ export function OutingsPanel({
   book,
   save,
   result,
+  seed,
 }: {
   book: LifeBook;
   save: (b: LifeBook) => void;
   result: AnalysisResult | null;
+  seed?: PlanningDraft;
 }) {
   const [shopping, setShopping] = useState(false);
   const [movement, setMovement] = useState<MovementTrip | null>(null);
@@ -62,14 +65,16 @@ export function OutingsPanel({
     () => (example ? demoScene() : sceneFromReport(result, book)),
     [example, result, book],
   );
-  const [categories, setCategories] = useState(["market", "pharmacy"]),
+  const [categories, setCategories] = useState(
+      seed?.tasks.length ? seed.tasks : ["market", "pharmacy"],
+    ),
     [stays, setStays] = useState<Record<string, number>>({
       market: 5,
       pharmacy: 3,
       park: 10,
       personal: 5,
     });
-  const [budget, setBudget] = useState(45),
+  const [budget, setBudget] = useState(seed?.tripMinutes ?? 45),
     [prefs, setPrefs] = useState(book.preferences),
     [opening, setOpening] = useState<Record<string, OpeningWindow>>({});
   const [busy, setBusy] = useState(false),

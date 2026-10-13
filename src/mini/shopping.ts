@@ -34,6 +34,7 @@ import {
 } from "./outings.js";
 import type { AnalysisResult, QuotaSnapshot } from "../shared/types.js";
 import { movementTrip, type MovementTrip } from "../shared/movement.js";
+import { cleanPlanning, type PlanningDraft } from "../shared/planning.js";
 export * from "../shared/shopping.js";
 
 const uuid = () =>
@@ -216,6 +217,7 @@ export class ShoppingSession {
     book: LifeBook,
     report: AnalysisResult | null,
     private deps: Dependencies,
+    seed?: PlanningDraft,
   ) {
     this.book = cleanBook(book);
     this.report = report;
@@ -287,6 +289,33 @@ export class ShoppingSession {
       }
     } catch (e) {
       this.state.error = (e as Error).message;
+    }
+    if (seed) {
+      const previous = { ...this.state };
+      try {
+        const p = cleanPlanning(seed);
+        this.state.options = {
+          ...this.state.options,
+          ...(p.shoppingBudget === null ? {} : { money: p.shoppingBudget }),
+          ...(p.tripMinutes === null ? {} : { minutes: p.tripMinutes }),
+        };
+        if (p.items.length)
+          this.state.items = p.items.map((name, i) => ({
+            id: `plan-item-${i}`,
+            name,
+            spec: "",
+            unit: "",
+            brand: "",
+            quantity: 1,
+            alternatives: false,
+          }));
+        this.draft();
+        this.state.status =
+          "已带入确认的条件。请核对商品规格、数量与价格，再比较方案。";
+      } catch (e) {
+        this.state = previous;
+        this.state.error = (e as Error).message;
+      }
     }
     this.refresh();
   }

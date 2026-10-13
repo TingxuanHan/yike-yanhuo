@@ -10,17 +10,20 @@ import { request } from "./api.js";
 import "./shopping.css";
 import { MovementPanel } from "./MovementPanel.js";
 import type { MovementTrip } from "../shared/movement.js";
+import type { PlanningDraft } from "../shared/planning.js";
 
 export function ShoppingPanel({
   book,
   save,
   result,
   back,
+  seed,
 }: {
   book: LifeBook;
   save: (b: LifeBook) => void;
   result: AnalysisResult | null;
   back: () => void;
+  seed?: PlanningDraft;
 }) {
   const saveRef = useRef(save);
   saveRef.current = save;
@@ -28,23 +31,28 @@ export function ShoppingPanel({
   const [movement, setMovement] = useState<MovementTrip | null>(null);
   const [session] = useState(
     () =>
-      new ShoppingSession(book, result, {
-        get: (k) => {
-          try {
-            return JSON.parse(localStorage.getItem(k) || "null");
-          } catch {
-            return null;
-          }
+      new ShoppingSession(
+        book,
+        result,
+        {
+          get: (k) => {
+            try {
+              return JSON.parse(localStorage.getItem(k) || "null");
+            } catch {
+              return null;
+            }
+          },
+          set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+          save: (b) => saveRef.current(b),
+          request: <T,>(path: string, method = "GET", body?: unknown) =>
+            request<T>(path, {
+              method,
+              ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+            }),
+          notify: setView,
         },
-        set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
-        save: (b) => saveRef.current(b),
-        request: <T,>(path: string, method = "GET", body?: unknown) =>
-          request<T>(path, {
-            method,
-            ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-          }),
-        notify: setView,
-      }),
+        seed,
+      ),
   );
   const previous = useRef(book),
     s = view ?? session.state;

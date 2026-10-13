@@ -117,6 +117,9 @@ export class PlanningSession {
     this.alive = false;
     this.state.key = "";
   }
+  reopen() {
+    this.alive = true;
+  }
   hideKey() {
     this.state.key = "";
     this.emit();
@@ -236,17 +239,20 @@ export class PlanningSession {
       mode = this.state.mode;
     if (!text.trim()) return this.message("先说说这次想做什么。");
     await this.action(async () => {
-      const result = await this.deps.request<{
-        draft: PlanningDraft;
-        model: string;
-      }>("/api/ai/parse", "POST", { text, mode, requestId: this.id() });
-      if (!this.alive) return;
-      this.fill(
-        cleanPlanning(result.draft),
-        `由${result.model}整理 · 尚未应用`,
-      );
-      this.deps.set("yike-planning-draft", { text, draft: this.draft() });
-      await this.refresh();
+      try {
+        const result = await this.deps.request<{
+          draft: PlanningDraft;
+          model: string;
+        }>("/api/ai/parse", "POST", { text, mode, requestId: this.id() });
+        if (!this.alive) return;
+        this.fill(
+          cleanPlanning(result.draft),
+          `由${result.model}整理 · 尚未应用`,
+        );
+        this.deps.set("yike-planning-draft", { text, draft: this.draft() });
+      } finally {
+        if (this.alive) await this.refresh();
+      }
     });
   }
   private id() {
@@ -283,13 +289,16 @@ export class PlanningSession {
   }
   async testSettings() {
     await this.action(async () => {
-      await this.deps.request("/api/ai/parse", "POST", {
-        mode: "own",
-        text: "45分钟内买菜回来，预算50元。",
-        requestId: this.id(),
-      });
-      this.state.status = "连接成功，已用一条固定示例验证条件整理。";
-      await this.refresh();
+      try {
+        await this.deps.request("/api/ai/parse", "POST", {
+          mode: "own",
+          text: "45分钟内买菜回来，预算50元。",
+          requestId: this.id(),
+        });
+        this.state.status = "连接成功，已用一条固定示例验证条件整理。";
+      } finally {
+        if (this.alive) await this.refresh();
+      }
     });
   }
   confirm(): PlanningDraft {
