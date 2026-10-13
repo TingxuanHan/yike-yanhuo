@@ -156,7 +156,7 @@ export const aiPresets = [
   {
     name: "硅基流动",
     baseUrl: "https://api.siliconflow.cn/v1",
-    model: "XingChenAGI/Xing4.0-29B",
+    model: "Qwen/Qwen3-8B",
   },
   {
     name: "OpenRouter免费路由",

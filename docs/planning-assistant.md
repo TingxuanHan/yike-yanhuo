@@ -18,7 +18,7 @@
 
 ```dotenv
 AI_FREE_BASE_URL=https://api.siliconflow.cn/v1
-AI_FREE_MODEL=XingChenAGI/Xing4.0-29B
+AI_FREE_MODEL=Qwen/Qwen3-8B
 AI_FREE_KEY=在本机填入自己的密钥
 AI_FREE_SPACE_DAILY=3
 AI_FREE_DAILY_REQUESTS=20
@@ -32,9 +32,11 @@ AI_OWN_DEVICE_DAILY=20
 
 可运行`npm run test:planning-live`查看说明，不会发请求。明确准备好后运行`npm run test:planning-live -- --confirm-one-call`，仅发送一条固定需求，核对四个关键条件；不读私人地点簿、不调用百度、不自动重试、不打印原始响应。该测试使用同一持久化额度库，计入平台日预算。
 
-硅基流动的`XingChenAGI/Xing4.0-29B`请求关闭思考模式，并设置128 token的思考上限作为额外约束；答复上限仍为800 token，超时仍为25秒。思考上限纳入本机预算预留，不自动扩容或切换模型。其他模型和服务商不发送这些专用字段。字段依据：[硅基流动接口文档](https://docs.siliconflow.cn/docs/api/chat-completions-post)。
+当前默认使用硅基流动的`Qwen/Qwen3-8B`，关闭思考模式并启用`response_format: {type: "json_object"}`，采用非思考模式的温度0.7与top_p 0.8。JSON模式用于约束格式，程序仍检查字段类型、数值范围和商品来源。提示词明确任务只使用英文代号，数值不带引号或单位。依据：[硅基流动接口文档](https://docs.siliconflow.cn/docs/api/chat-completions-post)、[Qwen3官方模型说明](https://huggingface.co/Qwen/Qwen3-8B)。
 
-2026-10-13使用授权密钥进行三次推理尝试，并做一次只读模型目录检查。目录返回200且包含指定模型；三次规划示例均未通过完整验收，其中第二次约1.6秒返回内容但未通过条件格式校验，第三次25秒超时。第一次使用原测试脚本，仅记录失败，不能据此确定原因。不能将密钥有效或官网免费标价视为规划功能已接通；此轮停止请求，没有提高额度，也未核验账号账单。
+Qwen3-8B和此前的`XingChenAGI/Xing4.0-29B`均设置128 token思考上限作为额外约束；答复上限仍为800 token，超时仍为25秒。思考上限纳入本机预算预留，不自动扩容或切换模型。其他模型和服务商不发送这些专用字段。切换基础模型不改变已有设备的自用API设置，也不会重置当天额度。
+
+2026-10-13使用授权密钥对`XingChenAGI/Xing4.0-29B`进行三次推理尝试，并做一次只读模型目录检查。目录返回200且包含该模型；三次规划示例均未通过完整验收，其中第二次约1.6秒返回内容但未通过条件格式校验，第三次25秒超时。第一次使用原测试脚本，仅记录失败，不能据此确定原因。不能将密钥有效或官网免费标价视为规划功能已接通；此轮停止请求，没有提高额度，也未核验账号账单。
 
 ## 使用自己的API
 
@@ -57,10 +59,10 @@ AI_OWN_DEVICE_DAILY=20
 
 | 渠道 | 当前官方证据 | 本项目测试建议 |
 | --- | --- | --- |
-| 硅基流动 | 当前价格页将文本模型`XingChenAGI/Xing4.0-29B`的输入和输出列为免费；快速上手要求注册并创建API密钥。没有据此推断无限调用或全模型免费。 | 已提供预设；先核对账号控制台免费标识及限流，再运行一次固定示例。 |
+| 硅基流动 | 已核对实时计费数据，`Qwen/Qwen3-8B`和`XingChenAGI/Xing4.0-29B`输入、输出均为0元；快速上手要求注册并创建API密钥。没有据此推断无限调用或全模型免费。 | 默认预设已切换为Qwen3-8B；Xing三次尝试未通过。Qwen本轮仅进行离线及配置验证，真实推理仍待限额内验收。 |
 | OpenRouter | 官方免费路由`openrouter/free`只选免费模型；官方教程说明低额度账户免费模型通常50次/日、20次/分钟，失败也计数，热门时段可能限流。 | 已提供预设；注册后创建自己的密钥，在账号允许的免费额度内测试。账户实际计数和可用模型以控制台为准。 |
 | 魔搭ModelScope | 官方历史月报介绍每日2000次免费调用；当前API文档公开页面未能读取完整配额内容。 | 作为备选域名，不把旧2000次政策当作当前保证；须登录核对当前资格、模型和额度后配置。 |
 
 来源：[硅基流动价格](https://www.siliconflow.cn/pricing)、[注册与首次调用](https://docs.siliconflow.cn/docs/userguide/quickstart)、[OpenRouter免费模型](https://openrouter.ai/collections/free-models)、[OpenRouter官方教程及额度](https://openrouter.ai/blog/tutorials/any-coding-agent/)、[OpenRouter实时限额查询说明](https://openrouter.ai/docs/api_reference/limits)、[魔搭历史月报](https://www.modelscope.cn/headlines/article/838)、[魔搭当前文档入口](https://www.modelscope.cn/docs/model-service/API-Inference/intro)。
 
-本轮未注册模型账号、未充值、未取得模型密钥，也没有实际向这些模型发送推理请求。自动化使用受控模型响应测试真实后端与原生业务代码，证明流程和保护机制；不把它作为真实模型能力或服务可用性验证。拿到合法密钥后的固定示例才是下一阶段的外部联调。
+初次开发时未注册模型账号或充值，自动化使用受控响应验证流程与保护机制。随后在授权下完成上文记录的Xing实测，再按要求切换Qwen3-8B；不能把离线验证或成功读取配置当作真实模型能力验证。后续实测仍使用单条固定示例并计入既有额度。

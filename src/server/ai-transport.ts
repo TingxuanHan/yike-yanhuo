@@ -19,7 +19,8 @@ export const PLANNING_SYSTEM = `你是出行条件提取器。只输出JSON对�
 只提取用户明确说出的条件，未说的数值用null，不推测健康能力，不创建路线、价格、地点坐标或营业事实。
 格式：{"tripMinutes":null,"shoppingBudget":null,"departure":null,"speedMps":null,"walkingMinutes":null,"returnEasy":null,"tasks":[],"items":[]}
 tripMinutes为含返程停留的整趟分钟5到180；shoppingBudget为消费预算元1到10000；departure为明确的24小时HH:mm；speedMps为明确步速0.3到2；walkingMinutes为步行运动目标1到90；returnEasy仅明确返程轻松为true，明确不需要为false，否则null。
-tasks只能从market买菜、pharmacy取药、park逛公园、personal去小店中选最多3项。items仅购物商品名称，最多5项，每项24字内且必须是用户原文的连续片段，不含数量规格。不要添加其他字段。模糊、冲突或超出范围的条件留null，由用户补充。`;
+tasks必须是JSON字符串数组，仅允许英文值"market"、"pharmacy"、"park"、"personal"，最多3项；它们分别表示买菜、取药、逛公园、去小店。例如买菜应输出["market"]，不能输出["买菜"]或["market买菜"]。
+数值必须是JSON数字，不能用引号包裹或附加单位；布尔值使用true或false，未知值使用null。items仅购物商品名称，最多5项，每项24字内且必须是用户原文的连续片段，不含数量规格。不要添加其他字段。模糊、冲突或超出范围的条件留null，由用户补充。`;
 export function publicAddress(ip: string) {
   if (isIP(ip) === 4) {
     const [a, b] = ip.split(".").map(Number);
@@ -86,9 +87,9 @@ export function cleanModelConfig(
   };
 }
 export function planningRequest(config: ModelConfig, prompt: string) {
-  const compactXing =
-    new URL(config.baseUrl).hostname === "api.siliconflow.cn" &&
-    config.model === "XingChenAGI/Xing4.0-29B";
+  const siliconflow = new URL(config.baseUrl).hostname === "api.siliconflow.cn";
+  const compactXing = siliconflow && config.model === "XingChenAGI/Xing4.0-29B";
+  const compactQwen = siliconflow && config.model === "Qwen/Qwen3-8B";
   return {
     model: config.model,
     messages: [
@@ -96,10 +97,13 @@ export function planningRequest(config: ModelConfig, prompt: string) {
       { role: "user", content: prompt },
     ],
     max_tokens: MAX_COMPLETION,
-    temperature: 0.1,
+    temperature: compactQwen ? 0.7 : 0.1,
     stream: false,
-    ...(compactXing
+    ...(compactXing || compactQwen
       ? { enable_thinking: false, thinking_budget: MAX_THINKING }
+      : {}),
+    ...(compactQwen
+      ? { top_p: 0.8, response_format: { type: "json_object" } }
       : {}),
   };
 }

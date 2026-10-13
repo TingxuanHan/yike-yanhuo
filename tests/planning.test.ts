@@ -61,6 +61,24 @@ test("Xing extraction disables thinking without changing other provider payloads
     assert.equal("thinking_budget" in request, false);
   }
 });
+test("Qwen extraction requests JSON and disables thinking only at the supported provider", () => {
+  const model = "Qwen/Qwen3-8B";
+  const body = planningRequest({ ...config, model }, "50元买菜");
+  assert.equal(body.enable_thinking, false);
+  assert.equal(body.thinking_budget, MAX_THINKING);
+  assert.deepEqual(body.response_format, { type: "json_object" });
+  assert.equal(body.max_tokens, MAX_COMPLETION);
+  assert.equal(body.temperature, 0.7);
+  assert.equal(body.top_p, 0.8);
+  assert.equal(JSON.stringify(body).includes(config.key), false);
+  for (const other of [
+    config,
+    { ...config, model: "XingChenAGI/Xing4.0-29B" },
+    { ...config, model, baseUrl: "https://openrouter.ai/api/v1" },
+  ]) {
+    assert.equal("response_format" in planningRequest(other, "买菜"), false);
+  }
+});
 test("token reservations include the bounded thinking allowance before any model request", async () => {
   let calls = 0;
   const reservation =
@@ -131,7 +149,7 @@ test("custom model URLs reject credentials, private destinations and unapproved 
   assert.equal(publicAddress("8.8.8.8"), true);
   assert.equal(publicAddress("2606:4700:4700::1111"), true);
 });
-test("encrypted credentials and daily counters survive restart without sharing keys between devices", async () => {
+test("encrypted credentials and daily counters survive restart and a model switch without sharing keys", async () => {
   const root = mkdtempSync(join(tmpdir(), "yike-ai-")),
     path = join(root, "service.sqlite");
   let now = Date.parse("2026-10-13T23:50:00+08:00"),
@@ -155,7 +173,15 @@ test("encrypted credentials and daily counters survive restart without sharing k
     await ai.run("device-a", "shared-space", input(3));
     ai.close();
     assert.equal(readFileSync(path).includes(Buffer.from(config.key)), false);
-    ai = new AiService({ ...env, AI_DATA_PATH: path }, transport, () => now);
+    ai = new AiService(
+      { ...env, AI_DATA_PATH: path, AI_FREE_MODEL: "Qwen/Qwen3-8B" },
+      transport,
+      () => now,
+    );
+    assert.equal(
+      ai.status("device-a", "shared-space").free.model,
+      "Qwen/Qwen3-8B",
+    );
     assert.equal(ai.status("device-a", "shared-space").own.configured, true);
     await assert.rejects(ai.run("device-b", "shared-space", input(4)), /额度/);
     assert.equal(calls, 3);
@@ -213,10 +239,14 @@ test("invalid and failed model calls count toward limits and never leak raw prov
 });
 test("real HTTP AI endpoints require pairing, keep credentials separate and never call the map", async () => {
   let calls = 0;
-  const server = createApp(env, undefined, async () => {
-    calls++;
-    return answer;
-  });
+  const server = createApp(
+    { ...env, AI_FREE_MODEL: "Qwen/Qwen3-8B" },
+    undefined,
+    async () => {
+      calls++;
+      return answer;
+    },
+  );
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -241,14 +271,17 @@ test("real HTTP AI endpoints require pairing, keep credentials separate and neve
     ).json();
     const token = created.token;
     assert.ok(token);
+    const status = await (
+      await req("/api/ai/status", "GET", undefined, token)
+    ).json();
+    assert.equal(status.free.model, "Qwen/Qwen3-8B");
     const saved = await req("/api/ai/settings", "PUT", config, token);
     assert.equal(saved.status, 200);
     assert.equal((await saved.text()).includes(config.key), false);
     assert.equal((await req("/api/life", "GET", undefined, token)).status, 200);
-    assert.equal(
-      (await req("/api/ai/parse", "POST", input(1), token)).status,
-      200,
-    );
+    const parsed = await req("/api/ai/parse", "POST", input(1), token);
+    assert.equal(parsed.status, 200);
+    assert.equal((await parsed.json()).model, "Qwen/Qwen3-8B");
     assert.equal(calls, 1);
     await req("/api/life/session", "DELETE", undefined, token);
     assert.equal(
