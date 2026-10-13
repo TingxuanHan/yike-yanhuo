@@ -30,7 +30,10 @@ async function request(path, method = "GET", data) {
     },
   });
   if (r.statusCode < 200 || r.statusCode >= 300)
-    throw new Error((r.data && r.data.error) || "操作未完成，请重试。");
+    throw Object.assign(
+      new Error((r.data && r.data.error) || "操作未完成，请重试。"),
+      { status: r.statusCode },
+    );
   return r.data;
 }
 async function readSharedCard(token, server) {
@@ -48,4 +51,33 @@ async function readSharedCard(token, server) {
     throw new Error(r.data?.error || "地点卡暂时无法打开，请稍后重试。");
   return r.data;
 }
-module.exports = { request, validServer, readSharedCard };
+async function assistRequest(id, token, server, method = "GET", data) {
+  if (
+    !validServer(server) ||
+    !/^[a-f0-9-]{36}$/.test(id || "") ||
+    !/^[A-Za-z0-9_-]{43}$/.test(token || "")
+  )
+    throw new Error("协助链接不完整，请让家人重新发送。");
+  const r = await platform.request({
+    url: server + "/api/assistance/" + id,
+    method,
+    data,
+    timeout: 15000,
+    header: { "content-type": "application/json", "X-Yike-Assist": token },
+  });
+  if (r.statusCode < 200 || r.statusCode >= 300)
+    throw Object.assign(new Error(r.data?.error || "协助暂时无法连接。"), {
+      status: r.statusCode,
+    });
+  return r.data;
+}
+function serverAddress() {
+  return platform.get("yike-server") || config.apiBaseUrl;
+}
+module.exports = {
+  request,
+  validServer,
+  readSharedCard,
+  assistRequest,
+  serverAddress,
+};

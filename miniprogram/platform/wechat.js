@@ -1,5 +1,16 @@
 // Platform access stays here so pages and the server contract remain portable.
 module.exports = {
+  callFamily(phoneNumber) {
+    if (!/^\+?\d{3,19}$/.test(phoneNumber || ""))
+      return Promise.reject(new Error("请先填写有效的家人电话。"));
+    return new Promise((resolve, reject) =>
+      wx.makePhoneCall({
+        phoneNumber,
+        success: resolve,
+        fail: () => reject(new Error("电话未拨出，可核对号码后重试。")),
+      }),
+    );
+  },
   openPlanning() {
     return new Promise((resolve, reject) =>
       wx.navigateTo({

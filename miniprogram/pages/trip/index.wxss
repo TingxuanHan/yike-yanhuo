@@ -26,7 +26,9 @@
   font-weight: 600;
   margin: 12rpx 0;
 }
-.card {
+.trip-page .card {
+  height: auto;
+  font-size: inherit;
   padding: 28rpx;
   border: 1px solid #d5e3df;
   border-radius: 20rpx;
@@ -143,11 +145,41 @@ textarea {
 .care .eyebrow {
   font-size: 32rpx;
 }
-.care button,
-.care input,
-.care textarea {
+.trip-page.care button,
+.trip-page.care input,
+.trip-page.care textarea {
   font-size: 36rpx;
 }
 .care .h3 {
   font-size: 42rpx;
+}
+.assist-panel {
+  border-left: 8rpx solid #146c5d;
+}
+.entrance-mark {
+  position: relative;
+  margin: 24rpx 0;
+}
+.entrance-mark image {
+  width: 100%;
+  display: block;
+  border-radius: 16rpx;
+}
+.entrance-mark .entrance-pin {
+  margin: 0;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 4rpx solid white;
+  box-sizing: border-box;
+  border-radius: 50%;
+  width: 84rpx;
+  height: 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #a44720;
+  color: white;
+  font-size: 23rpx;
+  box-shadow: 0 0 0 2rpx #a44720;
+  pointer-events: none;
 }

@@ -967,6 +967,7 @@ export function LifePanel({
               服务器有 {incoming.book.places.length} 个地点、
               {incoming.book.familiarRoutes?.length ?? 0} 条熟路、
               {incoming.book.restPoints?.length ?? 0} 个休息点、
+              {incoming.book.entrances?.length ?? 0} 张入口卡、
               {incoming.book.shopping?.prices.length ?? 0} 条价格记录、
               {incoming.book.trips?.length ?? 0} 条行后记录，版本{" "}
               {incoming.revision}。选择后仍需手动同步，才会修改服务器。

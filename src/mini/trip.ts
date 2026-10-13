@@ -810,6 +810,30 @@ export class TripSession {
       this.message((e as Error).message);
     }
   }
+  async removeEntrance() {
+    const g = this.state.entrance;
+    if (!g) return;
+    if (
+      !(await this.deps.confirm(
+        `移除私人入口卡“${g.name}”？已分享的协助照片需另行结束协助。`,
+      ))
+    )
+      return;
+    try {
+      const next = cleanBook({
+        ...this.book,
+        entrances: (this.book.entrances ?? []).filter((x) => x.id !== g.id),
+      });
+      this.deps.save(next);
+      this.book = next;
+      this.state.entrances = next.entrances!;
+      this.state.entrance = null;
+      this.state.status = "私人入口卡已移除。";
+      this.emit();
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
   private async applyHelp(p: AssistProposal, s: AssistSnapshot) {
     if (p.kind === "plan" && p.change)
       return this.commitAdjustment(p.change, s.basis);

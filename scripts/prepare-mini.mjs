@@ -15,5 +15,6 @@ for (const name of [
   "trip-feedback",
   "trip-adjust",
   "assistance",
+  "entrance",
 ])
   await copyFile(`src/shared/${name}.ts`, `${stage}/${name}.ts`);

@@ -10,6 +10,7 @@ import type { AnalysisResult } from "../shared/types.js";
 import type { PlanningDraft } from "../shared/planning.js";
 import { request } from "./api.js";
 import { VoiceInput } from "./VoiceInput.js";
+import { TripAssistance } from "./TripAssistance.js";
 import "./planning.css";
 import "./trip.css";
 export function TripPanel({
@@ -51,7 +52,13 @@ export function TripPanel({
     );
   useEffect(() => {
     session.reopen();
-    return () => session.close();
+    const visibility = () =>
+      document.hidden ? session.close() : session.reopen();
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      session.close();
+      document.removeEventListener("visibilitychange", visibility);
+    };
   }, [session]);
   const s = view ?? session.state,
     a = s.active;
@@ -438,6 +445,7 @@ export function TripPanel({
               更新预计返程
             </button>
           </div>
+          <TripAssistance session={session} s={s} />
           <details open={a.phase === "finished"}>
             <summary>结束这趟，记下实际情况</summary>
             <p>只填纯步行时间，排除购物、等灯和歇脚。实付总额仅作本次记录。</p>

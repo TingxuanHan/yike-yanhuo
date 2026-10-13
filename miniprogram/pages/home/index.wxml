@@ -476,7 +476,7 @@
         ></view
       ><view wx:if="{{incoming}}" class="notice"
         ><text
-          >最新内容有{{incoming.book.places.length}}个地点、{{incoming.book.familiarRoutes ? incoming.book.familiarRoutes.length : 0}}条熟路、{{incoming.book.restPoints ? incoming.book.restPoints.length : 0}}个休息点、{{incoming.book.shopping ? incoming.book.shopping.prices.length : 0}}条价格记录、{{incoming.book.trips ? incoming.book.trips.length : 0}}条行后记录，本机草稿仍保留。</text
+          >最新内容有{{incoming.book.places.length}}个地点、{{incoming.book.familiarRoutes ? incoming.book.familiarRoutes.length : 0}}条熟路、{{incoming.book.restPoints ? incoming.book.restPoints.length : 0}}个休息点、{{incoming.book.entrances ? incoming.book.entrances.length : 0}}张入口卡、{{incoming.book.shopping ? incoming.book.shopping.prices.length : 0}}条价格记录、{{incoming.book.trips ? incoming.book.trips.length : 0}}条行后记录，本机草稿仍保留。</text
         ><button
           bindtap="applyIncoming"
           data-merge="{{true}}"

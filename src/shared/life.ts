@@ -12,7 +12,8 @@ import {
 import { cleanShopping, mergeShopping, type ShoppingBook } from "./shopping.js";
 import { cleanMovement, type MovementSettings } from "./movement.js";
 import { cleanTripFeedback, type TripFeedback } from "./trip-feedback.js";
-import { cleanEntrance, type EntranceGuide } from "./assistance.js";
+import { cleanEntrance, cleanPhoto, type EntranceGuide } from "./entrance.js";
+export { cleanPhoto, MAX_PHOTO_LENGTH } from "./entrance.js";
 export type PlacePosition =
   | { system: "demo"; x: number; y: number }
   | { system: "bd09" | "gcj02" | "wgs84"; lng: number; lat: number };
@@ -30,19 +31,8 @@ export interface PersonalPlace {
   photo?: string;
 }
 export const MAX_BOOK_BYTES = 750_000;
-export const MAX_PHOTO_LENGTH = 64_000;
 export const utf8Bytes = (s: string) =>
   encodeURIComponent(s).replace(/%[A-F\d]{2}/g, "x").length;
-export function cleanPhoto(value: unknown): string | undefined {
-  if (value === undefined || value === "") return undefined;
-  if (
-    typeof value !== "string" ||
-    value.length > MAX_PHOTO_LENGTH ||
-    !/^data:image\/(jpeg|png);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)
-  )
-    throw new Error("入口照片须为小于48KB的JPEG或PNG，请重新选择照片。");
-  return value;
-}
 export interface LifeBook {
   format: "yike-life-v1";
   preferences: JourneyPreferences;
@@ -189,10 +179,7 @@ export function mergeBooks(local: LifeBook, incoming: LifeBook): LifeBook {
     restPoints: merge(local.restPoints ?? [], incoming.restPoints ?? []),
     ...(local.entrances || incoming.entrances
       ? {
-          entrances: merge(
-            local.entrances ?? [],
-            incoming.entrances ?? [],
-          ).slice(0, 12),
+          entrances: merge(local.entrances ?? [], incoming.entrances ?? []),
         }
       : {}),
     ...(local.shopping || incoming.shopping

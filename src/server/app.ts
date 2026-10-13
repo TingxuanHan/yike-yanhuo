@@ -212,6 +212,7 @@ export function createApp(
   >();
   const clientRoot = resolve("dist/client");
   const clean = () => {
+    life.assistance.sweep();
     for (const [id, item] of jobs)
       if (item.expires < Date.now()) {
         item.controller.abort();

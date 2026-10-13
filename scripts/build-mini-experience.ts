@@ -7,6 +7,7 @@ await mkdir("miniprogram/assets", { recursive: true });
 for (const [entry, name] of [
   ["trip", "trip-ui"],
   ["voice", "voice-ui"],
+  ["assistance", "assistance-ui"],
 ])
   await build({
     entryPoints: [`src/mini/${entry}.ts`],

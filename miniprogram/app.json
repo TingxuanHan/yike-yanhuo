@@ -6,7 +6,8 @@
     "pages/shopping/index",
     "pages/movement/index",
     "pages/planning/index",
-    "pages/trip/index"
+    "pages/trip/index",
+    "pages/assistance/index"
   ],
   "window": {
     "navigationBarTitleText": "一刻烟火",

@@ -1,17 +1,8 @@
-import { cleanPhoto } from "./life.js";
+import { cleanEntrance, type EntranceGuide } from "./entrance.js";
+export { cleanEntrance, type EntranceGuide } from "./entrance.js";
 import { remainingTrip, type ActiveTrip } from "./trip.js";
 import { tripBasis, type TripAdjustment } from "./trip-adjust.js";
 
-export interface EntranceGuide {
-  id: string;
-  name: string;
-  photo: string;
-  x: number;
-  y: number;
-  instruction: string;
-  observedOn: string;
-  source: "self" | "helper";
-}
 export interface AssistSnapshot {
   tripId: string;
   basis: string;
@@ -56,29 +47,6 @@ const number = (v: unknown, min: number, max: number) => {
     throw new Error("协助数据中的数值无效。");
   return v;
 };
-export function cleanEntrance(value: unknown): EntranceGuide {
-  const v = value as EntranceGuide;
-  if (!v || !["self", "helper"].includes(v.source))
-    throw new Error("入口记录无效。");
-  const photo = cleanPhoto(v.photo);
-  if (
-    !photo ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(v.observedOn) ||
-    !Number.isFinite(Date.parse(v.observedOn)) ||
-    new Date(v.observedOn).toISOString().slice(0, 10) !== v.observedOn
-  )
-    throw new Error("请添加入口照片和有效的观察日期。");
-  return {
-    id: str(v.id, 80),
-    name: str(v.name, 80),
-    photo,
-    x: number(v.x, 0, 1),
-    y: number(v.y, 0, 1),
-    instruction: str(v.instruction, 240),
-    observedOn: v.observedOn,
-    source: v.source,
-  };
-}
 export function cleanAssistSnapshot(value: unknown): AssistSnapshot {
   const v = value as AssistSnapshot;
   if (

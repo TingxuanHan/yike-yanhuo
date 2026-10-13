@@ -5,7 +5,8 @@ import type { AddressInfo } from "node:net";
 import { LifeStore } from "../src/server/life-store.js";
 import { createApp } from "../src/server/app.js";
 import { TripSession } from "../src/mini/trip.js";
-import { emptyBook, cleanBook } from "../src/shared/life.js";
+import { AssistanceSession, HelperSession } from "../src/mini/assistance.js";
+import { emptyBook, cleanBook, mergeBooks } from "../src/shared/life.js";
 import {
   makeAssistSnapshot,
   cleanAssistSnapshot,
@@ -196,6 +197,16 @@ test("entrance photos survive private sync cleaning and sharing rejects unsafe f
   });
   const b = cleanBook({ ...emptyBook(), entrances: [guide] });
   assert.deepEqual(b.entrances, [guide]);
+  const incoming = cleanBook({
+    ...emptyBook(),
+    entrances: Array.from({ length: 12 }, (_, i) => ({
+      ...guide,
+      id: `other-${i}`,
+    })),
+  });
+  const original = JSON.stringify(b);
+  assert.throws(() => mergeBooks(b, incoming), /容量/);
+  assert.equal(JSON.stringify(b), original);
   assert.throws(() => cleanEntrance({ ...guide, x: 2 }));
   assert.throws(() => cleanEntrance({ ...guide, observedOn: "2026-02-30" }));
   assert.throws(() =>
@@ -207,6 +218,185 @@ test("entrance photos survive private sync cleaning and sharing rejects unsafe f
   );
   assert.equal(JSON.stringify(snap).includes("position"), false);
 });
+
+test("ending during creation or refresh revokes the invitation even after the page is hidden", async () => {
+  const { active } = await outing();
+  for (const blockedMethod of ["POST", "GET"]) {
+    const db = new LifeStore(),
+      owner = db.authenticate(db.create().token);
+    const storage = new Map<string, unknown>();
+    let release!: () => void, started!: () => void;
+    const gate = new Promise<void>((r) => {
+      release = r;
+    });
+    const entered = new Promise<void>((r) => {
+      started = r;
+    });
+    const session = new AssistanceSession({
+      active: () => active,
+      get: (k) => storage.get(k),
+      set: (k, v) => {
+        storage.set(k, v);
+      },
+      notify: () => {},
+      confirm: async () => true,
+      apply: async () => {},
+      request: async <T>(
+        path: string,
+        method = "GET",
+        body?: any,
+      ): Promise<T> => {
+        const id = path.split("/").at(-1)!;
+        let result: unknown;
+        if (method === "POST")
+          result = db.assistance.create(owner, body.snapshot);
+        if (method === "GET") result = db.assistance.read(id, owner);
+        if (method === "DELETE") db.assistance.close(id, owner);
+        if (method === blockedMethod) {
+          started();
+          await gate;
+        }
+        return result as T;
+      },
+    });
+    try {
+      const creating = session.start("帮忙看看", null);
+      const operation =
+        blockedMethod === "POST"
+          ? creating
+          : creating.then(() => session.refresh());
+      await entered;
+      await session.end();
+      session.close();
+      release();
+      await operation;
+      assert.equal(db.assistance.list(owner).length, 0);
+      assert.equal(session.state.view, null);
+      assert.equal(storage.get("yike-assistance"), null);
+    } finally {
+      session.close();
+      db.close();
+    }
+  }
+});
+
+test("lost owner acknowledgements can be retried without applying a suggestion twice", async () => {
+  const { active } = await outing();
+  for (const lostAfterSave of [false, true]) {
+    const db = new LifeStore(),
+      owner = db.authenticate(db.create().token);
+    const storage = new Map<string, unknown>();
+    let applied = 0,
+      failOnce = true;
+    const session = new AssistanceSession({
+      active: () => active,
+      get: (k) => storage.get(k),
+      set: (k, v) => {
+        storage.set(k, v);
+      },
+      notify: () => {},
+      confirm: async () => true,
+      apply: async () => {
+        applied++;
+      },
+      request: async <T>(
+        path: string,
+        method = "GET",
+        body?: any,
+      ): Promise<T> => {
+        if (path === "/api/life/assistance")
+          return db.assistance.create(owner, body.snapshot) as T;
+        const id = path.split("/")[4];
+        if (path.endsWith("/decision")) {
+          if (failOnce && !lostAfterSave) {
+            failOnce = false;
+            throw new Error("离线");
+          }
+          const result = db.assistance.resolve(
+            id,
+            owner,
+            body.revision,
+            body.proposalId,
+            body.decision,
+          );
+          if (failOnce) {
+            failOnce = false;
+            throw new Error("响应丢失");
+          }
+          return result as T;
+        }
+        return db.assistance.read(id, owner) as T;
+      },
+    });
+    try {
+      await session.start("帮忙看看", null);
+      const v = session.state.view!;
+      db.assistance.propose(v.id, session.state.invite, v.revision, {
+        id: "once",
+        kind: "message",
+        helper: "家人",
+        note: "原地等候",
+        snapshotVersion: 1,
+      });
+      await session.refresh();
+      await session.decide(true);
+      assert.equal(applied, 1);
+      assert.ok(session.state.error);
+      assert.ok(storage.get("yike-assist-decision"));
+      await session.decide(true);
+      assert.equal(applied, 1);
+      assert.equal(session.state.view!.proposal, null);
+      assert.equal(storage.get("yike-assist-decision"), null);
+    } finally {
+      session.close();
+      db.close();
+    }
+  }
+});
+test("helper polling resumes after a slow send and stops with hidden content on expiry", async (t) => {
+  const { active } = await outing(),
+    db = new LifeStore(),
+    owner = db.authenticate(db.create().token);
+  const { view } = db.assistance.create(owner, makeAssistSnapshot(active, ""));
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  let reads = 0,
+    expired = false,
+    release!: () => void;
+  const gate = new Promise<void>((r) => {
+    release = r;
+  });
+  const helper = new HelperSession(
+    async <T>(method = "GET"): Promise<T> => {
+      if (method === "POST") await gate;
+      else reads++;
+      if (expired)
+        throw Object.assign(new Error("协助已到期"), { status: 410 });
+      return structuredClone(view) as T;
+    },
+    () => {},
+  );
+  try {
+    helper.reopen();
+    await Promise.resolve();
+    helper.field("note", "慢一点走");
+    const send = helper.send();
+    t.mock.timers.tick(5001);
+    release();
+    await send;
+    expired = true;
+    t.mock.timers.tick(5001);
+    await Promise.resolve();
+    assert.equal(reads, 2);
+    assert.equal(helper.state.view, null);
+    assert.match(helper.state.error, /到期/);
+    t.mock.timers.tick(10001);
+    assert.equal(reads, 2);
+  } finally {
+    helper.close();
+    db.close();
+  }
+});
+
 test("HTTP assistance needs owner authentication, helper requests omit owner access, rejects stale changes and hostile origins", async (t) => {
   const server = createApp({
     PERSONAL_DATA_PATH: ":memory:",

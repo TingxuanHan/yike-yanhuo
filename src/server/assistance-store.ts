@@ -24,6 +24,9 @@ export class AssistanceStore {
       `CREATE TABLE IF NOT EXISTS assistance(id TEXT PRIMARY KEY, owner TEXT NOT NULL, token_hash TEXT UNIQUE NOT NULL, body TEXT NOT NULL, expires INTEGER NOT NULL, closed INTEGER NOT NULL DEFAULT 0);`,
     );
   }
+  sweep() {
+    this.prune();
+  }
   private prune() {
     this.db
       .prepare(
