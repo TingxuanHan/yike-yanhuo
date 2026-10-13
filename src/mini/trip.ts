@@ -32,6 +32,18 @@ import { demoScene, sceneFromReport, OutingRouteCache } from "./outings.js";
 import { demoShopping } from "./shopping.js";
 import type { AnalysisResult } from "../shared/types.js";
 import { planningFields } from "./planning.js";
+import { AssistanceSession, type AssistState } from "./assistance.js";
+import {
+  cleanEntrance,
+  type EntranceGuide,
+  type AssistProposal,
+  type AssistSnapshot,
+} from "../shared/assistance.js";
+import {
+  adjustTrip,
+  tripBasis,
+  type TripAdjustment,
+} from "../shared/trip-adjust.js";
 export { planningFields, planningTasks };
 export * from "../shared/trip.js";
 interface Deps {
@@ -74,9 +86,16 @@ export interface TripView {
   pace: number | null;
   shoppingSummary: string;
   movementSummary: string;
+  assistance: AssistState;
+  helpRequest: string;
+  adjust: { remaining: string[]; speed: string } | null;
+  adjustPreview: string[];
+  entrance: EntranceGuide | null;
+  entrances: EntranceGuide[];
 }
 export class TripSession {
   state: TripView;
+  assistance: AssistanceSession;
   private book: LifeBook;
   private scene: ReturnType<typeof demoScene>;
   private shopping: ShoppingBook;
@@ -170,6 +189,18 @@ export class TripSession {
       pace: null,
       shoppingSummary: "",
       movementSummary: "",
+      assistance: {
+        view: null,
+        invite: "",
+        busy: false,
+        error: "",
+        status: "",
+      },
+      helpRequest: "找不到入口，想请家人帮忙看看。",
+      adjust: null,
+      adjustPreview: [],
+      entrance: null,
+      entrances: book.entrances ?? [],
     };
     this.cache = new OutingRouteCache(deps.get("yike-outing-routes"));
     try {
@@ -220,6 +251,15 @@ export class TripSession {
     } catch (e) {
       this.state.error = (e as Error).message;
     }
+    this.assistance = new AssistanceSession({
+      ...deps,
+      active: () => this.state.active,
+      notify: (state) => {
+        this.state.assistance = state;
+        this.emit();
+      },
+      apply: (p, s) => this.applyHelp(p, s),
+    });
     this.summaries();
     this.refreshProgress();
   }
@@ -267,11 +307,13 @@ export class TripSession {
       });
   }
   close() {
+    this.assistance?.close();
     this.alive = false;
     this.generation++;
   }
   reopen() {
     this.alive = true;
+    this.assistance?.reopen();
     this.refreshProgress();
     this.emit();
   }
@@ -503,6 +545,8 @@ export class TripSession {
   private storeActive(a: ActiveTrip | null) {
     this.deps.set("yike-active-trip", a);
     this.state.active = a;
+    this.state.adjust = null;
+    this.state.adjustPreview = [];
     this.refreshProgress();
     this.emit();
   }
@@ -519,7 +563,7 @@ export class TripSession {
     this.state.here = a ? name(a.currentId) : "";
     this.emit();
   }
-  async step(kind: Exclude<TripEvent["kind"], "start">) {
+  async step(kind: Exclude<TripEvent["kind"], "start" | "replan">) {
     if (!this.state.active || this.state.busy) return;
     if (
       ["skip", "return", "rest"].includes(kind) &&
@@ -602,10 +646,190 @@ export class TripSession {
       this.state.recent = next.trips!;
       this.state.pace = a.phase === "walking" ? null : feedbackPace(record);
       this.storeActive(null);
+      void this.assistance.end();
       this.state.feedback = { walking: "", spent: "", note: "", difficult: [] };
       this.state.status =
         "行后记录已保存到私人地点簿，可随地点簿同步。实付总额不会被拆成商品单价；步速也尚未修改。";
     });
+  }
+  helpRequest(value: string) {
+    this.state.helpRequest = value.slice(0, 240);
+    this.emit();
+  }
+  async startHelp() {
+    await this.assistance.start(this.state.helpRequest, null);
+  }
+  editRemaining() {
+    const a = this.state.active;
+    if (!a) return;
+    this.state.adjust = {
+      remaining: a.remaining.filter((id) => id !== a.input.origin.id),
+      speed: String(a.input.draft.speedMps ?? a.input.preferences.speedMps),
+    };
+    this.state.adjustPreview = [];
+    this.emit();
+  }
+  adjustSpeed(value: string) {
+    if (this.state.adjust) this.state.adjust.speed = value;
+    this.state.adjustPreview = [];
+    this.emit();
+  }
+  adjustStop(id: string) {
+    const d = this.state.adjust,
+      a = this.state.active;
+    if (!d || !a || !a.remaining.includes(id) || id === a.input.origin.id)
+      return;
+    d.remaining = d.remaining.includes(id)
+      ? d.remaining.filter((v) => v !== id)
+      : [...d.remaining, id];
+    this.state.adjustPreview = [];
+    this.emit();
+  }
+  moveStop(id: string) {
+    const d = this.state.adjust;
+    if (!d) return;
+    const i = d.remaining.indexOf(id);
+    if (i > 0)
+      [d.remaining[i - 1], d.remaining[i]] = [
+        d.remaining[i],
+        d.remaining[i - 1],
+      ];
+    this.state.adjustPreview = [];
+    this.emit();
+  }
+  previewRemaining() {
+    try {
+      const d = this.state.adjust;
+      if (!d || !this.state.active) return;
+      this.state.adjustPreview = adjustTrip(
+        this.state.active,
+        { remaining: d.remaining, speedMps: Number(d.speed) },
+        this.now(),
+      ).changes;
+      this.state.error = "";
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+    this.emit();
+  }
+  async applyRemaining() {
+    const d = this.state.adjust;
+    if (!d || !this.state.active) return;
+    try {
+      await this.commitAdjustment(
+        { remaining: d.remaining, speedMps: Number(d.speed) },
+        tripBasis(this.state.active),
+      );
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
+  private async commitAdjustment(change: TripAdjustment, basis: string) {
+    const a = this.state.active;
+    if (!a || tripBasis(a) !== basis)
+      throw new Error("行程已变化，请重新核对建议。");
+    const preview = adjustTrip(a, change, this.now());
+    if (
+      !(await this.deps.confirm(
+        preview.changes.join("\n") + "\n确认使用这个安排？",
+      ))
+    )
+      throw new Error("尚未采纳，原行程已保留。");
+    if (!this.state.active || tripBasis(this.state.active) !== basis)
+      throw new Error("确认期间行程已变化，请重新核对。");
+    this.storeActive(adjustTrip(this.state.active, change, this.now()).active);
+    this.state.status = "已更新剩余行程，之前的到达记录已保留。";
+    this.emit();
+  }
+  selectEntrance(id: string) {
+    const a = this.state.active,
+      n = a
+        ? [a.input.origin, ...a.input.stops].find((n) => n.id === id)
+        : null;
+    if (!n) return;
+    const existing = this.book.entrances?.find((g) => g.id === id),
+      place = this.book.places.find((p) => p.id === id);
+    this.state.entrance = existing
+      ? { ...existing }
+      : {
+          id,
+          name: n.name,
+          photo: place?.photo ?? "",
+          x: 0.5,
+          y: 0.5,
+          instruction: place?.landmark ?? "",
+          observedOn: todayLocal(),
+          source: "self",
+        };
+    this.emit();
+  }
+  entranceField(key: string, value: string | number) {
+    const g = this.state.entrance;
+    if (!g) return;
+    if (key === "x" || key === "y")
+      g[key] = Math.max(0, Math.min(1, Number(value)));
+    if (key === "photo") {
+      g.photo = String(value);
+      g.x = 0.5;
+      g.y = 0.5;
+    }
+    if (key === "instruction") g.instruction = String(value).slice(0, 240);
+    if (key === "observedOn") g.observedOn = String(value);
+    this.emit();
+  }
+  private saveEntrance(guide: EntranceGuide) {
+    const next = cleanBook({
+      ...this.book,
+      entrances: [
+        guide,
+        ...(this.book.entrances ?? []).filter((g) => g.id !== guide.id),
+      ],
+    });
+    this.deps.save(next);
+    this.book = next;
+    this.state.entrance = guide;
+    this.state.entrances = next.entrances!;
+    this.emit();
+  }
+  saveEntranceDraft() {
+    try {
+      this.saveEntrance(
+        cleanEntrance({ ...this.state.entrance, source: "self" }),
+      );
+      this.state.status = "入口卡已保存到私人地点簿，可随地点簿同步。";
+      this.state.error = "";
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+    this.emit();
+  }
+  async shareEntrance() {
+    try {
+      await this.assistance.sharePhoto(cleanEntrance(this.state.entrance));
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
+  private async applyHelp(p: AssistProposal, s: AssistSnapshot) {
+    if (p.kind === "plan" && p.change)
+      return this.commitAdjustment(p.change, s.basis);
+    if (
+      !(await this.deps.confirm(
+        `${p.note}\n${p.kind === "entrance" ? "保存家人圈出的入口和说明？这条建议尚未经过现场核实。" : "确认已看过这条提醒？"}`,
+      ))
+    )
+      throw new Error("尚未采纳，原安排已保留。");
+    if (!this.state.active || tripBasis(this.state.active) !== s.basis)
+      throw new Error("行程已变化，请重新核对。");
+    if (p.kind === "entrance" && s.guide && p.marker)
+      this.saveEntrance(
+        cleanEntrance({
+          ...s.guide,
+          ...p.marker,
+          instruction: p.note,
+          source: "helper",
+        }),
+      );
   }
   async applyPace() {
     const pace = this.state.pace;

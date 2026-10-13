@@ -279,7 +279,15 @@ export function solveTrip(input: TripInput) {
 }
 
 export interface TripEvent {
-  kind: "start" | "arrive" | "leave" | "rest" | "resume" | "skip" | "return";
+  kind:
+    | "start"
+    | "arrive"
+    | "leave"
+    | "rest"
+    | "resume"
+    | "skip"
+    | "return"
+    | "replan";
   at: number;
   placeId: string;
 }
@@ -357,10 +365,12 @@ export function cleanActiveTrip(value: unknown): ActiveTrip {
 }
 export function stepTrip(
   value: ActiveTrip,
-  kind: Exclude<TripEvent["kind"], "start">,
+  kind: Exclude<TripEvent["kind"], "start" | "replan">,
   now = Date.now(),
 ): ActiveTrip {
   const a = structuredCopy(value);
+  if (!["arrive", "leave", "rest", "resume", "skip", "return"].includes(kind))
+    throw new Error("未知的行程操作。");
   if (
     !Number.isFinite(now) ||
     now < a.lastAt ||

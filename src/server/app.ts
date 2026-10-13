@@ -247,6 +247,87 @@ export function createApp(
       if (method === "GET" && url.pathname === "/api/config")
         return json(res, 200, config);
       const peer = req.socket.remoteAddress ?? "unknown";
+      const helperRoute = url.pathname.match(
+        /^\/api\/assistance\/([a-f0-9-]{36})$/,
+      );
+      const ownerRoute = url.pathname.match(
+        /^\/api\/life\/assistance(?:\/([a-f0-9-]{36})(?:\/(decision))?)?$/,
+      );
+      if (helperRoute || ownerRoute) {
+        try {
+          if (helperRoute) {
+            const id = helperRoute[1],
+              token = req.headers["x-yike-assist"];
+            rate("assist-read:" + peer, 600);
+            if (method === "GET")
+              return json(res, 200, life.assistance.read(id, undefined, token));
+            if (method === "POST") {
+              rate("assist-propose:" + id + ":" + peer, 30);
+              const body = await readJson(req, 5000);
+              return json(
+                res,
+                200,
+                life.assistance.propose(
+                  id,
+                  token,
+                  body.revision,
+                  body.proposal,
+                ),
+              );
+            }
+          } else if (ownerRoute) {
+            const owner = life.authenticate(tokenOf(req)),
+              id = ownerRoute[1];
+            rate("assist-owner:" + owner, 600);
+            if (!id && method === "GET")
+              return json(res, 200, life.assistance.list(owner));
+            if (!id && method === "POST") {
+              rate("assist-create:" + owner, 10);
+              return json(
+                res,
+                201,
+                life.assistance.create(
+                  owner,
+                  (await readJson(req, 90000)).snapshot,
+                ),
+              );
+            }
+            if (id && method === "GET")
+              return json(res, 200, life.assistance.read(id, owner));
+            if (id && method === "DELETE")
+              return json(res, 200, life.assistance.close(id, owner));
+            if (id && method === "PUT") {
+              const body = await readJson(req, 90000);
+              return json(
+                res,
+                200,
+                life.assistance.update(id, owner, body.revision, body.snapshot),
+              );
+            }
+            if (id && ownerRoute[2] && method === "POST") {
+              const body = await readJson(req, 2000);
+              return json(
+                res,
+                200,
+                life.assistance.resolve(
+                  id,
+                  owner,
+                  body.revision,
+                  body.proposalId,
+                  body.decision,
+                ),
+              );
+            }
+          }
+          throw new ServiceError("协助操作不存在。", 404);
+        } catch (error) {
+          if (error instanceof ServiceError) throw error;
+          throw new ServiceError(
+            error instanceof Error ? error.message : "协助内容无效。",
+            400,
+          );
+        }
+      }
       if (method === "GET" && url.pathname === "/api/card") {
         rate("card-read:" + peer, 120);
         return json(res, 200, life.sharedCard(req.headers["x-yike-card"]));
