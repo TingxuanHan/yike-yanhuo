@@ -13,6 +13,13 @@ test("native owner and helper pages share one trip without exchanging device cre
     HOST: "127.0.0.1",
     PERSONAL_DATA_PATH: ":memory:",
   });
+  let owner: any, helper: any;
+  t.after(() => {
+    owner?.onUnload();
+    helper?.onUnload();
+    server.closeAllConnections();
+    return new Promise<void>((done) => server.close(() => done()));
+  });
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -45,16 +52,9 @@ test("native owner and helper pages share one trip without exchanging device cre
         .catch(o.fail);
     },
   });
-  const owner = miniRuntime(storage, network()).page("trip");
+  owner = miniRuntime(storage, network()).page("trip");
   owner.onLoad();
   owner.onShow();
-  let helper: any;
-  t.after(() => {
-    owner.onUnload();
-    helper?.onUnload();
-    server.closeAllConnections();
-    server.close();
-  });
   await owner.calculate();
   await owner.start({
     currentTarget: { dataset: { id: owner.data.plans[0].id } },

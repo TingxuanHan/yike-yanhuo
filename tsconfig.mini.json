@@ -9,9 +9,5 @@
     "noEmit": false,
     "types": []
   },
-  "include": [
-    ".cache/mini-source/life.ts",
-    ".cache/mini-source/journey.ts",
-    ".cache/mini-source/facility-review.ts"
-  ]
+  "include": [".cache/mini-source/*.ts"]
 }
