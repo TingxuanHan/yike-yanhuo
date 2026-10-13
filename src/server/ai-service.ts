@@ -12,6 +12,7 @@ import {
   chatTransport,
   cleanModelConfig,
   MAX_COMPLETION,
+  MAX_THINKING,
   PLANNING_SYSTEM,
   type AiTransport,
   type ModelConfig,
@@ -197,6 +198,7 @@ export class AiService {
       Buffer.byteLength(PLANNING_SYSTEM, "utf8") +
       length * 4 +
       MAX_COMPLETION +
+      MAX_THINKING +
       256
     );
   }

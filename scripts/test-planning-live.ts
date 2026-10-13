@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { loadEnvFile } from "node:process";
 import { randomUUID } from "node:crypto";
 import { AiService } from "../src/server/ai-service.js";
+import { ServiceError } from "../src/server/baidu.js";
 
 if (!process.argv.includes("--confirm-one-call")) {
   console.log(
@@ -19,6 +20,7 @@ if (!process.argv.includes("--confirm-one-call")) {
       ...process.env,
       PERSONAL_DATA_PATH: process.env.PERSONAL_DATA_PATH || ".data/life.sqlite",
     });
+    const startedAt = Date.now();
     try {
       const result = await service.run(
         "operator-fixed-test",
@@ -40,12 +42,15 @@ if (!process.argv.includes("--confirm-one-call")) {
           : "接口已响应，但固定示例的条件提取未全部匹配。请在确认页核对；未自动重试。真实请求1次，地图请求0次。",
       );
       if (!ok) process.exitCode = 1;
-    } catch {
+    } catch (error) {
       console.log(
         "模型测试未通过，未自动重试。请检查服务商状态、所选模型和项目保护额度；原始响应与密钥不输出。",
       );
+      if (error instanceof ServiceError)
+        console.log(`项目诊断（${error.code}）：${error.message}`);
       process.exitCode = 1;
     } finally {
+      console.log(`测试耗时：${Date.now() - startedAt}毫秒。`);
       service.close();
     }
   }

@@ -6,7 +6,14 @@ import { join } from "node:path";
 import { once } from "node:events";
 import type { AddressInfo } from "node:net";
 import { AiService } from "../src/server/ai-service.js";
-import { cleanModelConfig, publicAddress } from "../src/server/ai-transport.js";
+import {
+  cleanModelConfig,
+  publicAddress,
+  planningRequest,
+  MAX_COMPLETION,
+  MAX_THINKING,
+  PLANNING_SYSTEM,
+} from "../src/server/ai-transport.js";
 import { createApp } from "../src/server/app.js";
 import {
   cleanPlanning,
@@ -37,6 +44,44 @@ const input = (n: number, mode = "free") => ({
   text: "45分钟买菜回来，50元预算",
   mode,
   requestId: `request-test-${n}`,
+});
+test("Xing extraction disables thinking without changing other provider payloads or exposing keys", () => {
+  const model = "XingChenAGI/Xing4.0-29B";
+  const body = planningRequest({ ...config, model }, "50元买菜");
+  assert.equal(body.enable_thinking, false);
+  assert.equal(body.thinking_budget, 128);
+  assert.equal(body.max_tokens, MAX_COMPLETION);
+  assert.equal(JSON.stringify(body).includes(config.key), false);
+  for (const other of [
+    config,
+    { ...config, model, baseUrl: "https://openrouter.ai/api/v1" },
+  ]) {
+    const request = planningRequest(other, "买菜");
+    assert.equal("enable_thinking" in request, false);
+    assert.equal("thinking_budget" in request, false);
+  }
+});
+test("token reservations include the bounded thinking allowance before any model request", async () => {
+  let calls = 0;
+  const reservation =
+    Buffer.byteLength(PLANNING_SYSTEM, "utf8") +
+    600 * 4 +
+    MAX_COMPLETION +
+    MAX_THINKING +
+    256;
+  const ai = new AiService(
+    { ...env, AI_FREE_DAILY_TOKEN_BUDGET: String(reservation - 1) },
+    async () => {
+      calls++;
+      return answer;
+    },
+  );
+  try {
+    await assert.rejects(ai.run("a", "s", input(1)), /额度/);
+    assert.equal(calls, 0);
+  } finally {
+    ai.close();
+  }
 });
 test("planning rejects invented facts, fields, goods and out of range conditions", () => {
   assert.equal(parsePlanningAnswer(answer, "买菜").shoppingBudget, 50);
