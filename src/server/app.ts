@@ -27,6 +27,8 @@ import { cleanJourney } from "../shared/journey.js";
 import { parseResultFile } from "../shared/result-file.js";
 import { MAX_BOOK_BYTES } from "../shared/life.js";
 import { readOutingRoutes } from "./outing-routes.js";
+import { AiService } from "./ai-service.js";
+import type { AiTransport } from "./ai-transport.js";
 
 const integer = (
   value: string | undefined,
@@ -109,6 +111,7 @@ export function validateInput(value: Record<string, unknown>): AnalysisInput {
 export function createApp(
   env: NodeJS.ProcessEnv = process.env,
   gatewayOverride?: BaiduGateway,
+  aiTransport?: AiTransport,
 ) {
   const publicServer =
     Boolean(env.PUBLIC_ORIGIN) ||
@@ -119,6 +122,7 @@ export function createApp(
       "外部部署须配置 HTTPS PUBLIC_ORIGIN，私人地点簿不能通过明文公网传输。",
     );
   const life = new LifeStore(env.PERSONAL_DATA_PATH);
+  const ai = new AiService(env, aiTransport);
   const tokenOf = (req: IncomingMessage) =>
     req.headers.authorization?.replace(/^Bearer /, "") ??
     req.headers.cookie
@@ -265,6 +269,30 @@ export function createApp(
         const body = await readJson(req);
         return session(req, res, life.redeem(body.code), body.client);
       }
+      if (url.pathname.startsWith("/api/ai/")) {
+        const token = tokenOf(req),
+          space = life.authenticate(token);
+        if (method === "GET" && url.pathname === "/api/ai/status")
+          return json(res, 200, ai.status(token!, space));
+        if (method === "PUT" && url.pathname === "/api/ai/settings") {
+          rate(`ai-settings:${space}`, 20);
+          ai.save(token!, await readJson(req));
+          return json(res, 200, ai.status(token!, space));
+        }
+        if (method === "DELETE" && url.pathname === "/api/ai/settings") {
+          ai.remove(token!);
+          return json(res, 200, ai.status(token!, space));
+        }
+        if (method === "POST" && url.pathname === "/api/ai/parse") {
+          rate(`ai:${space}`, 10);
+          return json(
+            res,
+            200,
+            await ai.run(token!, space, await readJson(req)),
+          );
+        }
+        throw new ServiceError("接口不存在。", 404);
+      }
       if (url.pathname.startsWith("/api/life")) {
         const token = tokenOf(req);
         const owner = life.authenticate(token);
@@ -319,6 +347,7 @@ export function createApp(
           return json(res, 200, life.pair(owner));
         }
         if (method === "DELETE" && url.pathname === "/api/life/session") {
+          ai.remove(tokenOf(req)!);
           life.revoke(token!);
           res.setHeader(
             "set-cookie",
@@ -540,6 +569,7 @@ export function createApp(
     }
   });
   server.on("close", () => {
+    ai.close();
     life.close();
     clearInterval(cleanup);
     for (const item of jobs.values()) item.controller.abort();
