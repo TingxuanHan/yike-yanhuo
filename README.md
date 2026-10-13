@@ -58,7 +58,7 @@ npm run dev
 
 现有PDF和视频对应上一轮体检与设施核查功能；本轮日常出行、同步和小程序进展先以代码及设计文档为准，最终参赛录制时统一更新材料。
 
-自然语言规划尚未接通模型，候选接入方式与数据／用量边界见[规划助手设计](docs/planning-assistant.md)。
+“一句话安排”支持基础AI、自用API和离线手工条件确认；已接入两端办事、购物及步行目标表单。模型接口由后端统一鉴权、限额和加密保管密钥；目前尚未配置供应商密钥，不能把受控测试当作真实模型联调。配置步骤、免费测试渠道与数据边界见[规划助手接入](docs/planning-assistant.md)。
 
 - [作品介绍 PDF](materials/yike-yanhuo-introduction.pdf)
 - [技术与验证报告 PDF](materials/yike-yanhuo-technical-report.pdf)

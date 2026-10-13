@@ -94,4 +94,19 @@
 
 `book.movement`为可选对象：`mode:easy|alternating`、`easyMps,briskMps,targetMinutes,maxExtraMinutes,warmMinutes,briskMinutes,recoverMinutes,returnEasy,continuousMinutes`。数值范围与字段白名单见`src/shared/movement.ts`；交替模式的稍快步速必须高于轻松步速。旧地点簿兼容，仍使用原空间API、版本冲突机制和总大小限制，手动合并优先保留本机步行偏好。
 
-已选行程快照与未保存设置仅留在设备本地，快照包含有向距离、地点名称、出发偏好和营业／歇脚信息，不包含坐标。核心`planMovement`与两端共用`MovementSession`无网络依赖，不产生已完成运动记录，没有新增运动、模型或百度接口。
+已选行程快照与未保存设置仅留在设备本地，快照包含有向距离、地点名称、出发偏好和营业／歇脚信息，不包含坐标。核心`planMovement`与两端共用`MovementSession`无网络依赖，不产生已完成运动记录；运动计算没有新增百度接口。可选的模型条件提取接口如下。
+
+## 条件整理与模型设置
+
+以下接口在本机模式也需要有效设备凭证：Web使用HttpOnly会话Cookie，微信使用既有Bearer设备令牌；所有写请求沿用来源与JSON检查。
+
+| 接口 | 用途 |
+| --- | --- |
+| `GET /api/ai/status` | 返回基础AI是否配置、模型、空间今日余量；当前设备自用配置的地址/模型/余量及北京时间重置时刻。永不返回密钥。 |
+| `PUT /api/ai/settings` | `{baseUrl, model, key}`，完整保存当前设备的加密配置，不发模型请求。 |
+| `DELETE /api/ai/settings` | 删除当前设备的配置，保留当日用量计数。 |
+| `POST /api/ai/parse` | `{mode:"free"或"own",text,requestId}`，600字内文字，一次非流式请求。返回`{draft,source,model}`，不生成路线或自动应用。 |
+
+`draft`为白名单字段：`tripMinutes, shoppingBudget, departure, speedMps, walkingMinutes, returnEasy, tasks, items`。未提供的条件为null或空数组，文本商品必须来自用户原话；未知字段、错误类型和越界数据拒绝。页面允许用户修改及明确确认，再进入原有计算器。
+
+`requestId`为12—80位字母、数字、下划线或连字符，同一设备重复ID在七天保留期内返回409，不重复调用。返回401表示需重新配对，429为本项目次数或并发限制，503为尚未配置，502/504为无有效条件或超时。失败也计入已预留次数；客户端不会自动重试。详见[用量与存储说明](planning-assistant.md)。
