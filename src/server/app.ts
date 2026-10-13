@@ -28,6 +28,7 @@ import { parseResultFile } from "../shared/result-file.js";
 import { MAX_BOOK_BYTES } from "../shared/life.js";
 import { readOutingRoutes } from "./outing-routes.js";
 import { AiService } from "./ai-service.js";
+import type { requireZeroPrice } from "./ai-pricing.js";
 import type { AiTransport } from "./ai-transport.js";
 
 const integer = (
@@ -112,6 +113,7 @@ export function createApp(
   env: NodeJS.ProcessEnv = process.env,
   gatewayOverride?: BaiduGateway,
   aiTransport?: AiTransport,
+  aiPriceCheck?: typeof requireZeroPrice,
 ) {
   const publicServer =
     Boolean(env.PUBLIC_ORIGIN) ||
@@ -122,7 +124,7 @@ export function createApp(
       "外部部署须配置 HTTPS PUBLIC_ORIGIN，私人地点簿不能通过明文公网传输。",
     );
   const life = new LifeStore(env.PERSONAL_DATA_PATH);
-  const ai = new AiService(env, aiTransport);
+  const ai = new AiService(env, aiTransport, undefined, aiPriceCheck);
   const tokenOf = (req: IncomingMessage) =>
     req.headers.authorization?.replace(/^Bearer /, "") ??
     req.headers.cookie
@@ -284,12 +286,10 @@ export function createApp(
           return json(res, 200, ai.status(token!, space));
         }
         if (method === "POST" && url.pathname === "/api/ai/parse") {
-          rate(`ai:${space}`, 10);
-          return json(
-            res,
-            200,
-            await ai.run(token!, space, await readJson(req)),
-          );
+          const input = await readJson(req);
+          if (input.mode !== "free" || env.AI_FREE_LOCAL_LIMITS !== "false")
+            rate(`ai:${space}`, 10);
+          return json(res, 200, await ai.run(token!, space, input));
         }
         throw new ServiceError("接口不存在。", 404);
       }

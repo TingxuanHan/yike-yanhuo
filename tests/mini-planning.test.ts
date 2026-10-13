@@ -82,7 +82,7 @@ test("native API request sends only typed text and wipes transient key without s
               model: "fixture-model",
             }
           : {
-              free: { configured: true, remaining: 3, limit: 3 },
+              free: { configured: true, remaining: null, limit: null },
               own: { configured: false },
             },
       });

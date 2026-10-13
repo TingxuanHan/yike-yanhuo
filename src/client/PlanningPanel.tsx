@@ -105,7 +105,9 @@ export function PlanningPanel({
             ) : s.mode === "free" ? (
               <p>
                 {s.service.free.configured
-                  ? `本空间今天还可用${s.service.free.remaining}/${s.service.free.limit}次 · ${s.service.free.model}`
+                  ? s.service.free.remaining === null
+                    ? `本地不设每日次数限制 · ${s.service.free.model}`
+                    : `本空间今天还可用${s.service.free.remaining}/${s.service.free.limit}次 · ${s.service.free.model}`
                   : "基础AI尚未开通，可以手工填写或配置自己的API。"}
               </p>
             ) : (
@@ -122,7 +124,7 @@ export function PlanningPanel({
                 s.busy ||
                 !s.text.trim() ||
                 !s.service?.[s.mode].configured ||
-                !s.service[s.mode].remaining
+                s.service[s.mode].remaining === 0
               }
               onClick={() => void session.parse()}
             >
@@ -224,7 +226,10 @@ export function PlanningPanel({
             </button>
           </div>
           <p className="muted">
-            每日北京时间零点重置。失败请求也计入保护额度，不自动重试或切换付费接口。免费额度由同一私人空间的设备共用。
+            {s.service?.free.limit === null
+              ? "基础AI不设本地日限额，调用前核对免费标价；服务商限流仍有效。"
+              : "基础AI次数由同一私人空间共用，失败也计数，每日北京时间零点重置。"}
+            自用API仍按页面次数和服务商规则计费。不自动重试或切换接口。
           </p>
         </div>
       )}

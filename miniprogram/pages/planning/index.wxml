@@ -7,9 +7,9 @@
     <block wx:if="{{mode !== 'manual'}}">
       <text class="muted">点击整理，仅发送上面这段文字到所选模型；请避免填写家庭住址等私人信息。</text>
       <text wx:if="{{!service}}" class="notice">请先在首页“我的”连接私人空间。暂时可以手工填写。</text>
-      <block wx:elif="{{mode === 'free'}}"><text wx:if="{{service.free.configured}}" class="notice">本空间今天还可用{{service.free.remaining}}/{{service.free.limit}}次 · {{service.free.model}}</text><text wx:else class="notice">基础AI尚未开通，可手工填写或配置自己的API。</text></block>
+      <block wx:elif="{{mode === 'free'}}"><text wx:if="{{service.free.configured}}" class="notice"><block wx:if="{{service.free.remaining === null}}">本地不设每日次数限制</block><block wx:else>本空间今天还可用{{service.free.remaining}}/{{service.free.limit}}次</block> · {{service.free.model}}</text><text wx:else class="notice">基础AI尚未开通，可手工填写或配置自己的API。</text></block>
       <block wx:else><text wx:if="{{service.own.configured}}" class="notice">本设备今天还可用{{service.own.remaining}}/{{service.own.limit}}次 · {{service.own.model}}</text><text wx:else class="notice">本设备尚未配置API。</text><text class="muted">自用接口按服务商规则计费。</text></block>
-      <button id="planning-parse" class="primary" bindtap="parse" disabled="{{busy || !text || !service || (mode === 'free' ? !service.free.configured || !service.free.remaining : !service.own.configured || !service.own.remaining)}}">{{busy ? '正在整理…' : '整理成出行条件'}}</button>
+      <button id="planning-parse" class="primary" bindtap="parse" disabled="{{busy || !text || !service || (mode === 'free' ? !service.free.configured || service.free.remaining === 0 : !service.own.configured || !service.own.remaining)}}">{{busy ? '正在整理…' : '整理成出行条件'}}</button>
     </block>
     <button id="planning-settings" bindtap="settings" disabled="{{busy}}">API设置与额度</button>
   </view>
@@ -22,7 +22,9 @@
     <label>API密钥<input id="planning-key" data-key="key" value="{{key}}" password="{{true}}" bindinput="field" disabled="{{busy}}" maxlength="512" placeholder="每次保存需填完整密钥" /></label>
     <text class="muted">新服务商域名需由管理员允许。测试使用固定示例，占一次自用额度，也可能产生服务商费用。</text>
     <button class="primary" bindtap="saveSettings" disabled="{{busy || !key}}">保存接口</button><button bindtap="testSettings" disabled="{{busy || !service.own.configured}}">测试已保存接口</button><button bindtap="removeSettings" disabled="{{busy || !service.own.configured}}">删除接口</button>
-    <text class="muted">每天北京时间零点重置；失败也计入保护额度。不自动重试或切换付费接口。免费次数由同一私人空间共用。</text>
+    <text class="muted" wx:if="{{service.free.limit === null}}">基础AI不设本地日限额，调用前核对免费标价；服务商限流仍有效。</text>
+    <text class="muted" wx:else>基础AI次数由同一私人空间共用，失败也计数，每日北京时间零点重置。</text>
+    <text class="muted">自用API仍按页面次数和服务商规则计费。不自动重试或切换接口。</text>
   </view>
   <view class="panel review" wx:if="{{reviewed || mode === 'manual'}}">
     <text class="eyebrow">确认之后才会应用</text><text class="subtitle">核对这次出门的条件</text><text>{{mode === 'manual' ? '手工填写 · 不调用模型' : source}}</text><text class="muted">留空保留原设置；这里不计算路线，也不读取地图。</text>

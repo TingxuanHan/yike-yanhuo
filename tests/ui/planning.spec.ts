@@ -49,7 +49,7 @@ test("model review preserves drafts, never applies automatically and clears API 
   page,
 }) => {
   const status = {
-    free: { configured: true, remaining: 3, limit: 3, model: "测试模型" },
+    free: { configured: true, remaining: null, limit: null, model: "测试模型" },
     own: {
       configured: false,
       baseUrl: "",
@@ -80,6 +80,9 @@ test("model review preserves drafts, never applies automatically and clears API 
     await route.fulfill({ json: status });
   });
   await open(page);
+  await expect(
+    page.getByText("本地不设每日次数限制 · 测试模型", { exact: true }),
+  ).toBeVisible();
   await page
     .getByLabel("这次想做什么", { exact: true })
     .fill("45分钟买菜回来，50元预算");

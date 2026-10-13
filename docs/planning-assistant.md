@@ -20,19 +20,22 @@
 AI_FREE_BASE_URL=https://api.siliconflow.cn/v1
 AI_FREE_MODEL=Qwen/Qwen3-8B
 AI_FREE_KEY=在本机填入自己的密钥
+AI_FREE_LOCAL_LIMITS=false
 AI_FREE_SPACE_DAILY=3
 AI_FREE_DAILY_REQUESTS=20
 AI_FREE_DAILY_TOKEN_BUDGET=60000
 AI_OWN_DEVICE_DAILY=20
 ```
 
-也可以选择OpenRouter：地址`https://openrouter.ai/api/v1`，模型`openrouter/free`，使用该平台自己的密钥。两者选一个即可。没有密钥时基础AI显示“尚未开通”。基础免费指使用者不填写密钥；平台运营者负责供应商账号、预算和服务可用性，并不保证供应商永久免费。
+当前本机联调关闭基础AI的本地限额：`AI_FREE_LOCAL_LIMITS=false`。此时空间日次数、全站日次数、每日估算Token总量和原HTTP接口每10分钟10次限制均不再拦截，但保留用量记录与单请求串行。每次推理前从硅基流动官方价格页读取该模型的实时输入、输出价格；仅在两者都为0时继续，收费、缺少价格、页面格式变化或网络失败均停止推理，不自动换模型。此核查不发送API密钥，也不读取账单。
+
+配置模板默认仍为`true`，使用后文的日限额。也可以在此模式选择OpenRouter：地址`https://openrouter.ai/api/v1`，模型`openrouter/free`，使用该平台自己的密钥。目前不限次模式的价格核查只支持硅基流动标准接口。没有密钥时基础AI显示“尚未开通”。“基础免费”指使用者不填写密钥，平台运营者仍负责供应商账号和服务可用性。
 
 构建后通过`npm start`重启服务以载入配置。正式手机与Web共同使用仍需可达的HTTPS后端及小程序请求域名配置；本地开发工具预览不等于手机已接通模型。
 
-可运行`npm run test:planning-live`查看说明，不会发请求。明确准备好后运行`npm run test:planning-live -- --confirm-one-call`，仅发送一条固定需求，核对四个关键条件；不读私人地点簿、不调用百度、不自动重试、不打印原始响应。该测试使用同一持久化额度库，计入平台日预算。
+可运行`npm run test:planning-live`查看说明，不会发请求。明确准备好后运行`npm run test:planning-live -- --confirm-one-call`，仅发送一条固定需求，核对时间、金额、步行目标、返程偏好与任务，并检查未虚构商品、出发时刻或步速；不读私人地点簿、不调用百度、不自动重试、不打印原始响应。测试使用同一持久化记录库，遵循当前本地限额设置。
 
-当前默认使用硅基流动的`Qwen/Qwen3-8B`，关闭思考模式并启用`response_format: {type: "json_object"}`，采用非思考模式的温度0.7与top_p 0.8。JSON模式用于约束格式，程序仍检查字段类型、数值范围和商品来源。提示词明确任务只使用英文代号，数值不带引号或单位。依据：[硅基流动接口文档](https://docs.siliconflow.cn/docs/api/chat-completions-post)、[Qwen3官方模型说明](https://huggingface.co/Qwen/Qwen3-8B)。
+当前默认使用硅基流动的`Qwen/Qwen3-8B`，关闭思考模式并启用`response_format: {type: "json_object"}`，采用非思考模式的温度0.7与top_p 0.8。JSON模式用于约束格式，程序仍检查字段类型、数值范围和商品来源。提示词明确任务只使用英文代号，数值不带引号或单位；“买菜取药”等任务短语不作为商品，只有明确点名的商品才填入清单。依据：[硅基流动接口文档](https://docs.siliconflow.cn/docs/api/chat-completions-post)、[Qwen3官方模型说明](https://huggingface.co/Qwen/Qwen3-8B)。
 
 Qwen3-8B和此前的`XingChenAGI/Xing4.0-29B`均设置128 token思考上限作为额外约束；答复上限仍为800 token，超时仍为25秒。思考上限纳入本机预算预留，不自动扩容或切换模型。其他模型和服务商不发送这些专用字段。切换基础模型不改变已有设备的自用API设置，也不会重置当天额度。
 
@@ -48,7 +51,7 @@ Qwen3-8B和此前的`XingChenAGI/Xing4.0-29B`均设置128 token思考上限作�
 
 ## 限额与隐私
 
-- 现有身份是配对设备和私人空间，没有实名个人账号；基础额度按空间每天3次，共享该空间的设备合计计算。不能称为严格“每人3次”。全站默认每天最多20次，另受60000估算Token预留预算约束，实际可能先触及估算预算。自用默认每设备20次。
+- `AI_FREE_LOCAL_LIMITS=true`时，基础额度按空间每天3次，共享该空间的设备合计计算，全站默认20次且受60000估算Token总量约束。`false`时关闭这三项本地日限额，Web与微信显示“本地不设每日次数限制”，状态中的`free.limit`和`free.remaining`为`null`；服务商自身限流仍有效。自用API默认每设备20次，不受此开关影响。
 - 请求预先按最大输入字节、输出800 Token和消息开销保守预留。这个数值用于限制请求规模，不是服务商计费Token或人民币硬上限。应在供应商控制台同时设消费限额。失败、超时和连接测试也计入保护次数，不退款重试，避免不明计费重复发生。
 - 同一额度数据库跨进程只允许一条模型请求在途；每次25秒超时，无自动重试。服务重启不清空日额度，按北京时间零点重置。数据库记录请求散列、设备散列、空间、日期、模式和预留量，不保存原文或模型输出；七天前请求记录清理。
 - 模型仅收到本次文字和固定提取规则，不自动附带地点簿、图片、位置或价格。用户自己写入的敏感内容仍会被发送，所以界面在操作前说明发送范围。输入与确认草稿保存在本机浏览器/微信存储。
@@ -59,10 +62,10 @@ Qwen3-8B和此前的`XingChenAGI/Xing4.0-29B`均设置128 token思考上限作�
 
 | 渠道 | 当前官方证据 | 本项目测试建议 |
 | --- | --- | --- |
-| 硅基流动 | 已核对实时计费数据，`Qwen/Qwen3-8B`和`XingChenAGI/Xing4.0-29B`输入、输出均为0元；快速上手要求注册并创建API密钥。没有据此推断无限调用或全模型免费。 | 默认预设已切换为Qwen3-8B；Xing三次尝试未通过。Qwen本轮仅进行离线及配置验证，真实推理仍待限额内验收。 |
+| 硅基流动 | 已核对实时计费数据，`Qwen/Qwen3-8B`和`XingChenAGI/Xing4.0-29B`输入、输出均为0元；快速上手要求注册并创建API密钥。没有据此推断无限调用或全模型免费。 | 默认Qwen3-8B完成真实条件提取及两端业务流程联调，详情见[验证记录](validation.md)。Xing此前三次尝试未通过。 |
 | OpenRouter | 官方免费路由`openrouter/free`只选免费模型；官方教程说明低额度账户免费模型通常50次/日、20次/分钟，失败也计数，热门时段可能限流。 | 已提供预设；注册后创建自己的密钥，在账号允许的免费额度内测试。账户实际计数和可用模型以控制台为准。 |
 | 魔搭ModelScope | 官方历史月报介绍每日2000次免费调用；当前API文档公开页面未能读取完整配额内容。 | 作为备选域名，不把旧2000次政策当作当前保证；须登录核对当前资格、模型和额度后配置。 |
 
 来源：[硅基流动价格](https://www.siliconflow.cn/pricing)、[注册与首次调用](https://docs.siliconflow.cn/docs/userguide/quickstart)、[OpenRouter免费模型](https://openrouter.ai/collections/free-models)、[OpenRouter官方教程及额度](https://openrouter.ai/blog/tutorials/any-coding-agent/)、[OpenRouter实时限额查询说明](https://openrouter.ai/docs/api_reference/limits)、[魔搭历史月报](https://www.modelscope.cn/headlines/article/838)、[魔搭当前文档入口](https://www.modelscope.cn/docs/model-service/API-Inference/intro)。
 
-初次开发时未注册模型账号或充值，自动化使用受控响应验证流程与保护机制。随后在授权下完成上文记录的Xing实测，再按要求切换Qwen3-8B；不能把离线验证或成功读取配置当作真实模型能力验证。后续实测仍使用单条固定示例并计入既有额度。
+初次开发时未注册模型账号或充值，自动化使用受控响应验证保护机制。随后完成Xing实测、切换Qwen3-8B，并按要求取消本机基础AI日限额，在每次确认免费标价后串行联调。本轮Qwen累计7次真实调用，发现并修正任务短语被误提为商品的问题，最终四类输入检查通过。路线与价格使用人工构造示例，微信验证运行真实页面业务代码并模拟平台回调，均不替代手机端或现场验证。

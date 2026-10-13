@@ -18,6 +18,7 @@ import {
   type ModelConfig,
 } from "./ai-transport.js";
 import { ServiceError } from "./baidu.js";
+import { requireZeroPrice } from "./ai-pricing.js";
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 const day = (now: number) =>
   new Date(now + 8 * 3600000).toISOString().slice(0, 10);
@@ -39,10 +40,12 @@ export class AiService {
   private globalLimit: number;
   private ownLimit: number;
   private tokenLimit: number;
+  private freeLocalLimits: boolean;
   constructor(
     env: NodeJS.ProcessEnv,
     private transport: AiTransport = chatTransport,
     private now = () => Date.now(),
+    private verifyFree = requireZeroPrice,
   ) {
     const path =
       env.AI_DATA_PATH ||
@@ -93,6 +96,7 @@ export class AiService {
     this.globalLimit = limit(env.AI_FREE_DAILY_REQUESTS, 20, 10000);
     this.ownLimit = limit(env.AI_OWN_DEVICE_DAILY, 20, 1000);
     this.tokenLimit = limit(env.AI_FREE_DAILY_TOKEN_BUDGET, 60000, 10000000);
+    this.freeLocalLimits = env.AI_FREE_LOCAL_LIMITS !== "false";
     this.db = new DatabaseSync(path);
     this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=3000;
       CREATE TABLE IF NOT EXISTS credentials(owner TEXT PRIMARY KEY, payload TEXT NOT NULL, expires INTEGER NOT NULL);
@@ -167,18 +171,20 @@ export class AiService {
       free: {
         configured: !!this.platform,
         model: this.platform?.model ?? "",
-        limit: this.freeLimit,
+        limit: this.freeLocalLimits ? this.freeLimit : null,
         remaining: this.platform
-          ? Math.max(
-              0,
-              Math.min(
-                this.freeLimit - free.n,
-                this.globalLimit - global.n,
-                Math.floor(
-                  (this.tokenLimit - global.tokens) / this.reservation(600),
+          ? !this.freeLocalLimits
+            ? null
+            : Math.max(
+                0,
+                Math.min(
+                  this.freeLimit - free.n,
+                  this.globalLimit - global.n,
+                  Math.floor(
+                    (this.tokenLimit - global.tokens) / this.reservation(600),
+                  ),
                 ),
-              ),
-            )
+              )
           : 0,
       },
       own: {
@@ -244,7 +250,9 @@ export class AiService {
           409,
         );
       const status = this.status(token, space);
-      if ((input.mode === "free" ? status.free : status.own).remaining < 1)
+      const remaining = (input.mode === "free" ? status.free : status.own)
+        .remaining;
+      if (remaining !== null && remaining < 1)
         throw new ServiceError(
           "今天的此项额度已用完，可手工填写；不会切换到其他接口。",
           429,
@@ -274,7 +282,16 @@ export class AiService {
         }, 25000);
       });
       const answer = await Promise.race([
-        this.transport(config, input.text, controller.signal),
+        (async () => {
+          if (input.mode === "free" && !this.freeLocalLimits)
+            await this.verifyFree(config, controller.signal);
+          controller.signal.throwIfAborted();
+          return this.transport(
+            config,
+            input.text as string,
+            controller.signal,
+          );
+        })(),
         timeout,
       ]);
       if (answer.includes(config.key)) throw new Error();

@@ -6,7 +6,7 @@ import { ServiceError } from "../src/server/baidu.js";
 
 if (!process.argv.includes("--confirm-one-call")) {
   console.log(
-    "未调用模型。填写项目.env后，追加--confirm-one-call可发送一条固定示例；会占用平台保护额度和服务商额度。",
+    "未调用模型。填写项目.env后，追加--confirm-one-call可发送一条固定示例；遵循当前本地配置和服务商用量规则。",
   );
 } else {
   if (existsSync(".env")) loadEnvFile(".env");
@@ -35,10 +35,15 @@ if (!process.argv.includes("--confirm-one-call")) {
         result.draft.tripMinutes === 45 &&
         result.draft.shoppingBudget === 50 &&
         result.draft.walkingMinutes === 20 &&
-        result.draft.returnEasy === true;
+        result.draft.returnEasy === true &&
+        result.draft.tasks.length === 1 &&
+        result.draft.tasks[0] === "market" &&
+        result.draft.items.length === 0 &&
+        result.draft.departure === null &&
+        result.draft.speedMps === null;
       console.log(
         ok
-          ? "固定示例通过：时间、预算、步行目标与返程偏好均提取正确；真实请求1次，地图请求0次。"
+          ? "固定示例通过：时间、预算、步行目标、返程偏好与任务均正确；未虚构商品、时刻或步速。真实请求1次，地图请求0次。"
           : "接口已响应，但固定示例的条件提取未全部匹配。请在确认页核对；未自动重试。真实请求1次，地图请求0次。",
       );
       if (!ok) process.exitCode = 1;

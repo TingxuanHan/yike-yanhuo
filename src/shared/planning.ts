@@ -140,8 +140,8 @@ export interface AiStatus {
   free: {
     configured: boolean;
     model: string;
-    remaining: number;
-    limit: number;
+    remaining: number | null;
+    limit: number | null;
   };
   own: {
     configured: boolean;

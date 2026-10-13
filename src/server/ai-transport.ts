@@ -20,7 +20,9 @@ export const PLANNING_SYSTEM = `你是出行条件提取器。只输出JSON对�
 格式：{"tripMinutes":null,"shoppingBudget":null,"departure":null,"speedMps":null,"walkingMinutes":null,"returnEasy":null,"tasks":[],"items":[]}
 tripMinutes为含返程停留的整趟分钟5到180；shoppingBudget为消费预算元1到10000；departure为明确的24小时HH:mm；speedMps为明确步速0.3到2；walkingMinutes为步行运动目标1到90；returnEasy仅明确返程轻松为true，明确不需要为false，否则null。
 tasks必须是JSON字符串数组，仅允许英文值"market"、"pharmacy"、"park"、"personal"，最多3项；它们分别表示买菜、取药、逛公园、去小店。例如买菜应输出["market"]，不能输出["买菜"]或["market买菜"]。
-数值必须是JSON数字，不能用引号包裹或附加单位；布尔值使用true或false，未知值使用null。items仅购物商品名称，最多5项，每项24字内且必须是用户原文的连续片段，不含数量规格。不要添加其他字段。模糊、冲突或超出范围的条件留null，由用户补充。`;
+数值必须是JSON数字，不能用引号包裹或附加单位；布尔值使用true或false，未知值使用null。
+items只提取明确点名的具体商品，如鸡蛋、牛奶、白菜。买菜、取药、购物、逛公园是任务，不是商品；这些任务短语以及带金额、时间、动作的句子绝不能放入items。未说具体商品时，items必须为[]。例如“带50元买菜”应为tasks:["market"],items:[]；“买菜取药”应为tasks:["market","pharmacy"],items:[]；“买2盒牛奶和10个鸡蛋”应为tasks:["market"],items:["牛奶","鸡蛋"]。最多5项，每项24字内，名称必须是用户原文的连续片段，不含数量规格。
+不要添加其他字段。模糊、冲突或超出范围的条件留null，由用户补充。`;
 export function publicAddress(ip: string) {
   if (isIP(ip) === 4) {
     const [a, b] = ip.split(".").map(Number);

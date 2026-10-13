@@ -7,6 +7,11 @@ import { once } from "node:events";
 import type { AddressInfo } from "node:net";
 import { AiService } from "../src/server/ai-service.js";
 import {
+  hasZeroTokenPrice,
+  requireZeroPrice,
+} from "../src/server/ai-pricing.js";
+import { ServiceError } from "../src/server/baidu.js";
+import {
   cleanModelConfig,
   publicAddress,
   planningRequest,
@@ -44,6 +49,95 @@ const input = (n: number, mode = "free") => ({
   text: "45分钟买菜回来，50元预算",
   mode,
   requestId: `request-test-${n}`,
+});
+test("free pricing requires current input and output rows, rejecting missing or paid prices", async () => {
+  const model = "Qwen/Qwen3-8B";
+  const rows = ["input-tokens", "output-tokens"].map((componentCode) => ({
+    playgroundName: model,
+    componentCode,
+    realTimePriceCnyUnit: "0.000000",
+    unitZhCnName: "K tokens",
+  }));
+  const page = (data: unknown) =>
+    `<script>self.__next_f.push(${JSON.stringify([1, `a:${JSON.stringify({ pricingApiItems: data })}\n`])})</script>`;
+  assert.equal(hasZeroTokenPrice(page(rows), model), true);
+  assert.equal(hasZeroTokenPrice(page(rows), "Pro/Qwen/Qwen3-8B"), false);
+  assert.equal(hasZeroTokenPrice(page(rows.slice(0, 1)), model), false);
+  for (const price of ["0.01", "", null, "NaN", "-0.1"]) {
+    assert.equal(
+      hasZeroTokenPrice(
+        page([rows[0], { ...rows[1], realTimePriceCnyUnit: price }]),
+        model,
+      ),
+      false,
+    );
+  }
+  assert.equal(
+    hasZeroTokenPrice(page([{ playgroundName: model, price: 0 }]), model),
+    false,
+  );
+  assert.equal(
+    hasZeroTokenPrice("<script>throw new Error('not data')</script>", model),
+    false,
+  );
+  await assert.rejects(
+    requireZeroPrice(
+      { ...config, baseUrl: "https://openrouter.ai/api/v1" },
+      new AbortController().signal,
+    ),
+    /无法确认/,
+  );
+});
+test("uncapped free use checks pricing, retains history and still limits user-supplied APIs", async () => {
+  const root = mkdtempSync(join(tmpdir(), "yike-unlimited-")),
+    path = join(root, "ai.sqlite");
+  let allowed = false,
+    calls = 0,
+    checks = 0;
+  const settings = {
+    ...env,
+    AI_DATA_PATH: path,
+    AI_FREE_LOCAL_LIMITS: "false",
+    AI_FREE_SPACE_DAILY: "1",
+    AI_FREE_DAILY_REQUESTS: "1",
+    AI_FREE_DAILY_TOKEN_BUDGET: "1",
+    AI_OWN_DEVICE_DAILY: "1",
+  };
+  const transport = async () => {
+    calls++;
+    return answer;
+  };
+  const verify = async () => {
+    checks++;
+    if (!allowed) throw new ServiceError("未确认免费", 503);
+  };
+  let ai = new AiService(settings, transport, Date.now, verify);
+  try {
+    assert.equal(ai.status("a", "s").free.remaining, null);
+    assert.equal(ai.status("a", "s").free.limit, null);
+    await assert.rejects(ai.run("a", "s", input(1)), /未确认免费/);
+    assert.equal(calls, 0);
+    allowed = true;
+    for (let n = 2; n <= 5; n++) await ai.run("a", "s", input(n));
+    assert.equal(calls, 4);
+    assert.equal(checks, 5);
+    await assert.rejects(ai.run("a", "s", input(5)), /已处理/);
+    ai.save("a", config);
+    await ai.run("a", "s", input(6, "own"));
+    await assert.rejects(ai.run("a", "s", input(7, "own")), /额度/);
+    assert.equal(checks, 5);
+    ai.close();
+    ai = new AiService(
+      { ...settings, AI_FREE_LOCAL_LIMITS: "true" },
+      transport,
+    );
+    assert.equal(ai.status("a", "s").free.remaining, 0);
+    await assert.rejects(ai.run("a", "s", input(8)), /额度/);
+    assert.equal(calls, 5);
+  } finally {
+    ai.close();
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 test("Xing extraction disables thinking without changing other provider payloads or exposing keys", () => {
   const model = "XingChenAGI/Xing4.0-29B";
@@ -288,6 +382,57 @@ test("real HTTP AI endpoints require pairing, keep credentials separate and neve
       (await req("/api/ai/status", "GET", undefined, token)).status,
       401,
     );
+  } finally {
+    server.close();
+    server.closeAllConnections();
+    await once(server, "close");
+  }
+});
+test("uncapped free HTTP requests also bypass the former ten-request window", async () => {
+  let calls = 0,
+    priceChecks = 0;
+  const server = createApp(
+    {
+      ...env,
+      AI_FREE_LOCAL_LIMITS: "false",
+      AI_FREE_SPACE_DAILY: "1",
+      AI_FREE_DAILY_REQUESTS: "1",
+      AI_FREE_DAILY_TOKEN_BUDGET: "1",
+    },
+    undefined,
+    async () => {
+      calls++;
+      return answer;
+    },
+    async () => {
+      priceChecks++;
+    },
+  );
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  try {
+    const created = await (
+      await fetch(base + "/api/life/create", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ client: "mini" }),
+      })
+    ).json();
+    for (let n = 1; n <= 11; n++) {
+      const response = await fetch(base + "/api/ai/parse", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${created.token}`,
+        },
+        body: JSON.stringify(input(n)),
+      });
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).draft.tripMinutes, 45);
+    }
+    assert.equal(calls, 11);
+    assert.equal(priceChecks, 11);
   } finally {
     server.close();
     server.closeAllConnections();
