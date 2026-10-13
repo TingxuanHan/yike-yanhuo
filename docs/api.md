@@ -105,8 +105,18 @@
 | `GET /api/ai/status` | 返回基础AI是否配置、模型、空间今日余量；当前设备自用配置的地址/模型/余量及北京时间重置时刻。永不返回密钥。 |
 | `PUT /api/ai/settings` | `{baseUrl, model, key}`，完整保存当前设备的加密配置，不发模型请求。 |
 | `DELETE /api/ai/settings` | 删除当前设备的配置，保留当日用量计数。 |
-| `POST /api/ai/parse` | `{mode:"free"或"own",text,requestId}`，600字内文字，一次非流式请求。返回`{draft,source,model}`，不生成路线或自动应用。 |
+| `POST /api/ai/parse` | `{mode:"free"或"own",text,requestId,current?}`，600字内文字，一次非流式请求。返回`{draft,source,model,changes}`，不生成路线或自动应用。带`current`时生成严格条件补丁，未提到的内容保留；无`current`时为初次提取。 |
+| `GET /api/ai/voice` | 返回`configured,model,maxSeconds`，不发模型请求。仍要求已配对的私人空间。 |
+| `POST /api/ai/voice` | `{mime,audio,requestId}`；base64编码的16k单声道PCM WAV或有效MP3，音频上限2MiB、界面最多45秒；返回`{text,model}`。每次查验准确ASR模型零元价格，30秒截止，共用模型单请求租约，无自动重试。 |
 
 `draft`为白名单字段：`tripMinutes, shoppingBudget, departure, speedMps, walkingMinutes, returnEasy, tasks, items`。未提供的条件为null或空数组，文本商品必须来自用户原话；未知字段、错误类型和越界数据拒绝。页面允许用户修改及明确确认，再进入原有计算器。
 
 `requestId`为12—80位字母、数字、下划线或连字符，同一设备重复ID在七天保留期内返回409，不重复调用。返回401表示需重新配对，429为本项目次数或并发限制，503为尚未配置，502/504为无有效条件或超时。失败也计入已预留次数；客户端不会自动重试。详见[用量与存储说明](planning-assistant.md)。
+
+## 整趟行程和行后记录
+
+整趟核算复用有向路线接口、现有商品记录、步行和营业时间计算，最多五个候选地点。进行中行程、事件和待编辑条件保存在当前设备，位置由使用者明确确认；不调用新的定位或后台跟踪接口。语音录音不进入设备草稿或服务器数据文件。
+
+`book.trips`为可选数组，最多30条，字段为`id,date,mode,origin,completed,difficult,totalMinutes,walkingMinutes,meters,spent,note`。明确区分`demo`和`baidu`，纯步行分钟与实付金额可为null，难走地点必须来自已确认到达的集合。字段白名单和大小检查位于`trip-feedback.ts`。旧地点簿兼容；合并同编号保留本机记录，按日期保留最近30条，仍受整本750000字节上限约束。同步预览会显示行后记录数量。
+
+`meters`是已确认路段的已知道路长度合计，不是GPS实测轨迹。只有符合条件的真实记录才可另经确认更新步速；音频、设备凭证和模型密钥不属于该结构。完整步骤见[一趟出门与语音](trip-and-voice.md)。
