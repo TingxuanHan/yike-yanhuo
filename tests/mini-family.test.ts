@@ -113,6 +113,9 @@ test("native family page uses privacy then one-shot fix, survives denial, shares
   await owner.locate();
   assert.equal(fixes, 1);
   assert.equal(owner.data.snapshot.record.source, "device");
+  assert.equal(owner.data.mapAvailable, true);
+  assert.equal(owner.data.markers[0].iconPath, "/assets/place.png");
+  assert.equal(owner.data.circles[0].radius, owner.data.summary.radiusM);
   assert.equal(owner.data.share, null);
   await owner.share();
   assert.ok(owner.data.share);

@@ -121,6 +121,19 @@
 
 `meters`是已确认路段的已知道路长度合计，不是GPS实测轨迹。只有符合条件的真实记录才可另经确认更新步速；音频、设备凭证和模型密钥不属于该结构。完整步骤见[一趟出门与语音](trip-and-voice.md)。
 
+## 单次位置分享
+
+| 接口 | 用途 |
+| --- | --- |
+| `POST /api/life/family` | 拥有者鉴权后提交`{snapshot:{record,speedMps}}`，返回`{view,invite}`。一小时到期；同一私人空间重新创建使旧卡失效。请求体上限3000字节。 |
+| `GET /api/life/family/:id` | 拥有者读取自己分享的单次记录。 |
+| `DELETE /api/life/family/:id` | 拥有者停止分享，重复撤销安全。 |
+| `GET /api/family/:id` | 家人仅用`X-Yike-Family`令牌读取。没有写入、私人地点簿或付费接口权限。 |
+
+`record`只有`source,position,name,at,accuracyM`；source为`device|confirmed`，position为带`wgs84|gcj02|bd09`体系的经纬度，拒绝模拟点、无效经纬度与超过当前服务端时钟一分钟的未来时间。本人确认的精度字段强制为null；超过一天的记录不新建链接。`view`只有`id,createdAt,expiresAt,snapshot`。手机号、设备凭证、历史轨迹和其他地点均不属于分享载荷。
+
+访问凭证为32字节随机数，服务端保存SHA-256散列；Web放在URL片段，家人请求省略Cookie、禁止重定向并使用`no-referrer`。微信接收页面仅将位置卡凭证发给链接中的服务地址，不发送本机设备凭证。接口沿用来源检查、独立频率限制、无缓存响应及过期正文清理。估算范围由客户端按记录年龄计算，公式与限制见[简易模式与家人位置线索](simple-family.md)。
+
 ## 单次行程协助
 
 拥有者接口沿用私人空间设备鉴权；家人接口仅接受`X-Yike-Assist`能力令牌，不附带拥有者Cookie或Bearer。Web邀请将密钥放在URL片段中，家人请求省略Cookie、禁止重定向并使用`no-referrer`。微信邀请通过页面参数携带能力令牌和服务地址，请求只发给该地址，绝不附带本机私人空间的设备凭证。

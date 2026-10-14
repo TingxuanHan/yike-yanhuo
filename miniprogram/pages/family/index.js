@@ -131,6 +131,7 @@ Page({
               longitude: geo.lng,
               latitude: geo.lat,
               title: "最后记录点",
+              iconPath: "/assets/place.png",
               width: 28,
               height: 28,
               callout: { content: "最后记录点，非实时位置", display: "ALWAYS" },
