@@ -5,6 +5,7 @@ import {
   locationSummary,
   tripLocation,
   LOCATION_KEY,
+  cleanReceipt,
   type FamilyShare,
   type FamilySnapshot,
   type LocationRecord,
@@ -34,6 +35,8 @@ export interface FamilyState {
   locationFailed: boolean;
   error: string;
   status: string;
+  shareFresh: boolean;
+  receiptStatus: string;
 }
 export class FamilySession {
   state: FamilyState;
@@ -42,6 +45,7 @@ export class FamilySession {
   private timer?: ReturnType<typeof setTimeout>;
   private lastAttempt = -Infinity;
   private endRequested = false;
+  private polling = false;
   private now: () => number;
   constructor(private deps: Deps) {
     this.now = deps.now ?? Date.now;
@@ -59,6 +63,8 @@ export class FamilySession {
       locationFailed: false,
       error: "",
       status: "",
+      shareFresh: false,
+      receiptStatus: "",
     };
     this.readLocal();
   }
@@ -81,6 +87,8 @@ export class FamilySession {
       : null;
   }
   private emit() {
+    if (this.state.share && !this.state.shareFresh && !this.state.receiptStatus)
+      this.state.receiptStatus = "正在核对新回应，下方是上次收到的记录。";
     this.state.summary = locationSummary(this.state.snapshot, this.now());
     this.state.shareOutdated =
       !!this.state.share &&
@@ -98,17 +106,19 @@ export class FamilySession {
     }
     this.readLocal();
     this.emit();
+    if (this.state.share) void this.refreshShare();
     this.timer = setTimeout(() => this.tick(), 15000);
   }
   reopen() {
     this.alive = true;
     this.tick();
-    void this.restore();
+    if (!this.state.share) void this.restore();
   }
   close() {
     this.alive = false;
     this.epoch++;
     this.state.locating = false;
+    this.state.shareFresh = false;
     clearTimeout(this.timer);
   }
   phone(value: string) {
@@ -247,6 +257,8 @@ export class FamilySession {
         { snapshot },
       );
       this.state.share = r.view;
+      this.state.shareFresh = true;
+      this.state.receiptStatus = "";
       this.state.invite = r.invite;
       this.deps.set("yike-family-share", { id: r.view.id, invite: r.invite });
       this.state.status =
@@ -254,6 +266,7 @@ export class FamilySession {
     });
   }
   async restore() {
+    const epoch = this.epoch;
     const saved = this.deps.get("yike-family-share") as {
       id?: string;
       invite?: string;
@@ -262,18 +275,59 @@ export class FamilySession {
       return;
     await this.action(async () => {
       try {
-        this.state.share = await this.deps.request<FamilyShare>(
+        const restored = await this.deps.request<FamilyShare>(
           `/api/life/family/${saved.id}`,
         );
+        if (!this.alive || epoch !== this.epoch) return;
+        this.state.share = restored;
+        this.state.shareFresh = true;
+        this.state.receiptStatus = "";
         this.state.invite = saved.invite ?? "";
       } catch (e) {
+        if (!this.alive || epoch !== this.epoch) return;
         if ([404, 410].includes((e as { status: number }).status)) {
           this.state.share = null;
           this.state.invite = "";
           this.deps.set("yike-family-share", null);
-        } else throw e;
+        } else {
+          this.state.shareFresh = false;
+          this.state.receiptStatus =
+            "暂时无法核对新回应，下方仅是上次收到的记录。可直接拨打电话。";
+          throw e;
+        }
       }
     });
+  }
+  async refreshShare() {
+    const id = this.state.share?.id,
+      epoch = this.epoch;
+    if (!id || this.polling || this.state.busy || !this.alive) return;
+    this.polling = true;
+    try {
+      const view = await this.deps.request<FamilyShare>(
+        `/api/life/family/${id}`,
+      );
+      if (!this.alive || epoch !== this.epoch || this.state.share?.id !== id)
+        return;
+      this.state.share = view;
+      this.state.shareFresh = true;
+      this.state.receiptStatus = "";
+    } catch (e) {
+      if (!this.alive || epoch !== this.epoch || this.state.share?.id !== id)
+        return;
+      this.state.shareFresh = false;
+      this.state.receiptStatus =
+        "暂时无法核对新回应，下方仅是上次收到的记录。可直接拨打电话。";
+      if ([404, 410].includes((e as { status: number }).status)) {
+        this.state.share = null;
+        this.state.invite = "";
+        this.deps.set("yike-family-share", null);
+        this.state.status = "位置分享已停止或到期。";
+      }
+    } finally {
+      this.polling = false;
+      if (this.alive) this.emit();
+    }
   }
   async end() {
     if (this.state.busy) {
@@ -290,5 +344,136 @@ export class FamilySession {
       this.state.status =
         "已停止位置分享，原链接失效。已复制的文字或截图无法收回。";
     });
+  }
+}
+
+export interface FamilyReplyState {
+  view: FamilyShare | null;
+  name: string;
+  error: string;
+  status: string;
+  busy: boolean;
+  time: number;
+}
+export class FamilyReplySession {
+  state: FamilyReplyState = {
+    view: null,
+    name: "",
+    error: "",
+    status: "",
+    busy: false,
+    time: Date.now(),
+  };
+  private alive = false;
+  private epoch = 0;
+  private reading = false;
+  private timer?: ReturnType<typeof setTimeout>;
+  private pending: {
+    revision: number;
+    receipt: ReturnType<typeof cleanReceipt>;
+  } | null = null;
+  constructor(
+    private deps: {
+      request: (method?: string, body?: unknown) => Promise<FamilyShare>;
+      notify: (s: FamilyReplyState) => void;
+    },
+  ) {}
+  private emit() {
+    if (this.alive) this.deps.notify({ ...this.state });
+  }
+  reopen() {
+    this.alive = true;
+    void this.refresh();
+  }
+  close() {
+    this.alive = false;
+    this.epoch++;
+    clearTimeout(this.timer);
+    this.state.view = null;
+  }
+  name(value: string) {
+    this.state.name = value.slice(0, 20);
+    this.emit();
+  }
+  async refresh() {
+    if (!this.alive || this.reading || this.state.busy) return;
+    clearTimeout(this.timer);
+    this.reading = true;
+    const epoch = this.epoch;
+    let ended = false;
+    try {
+      const view = await this.deps.request();
+      if (!this.alive || epoch !== this.epoch) return;
+      this.state.view = view;
+      this.state.time = Date.now();
+      this.state.error = "";
+      if (this.pending && view.receipt?.id === this.pending.receipt.id) {
+        this.pending = null;
+        this.state.status =
+          "已核对：这条回应已保存，对方打开位置卡页面后可查看。";
+      }
+    } catch (e) {
+      if (!this.alive || epoch !== this.epoch) return;
+      this.state.view = null;
+      this.state.error = (e as Error).message;
+      this.state.status = "";
+      ended = [404, 410].includes((e as { status: number }).status);
+    } finally {
+      this.reading = false;
+      this.emit();
+      if (this.alive && !ended)
+        this.timer = setTimeout(() => void this.refresh(), 15000);
+    }
+  }
+  async reply(kind: string) {
+    if (!this.alive || this.state.busy || this.reading || !this.state.view)
+      return;
+    const epoch = this.epoch;
+    try {
+      const receipt = cleanReceipt({
+        id: `reply-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+        name: this.state.name,
+        kind,
+      });
+      if (
+        !this.pending ||
+        this.pending.receipt.kind !== receipt.kind ||
+        this.pending.receipt.name !== receipt.name
+      )
+        this.pending = { revision: this.state.view.revision ?? 1, receipt };
+      this.state.busy = true;
+      this.state.error = "";
+      this.state.status = "正在发送回应…";
+      this.emit();
+      const view = await this.deps.request("POST", this.pending);
+      if (!this.alive || epoch !== this.epoch) return;
+      this.state.view = view;
+      this.pending = null;
+      this.state.time = Date.now();
+      this.state.status =
+        "回应已保存，对方打开位置卡页面后可查看。需要马上联系时，请直接打电话。";
+    } catch (e) {
+      if (!this.alive || epoch !== this.epoch) return;
+      const status = (e as { status: number }).status;
+      this.state.error = (e as Error).message;
+      this.state.status = "尚未确认回应是否送达，请刷新核对或重试。";
+      if (status === 409) {
+        this.pending = null;
+        this.state.status = "已有其他回应，刷新核对后再发送。";
+      }
+      if ([404, 410].includes(status)) {
+        this.state.view = null;
+        this.pending = null;
+      }
+    } finally {
+      this.state.busy = false;
+      this.emit();
+      clearTimeout(this.timer);
+      if (this.alive)
+        this.timer = setTimeout(
+          () => void this.refresh(),
+          epoch !== this.epoch ? 0 : 15000,
+        );
+    }
   }
 }

@@ -20,7 +20,7 @@ test("native simple mode survives restart and retains family entry without chang
   assert.equal(saved.get("yike-simple-mode"), true);
   assert.deepEqual(saved.get("yike-life"), emptyBook());
 });
-test("native family page uses privacy then one-shot fix, survives denial, shares read-only card with no device credential, and revokes it", async (t) => {
+test("native family page uses one-shot consent, shares scoped card and explicit receipt without device credentials, then revokes both", async (t) => {
   const server = createApp({
     HOST: "127.0.0.1",
     PERSONAL_DATA_PATH: ":memory:",
@@ -133,6 +133,41 @@ test("native family page uses privacy then one-shot fix, survives denial, shares
   assert.equal(helper.data.snapshot.record.source, "device");
   assert.ok(helper.data.summary.radiusM > 0);
   assert.equal(leaked, false);
+  assert.equal(owner.data.share.receipt, null);
+  helper.replyName({ detail: { value: "家人测试" } });
+  await helper.reply({ currentTarget: { dataset: { kind: "coming" } } });
+  assert.match(helper.data.status, /回应已保存/);
+  await owner.refreshReceipt();
+  assert.equal(owner.data.share.receipt.kind, "coming");
+  assert.match(owner.data.receiptText, /家人测试.*正在过来/);
+  assert.equal(leaked, false);
+  assert.equal(
+    (
+      await fetch(base + "/api/family/" + owner.data.share.id, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          revision: 2,
+          receipt: { id: "reply-no-auth", kind: "seen", name: "test" },
+        }),
+      })
+    ).status,
+    404,
+  );
+  assert.equal(
+    (
+      await fetch(base + "/api/family/" + owner.data.share.id, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-Yike-Family": options.key,
+          origin: "https://untrusted.invalid",
+        },
+        body: "{}",
+      })
+    ).status,
+    403,
+  );
   assert.equal(
     (
       await fetch(base + "/api/life/family/" + owner.data.share.id, {
@@ -151,5 +186,7 @@ test("native family page uses privacy then one-shot fix, survives denial, shares
   await helper.refreshViewer();
   assert.equal(helper.data.snapshot, null);
   assert.equal(helper.data.markers.length, 0);
+  await helper.reply({ currentTarget: { dataset: { kind: "seen" } } });
+  assert.equal(helper.data.snapshot, null);
   assert.equal(paid, 0);
 });

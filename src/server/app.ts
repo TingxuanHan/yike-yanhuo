@@ -273,6 +273,20 @@ export function createApp(
               200,
               life.family.read(id, owner, req.headers["x-yike-family"]),
             );
+          if (!owner && id && method === "POST") {
+            rate("family-reply:" + id + ":" + peer, 20);
+            const body = await readJson(req, 1000);
+            return json(
+              res,
+              200,
+              life.family.reply(
+                id,
+                req.headers["x-yike-family"],
+                body.revision,
+                body.receipt,
+              ),
+            );
+          }
           if (owner && id && method === "DELETE")
             return json(res, 200, life.family.close(id, owner));
           throw new ServiceError("位置分享操作不存在。", 404);

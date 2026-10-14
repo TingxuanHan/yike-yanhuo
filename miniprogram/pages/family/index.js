@@ -1,6 +1,12 @@
 const platform = require("../../platform/index.js");
 const api = require("../../services/api.js");
-const { FamilySession, locationSummary } = require("../../shared/family-ui.js");
+const {
+  FamilySession,
+  FamilyReplySession,
+  locationSummary,
+  receiptText,
+  familyReplies,
+} = require("../../shared/family-ui.js");
 const { emptyBook, cleanBook } = require("../../shared/life.js");
 const { mapPosition } = require("../../shared/experience.js");
 Page({
@@ -24,7 +30,37 @@ Page({
   onLoad(options = {}) {
     this.options = options;
     this.setData({ viewer: !!options.id });
-    if (options.id) return;
+    if (options.id) {
+      this.reader = new FamilyReplySession({
+        request: (method, body) =>
+          api.familyRequest(
+            options.id,
+            options.key,
+            options.server,
+            method,
+            body,
+          ),
+        notify: (s) => {
+          this.setData({
+            ready: !!s.view,
+            snapshot: s.view?.snapshot || null,
+            summary: s.view ? locationSummary(s.view.snapshot, s.time) : null,
+            expires: s.view
+              ? new Date(s.view.expiresAt).toLocaleTimeString()
+              : "",
+            error: s.error,
+            status: s.status,
+            replyName: s.name,
+            replyBusy: s.busy,
+            replyRows: familyReplies,
+            receiptText: receiptText(s.view),
+            ...(!s.view ? { showMap: false, markers: [], circles: [] } : {}),
+          });
+          if (s.view) this.renderMap();
+        },
+      });
+      return;
+    }
     try {
       this.book = cleanBook(platform.get("yike-life") || emptyBook());
       this.setData({
@@ -49,12 +85,13 @@ Page({
     this.alive = true;
     this.releasePrivacy?.();
     this.releasePrivacy = platform.watchPrivacy?.(this);
-    if (this.data.viewer) void this.refreshViewer();
+    if (this.data.viewer) this.reader?.reopen();
     else this.session?.reopen();
   },
   onHide() {
     this.alive = false;
     this.session?.close();
+    this.reader?.close();
     clearTimeout(this.timer);
     this.releasePrivacy?.();
     this.releasePrivacy = null;
@@ -76,46 +113,21 @@ Page({
       ...s,
       ready: true,
       expires: s.share ? new Date(s.share.expiresAt).toLocaleTimeString() : "",
+      receiptText: receiptText(s.share),
     });
     this.renderMap();
   },
   async refreshViewer() {
-    if (!this.alive || this.reading) return;
-    clearTimeout(this.timer);
-    this.reading = true;
-    let ended = false;
-    try {
-      const r = await api.familyRequest(
-        this.options.id,
-        this.options.key,
-        this.options.server,
-      );
-      if (!this.alive) return;
-      this.setData({
-        ready: true,
-        snapshot: r.snapshot,
-        summary: locationSummary(r.snapshot),
-        expires: new Date(r.expiresAt).toLocaleTimeString(),
-        error: "",
-      });
-      this.renderMap();
-    } catch (e) {
-      if (!this.alive) return;
-      ended = e.status === 410 || e.status === 404;
-      this.setData({
-        ready: false,
-        snapshot: null,
-        summary: null,
-        showMap: false,
-        markers: [],
-        circles: [],
-        error: e.message,
-      });
-    } finally {
-      this.reading = false;
-      if (this.alive && !ended)
-        this.timer = setTimeout(() => void this.refreshViewer(), 15000);
-    }
+    return this.reader?.refresh();
+  },
+  replyName(e) {
+    this.reader.name(e.detail.value);
+  },
+  reply(e) {
+    return this.reader.reply(e.currentTarget.dataset.kind);
+  },
+  refreshReceipt() {
+    return this.session.refreshShare();
   },
   renderMap() {
     const p = this.data.snapshot?.record.position,

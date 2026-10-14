@@ -8,7 +8,7 @@ import {
   tripLocation,
   LOCATION_KEY,
 } from "../src/shared/family.js";
-import { FamilySession } from "../src/mini/family.js";
+import { FamilySession, FamilyReplySession } from "../src/mini/family.js";
 import { LifeStore } from "../src/server/life-store.js";
 const now = Date.now();
 const record = {
@@ -18,6 +18,104 @@ const record = {
   accuracyM: null,
   position: { system: "gcj02" as const, lng: 121.5, lat: 31.2 },
 };
+test("family receipts are explicit, scoped, idempotent and cannot overwrite a newer reply or survive replacement", () => {
+  let clock = now;
+  const db = new LifeStore(":memory:", () => clock);
+  try {
+    const owner = db.authenticate(db.create().token),
+      a = db.family.create(owner, { record, speedMps: 1.2 });
+    assert.equal(db.family.read(a.view.id, undefined, a.invite).receipt, null);
+    const receipt = {
+      id: "reply-abcdefghijkl",
+      kind: "coming",
+      name: "家人测试",
+      at: 1,
+      privateBook: "drop-me",
+    };
+    assert.throws(() => db.family.reply(a.view.id, "wrong", 1, receipt));
+    const saved = db.family.reply(a.view.id, a.invite, 1, receipt);
+    assert.equal(saved.receipt?.at, now);
+    assert.equal(saved.revision, 2);
+    assert.equal(JSON.stringify(saved).includes("drop-me"), false);
+    clock += 5000;
+    assert.deepEqual(db.family.reply(a.view.id, a.invite, 1, receipt), saved);
+    assert.throws(
+      () =>
+        db.family.reply(a.view.id, a.invite, 1, {
+          ...receipt,
+          id: "reply-secondmessage",
+          kind: "seen",
+        }),
+      /新的回应/,
+    );
+    const next = db.family.reply(a.view.id, a.invite, 2, {
+      ...receipt,
+      id: "reply-secondmessage",
+      kind: "calling",
+    });
+    assert.equal(next.revision, 3);
+    assert.throws(
+      () =>
+        db.family.reply(a.view.id, a.invite, 1, { ...receipt, kind: "seen" }),
+      /新的回应|已发送/,
+    );
+    const b = db.family.create(owner, { record, speedMps: 1.2 });
+    assert.equal(b.view.receipt, null);
+    assert.throws(
+      () => db.family.reply(a.view.id, a.invite, 3, receipt),
+      /停止或到期/,
+    );
+    clock += 3600001;
+    assert.throws(
+      () => db.family.reply(b.view.id, b.invite, 1, receipt),
+      /停止或到期/,
+    );
+  } finally {
+    db.close();
+  }
+});
+test("lost receipt response retries the same request, opening a card never sends and failure is not success", async (t) => {
+  const db = new LifeStore(":memory:");
+  t.after(() => db.close());
+  const owner = db.authenticate(db.create().token),
+    a = db.family.create(owner, { record, speedMps: 1.2 });
+  let posts = 0,
+    lose = true;
+  const s = new FamilyReplySession({
+    notify: () => {},
+    request: async (m, b: any) => {
+      if (m !== "POST") return db.family.read(a.view.id, undefined, a.invite);
+      posts++;
+      const result = db.family.reply(
+        a.view.id,
+        a.invite,
+        b.revision,
+        b.receipt,
+      );
+      if (lose) {
+        lose = false;
+        throw new Error("connection lost");
+      }
+      return result;
+    },
+  });
+  t.after(() => s.close());
+  s.reopen();
+  await new Promise<void>((r) => setImmediate(r));
+  assert.equal(posts, 0);
+  s.name("小林");
+  await s.reply("seen");
+  assert.match(s.state.status, /尚未确认/);
+  const at = db.family.read(a.view.id, owner).receipt!.at;
+  await s.reply("seen");
+  assert.equal(posts, 2);
+  assert.equal(s.state.view?.revision, 2);
+  assert.equal(s.state.view?.receipt?.at, at);
+  assert.match(s.state.status, /回应已保存/);
+  db.family.close(a.view.id, owner);
+  await s.refresh();
+  assert.equal(s.state.view, null);
+});
 test("location evidence only retains explicit real observations, never demo, future or planned visits", () => {
   assert.throws(() =>
     cleanLocation({ ...record, position: { system: "demo", x: 1, y: 2 } }, now),

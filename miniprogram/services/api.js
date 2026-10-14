@@ -74,7 +74,7 @@ async function assistRequest(id, token, server, method = "GET", data) {
 function serverAddress() {
   return platform.get("yike-server") || config.apiBaseUrl;
 }
-async function familyRequest(id, token, server) {
+async function familyRequest(id, token, server, method = "GET", data) {
   if (
     !validServer(server) ||
     !/^[a-f0-9-]{36}$/.test(id || "") ||
@@ -83,9 +83,10 @@ async function familyRequest(id, token, server) {
     throw new Error("位置卡链接不完整，请让家人重新发送。");
   const r = await platform.request({
     url: server + "/api/family/" + id,
-    method: "GET",
+    method,
+    ...(data ? { data } : {}),
     timeout: 15000,
-    header: { "X-Yike-Family": token },
+    header: { "X-Yike-Family": token, "content-type": "application/json" },
   });
   if (r.statusCode !== 200)
     throw Object.assign(new Error(r.data?.error || "位置卡暂时无法打开。"), {

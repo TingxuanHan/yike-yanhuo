@@ -1,6 +1,10 @@
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
-import { cleanFamily, type FamilyShare } from "../shared/family.js";
+import {
+  cleanFamily,
+  cleanReceipt,
+  type FamilyShare,
+} from "../shared/family.js";
 import { ServiceError } from "./baidu.js";
 const digest = (s: string) => createHash("sha256").update(s).digest("hex");
 export class FamilyStore {
@@ -33,6 +37,8 @@ export class FamilyStore {
       createdAt: this.now(),
       expiresAt: this.now() + 3600000,
       snapshot,
+      revision: 1,
+      receipt: null,
     };
     this.db.exec("BEGIN IMMEDIATE");
     try {
@@ -80,6 +86,34 @@ export class FamilyStore {
   }
   read(id: string, owner?: string, token?: unknown): FamilyShare {
     return JSON.parse(this.row(id, owner, token).body);
+  }
+  reply(
+    id: string,
+    token: unknown,
+    revision: unknown,
+    raw: unknown,
+  ): FamilyShare {
+    const view = this.read(id, undefined, token);
+    const receipt = cleanReceipt(raw, this.now());
+    if (view.receipt?.id === receipt.id) {
+      if (
+        view.receipt.name !== receipt.name ||
+        view.receipt.kind !== receipt.kind
+      )
+        throw new ServiceError("这条回应已发送，请刷新后重新选择。", 409);
+      return view;
+    }
+    if (!Number.isSafeInteger(revision) || revision !== (view.revision ?? 1))
+      throw new ServiceError("已有新的回应，请刷新位置卡后再发送。", 409);
+    const next: FamilyShare = {
+      ...view,
+      revision: (view.revision ?? 1) + 1,
+      receipt,
+    };
+    this.db
+      .prepare("UPDATE family_locations SET body=? WHERE id=? AND closed=0")
+      .run(JSON.stringify(next), id);
+    return next;
   }
   close(id: string, owner: string) {
     // Repeated revocation is safe, but never permits access from another space.

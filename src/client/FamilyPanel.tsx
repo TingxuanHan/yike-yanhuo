@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import {
   FamilySession,
+  FamilyReplySession,
+  receiptText,
+  familyReplies,
+  type FamilyReplyState,
   locationSummary,
   type FamilyState,
   type FamilySnapshot,
@@ -271,6 +275,23 @@ export function FamilyPanel({
           </p>
           {s.share && (
             <div className="family-share">
+              <h3>家人的回应</h3>
+              <p className="family-receipt" role="status">
+                {receiptText(s.share)}
+              </p>
+              {s.receiptStatus && (
+                <p className="family-error">{s.receiptStatus}</p>
+              )}
+              <p className="muted">
+                回应者的称呼由对方填写，身份未核验。此页打开时核对新回应；需要马上联系请打电话。
+              </p>
+              <button
+                className="secondary"
+                disabled={s.busy}
+                onClick={() => void session.refreshShare()}
+              >
+                刷新家人回应
+              </button>
               <p>
                 链接到{new Date(s.share.expiresAt).toLocaleTimeString("zh-CN")}
                 失效，只包含分享时的记录。
@@ -311,54 +332,43 @@ export function FamilyPanel({
   );
 }
 export function FamilyViewer({ id, token }: { id: string; token: string }) {
-  const [view, setView] = useState<FamilyShare | null>(null),
-    [error, setError] = useState("");
-  const [time, setTime] = useState(Date.now());
+  const [state, setState] = useState<FamilyReplyState | null>(null);
+  const [session] = useState(
+    () =>
+      new FamilyReplySession({
+        notify: setState,
+        request: (method = "GET", body?: unknown) => {
+          if (!/^[a-f0-9-]{36}$/.test(id) || !/^[A-Za-z0-9_-]{43}$/.test(token))
+            return Promise.reject(
+              new Error("位置链接不完整，请让家人重新发送。"),
+            );
+          return request<FamilyShare>(`/api/family/${id}`, {
+            method,
+            credentials: "omit",
+            redirect: "error",
+            referrerPolicy: "no-referrer",
+            headers: { "X-Yike-Family": token },
+            ...(body ? { body: JSON.stringify(body) } : {}),
+          });
+        },
+      }),
+  );
   useEffect(() => {
-    let alive = true,
-      timer: ReturnType<typeof setTimeout> | undefined,
-      busy = false;
-    const refresh = async () => {
-      if (!alive || document.hidden || busy) return;
-      busy = true;
-      try {
-        if (!/^[a-f0-9-]{36}$/.test(id) || !/^[A-Za-z0-9_-]{43}$/.test(token))
-          throw new Error("位置链接不完整，请让家人重新发送。");
-        const r = await request<FamilyShare>(`/api/family/${id}`, {
-          credentials: "omit",
-          redirect: "error",
-          referrerPolicy: "no-referrer",
-          headers: { "X-Yike-Family": token },
-        });
-        if (alive && !document.hidden) {
-          setView(r);
-          setError("");
-          setTime(Date.now());
-        }
-      } catch (e) {
-        if (alive) {
-          setView(null);
-          setError((e as Error).message);
-        }
-      } finally {
-        busy = false;
-        if (alive && !document.hidden)
-          timer = setTimeout(() => void refresh(), 15000);
-      }
-    };
     const visibility = () => {
-      clearTimeout(timer);
-      setView(null);
-      if (!document.hidden) void refresh();
+      if (document.hidden) {
+        session.close();
+        setState({ ...session.state });
+      } else session.reopen();
     };
-    void refresh();
+    session.reopen();
     document.addEventListener("visibilitychange", visibility);
     return () => {
-      alive = false;
-      clearTimeout(timer);
+      session.close();
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [id, token]);
+  }, [session]);
+  const s = state ?? session.state,
+    { view, error, time } = s;
   return (
     <main className="family-viewer">
       <p className="eyebrow">一刻烟火 · 家人位置卡</p>
@@ -369,8 +379,44 @@ export function FamilyViewer({ id, token }: { id: string; token: string }) {
         </p>
       )}
       {!error && !view && <p role="status">正在核对位置卡…</p>}
+      {s.status && <p role="status">{s.status}</p>}
+      <button
+        className="secondary"
+        disabled={s.busy}
+        onClick={() => void session.refresh()}
+      >
+        刷新位置卡
+      </button>
       {view && view.expiresAt > time && (
         <>
+          <section className="family-share">
+            <h2>给对方一个回应</h2>
+            <p className="family-receipt">{receiptText(view)}</p>
+            <label>
+              你的称呼（对方会看到）
+              <input
+                value={s.name}
+                maxLength={20}
+                disabled={s.busy}
+                onChange={(e) => session.name(e.target.value)}
+              />
+            </label>
+            <div className="family-actions">
+              {familyReplies.map((r) => (
+                <button
+                  key={r.kind}
+                  className="secondary"
+                  disabled={s.busy || !s.name.trim()}
+                  onClick={() => void session.reply(r.kind)}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+            <p className="muted">
+              点击才发送回应。持有链接的人都可填写称呼，身份未核验；不会替你拨打电话或持续定位。
+            </p>
+          </section>
           <PositionEvidence snapshot={view.snapshot} now={time} />
           <p>
             这是一条由对方主动分享的记录，不会持续定位。请电话核对附近招牌、路口和是否乘车；不能仅凭圆形范围确认人在其中。

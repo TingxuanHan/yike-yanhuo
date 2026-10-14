@@ -18,6 +18,40 @@ export interface FamilyShare {
   expiresAt: number;
   createdAt: number;
   snapshot: FamilySnapshot;
+  revision?: number;
+  receipt?: FamilyReceipt | null;
+}
+export const familyReplies = [
+  { kind: "seen", label: "我看到了" },
+  { kind: "coming", label: "我正在过来" },
+  { kind: "calling", label: "我会打电话联系你" },
+] as const;
+export interface FamilyReceipt {
+  id: string;
+  kind: (typeof familyReplies)[number]["kind"];
+  name: string;
+  at: number;
+}
+export function cleanReceipt(value: unknown, now = Date.now()): FamilyReceipt {
+  const r = value as FamilyReceipt;
+  if (
+    !r ||
+    typeof r.id !== "string" ||
+    !/^[a-z0-9-]{12,80}$/i.test(r.id) ||
+    !familyReplies.some((x) => x.kind === r.kind) ||
+    typeof r.name !== "string" ||
+    !r.name.trim() ||
+    r.name.trim().length > 20 ||
+    /[\r\n<>]/.test(r.name)
+  )
+    throw new Error("请填写20字内的称呼，并选择一种回应。");
+  return { id: r.id, kind: r.kind, name: r.name.trim(), at: now };
+}
+export function receiptText(share: FamilyShare | null) {
+  const r = share?.receipt;
+  return r
+    ? `${r.name}：${familyReplies.find((x) => x.kind === r.kind)?.label ?? "已回应"}（${new Date(r.at).toLocaleTimeString("zh-CN")}）`
+    : "尚未收到主动回应，请通过电话确认。";
 }
 export const LOCATION_KEY = "yike-location-record";
 export const SIMPLE_KEY = "yike-simple-mode";
