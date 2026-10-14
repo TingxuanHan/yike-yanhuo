@@ -34,6 +34,11 @@ import type { AnalysisResult } from "../shared/types.js";
 import { planningFields } from "./planning.js";
 import { AssistanceSession, type AssistState } from "./assistance.js";
 import {
+  tripLocation,
+  latestLocation,
+  LOCATION_KEY,
+} from "../shared/family.js";
+import {
   cleanEntrance,
   type EntranceGuide,
   type AssistProposal,
@@ -545,6 +550,17 @@ export class TripSession {
   private storeActive(a: ActiveTrip | null) {
     this.deps.set("yike-active-trip", a);
     this.state.active = a;
+    const location = tripLocation(a, this.now());
+    if (location) {
+      try {
+        this.deps.set(
+          LOCATION_KEY,
+          latestLocation([this.deps.get(LOCATION_KEY), location], this.now()),
+        );
+      } catch {
+        this.state.status = "行程已保存，但最近地点未能保存到本机。";
+      }
+    }
     this.state.adjust = null;
     this.state.adjustPreview = [];
     this.refreshProgress();

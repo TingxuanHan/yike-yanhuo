@@ -213,6 +213,7 @@ export function createApp(
   const clientRoot = resolve("dist/client");
   const clean = () => {
     life.assistance.sweep();
+    life.family.sweep();
     for (const [id, item] of jobs)
       if (item.expires < Date.now()) {
         item.controller.abort();
@@ -248,6 +249,41 @@ export function createApp(
       if (method === "GET" && url.pathname === "/api/config")
         return json(res, 200, config);
       const peer = req.socket.remoteAddress ?? "unknown";
+      const familyRoute = url.pathname.match(
+        /^\/api\/(life\/)?family(?:\/([a-f0-9-]{36}))?$/,
+      );
+      if (familyRoute) {
+        try {
+          const owner = familyRoute[1]
+            ? life.authenticate(tokenOf(req))
+            : undefined;
+          const id = familyRoute[2];
+          rate("family-read:" + (owner ?? peer), 120);
+          if (owner && !id && method === "POST") {
+            rate("family-create:" + owner, 10);
+            return json(
+              res,
+              201,
+              life.family.create(owner, (await readJson(req, 3000)).snapshot),
+            );
+          }
+          if (id && method === "GET")
+            return json(
+              res,
+              200,
+              life.family.read(id, owner, req.headers["x-yike-family"]),
+            );
+          if (owner && id && method === "DELETE")
+            return json(res, 200, life.family.close(id, owner));
+          throw new ServiceError("位置分享操作不存在。", 404);
+        } catch (e) {
+          if (e instanceof ServiceError) throw e;
+          throw new ServiceError(
+            e instanceof Error ? e.message : "位置说明无效。",
+            400,
+          );
+        }
+      }
       const helperRoute = url.pathname.match(
         /^\/api\/assistance\/([a-f0-9-]{36})$/,
       );
