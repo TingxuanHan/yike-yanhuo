@@ -1,0 +1,106 @@
+.family-page {
+  padding: 32rpx;
+  color: #243f48;
+  font-size: 36rpx;
+  line-height: 1.65;
+}
+.family-page text {
+  display: block;
+}
+.family-title {
+  font-size: 52rpx;
+  font-weight: 700;
+  margin-bottom: 30rpx;
+}
+.family-page button {
+  font-size: 34rpx;
+  line-height: 1.5;
+  min-height: 108rpx;
+  height: auto;
+  padding: 26rpx 20rpx;
+  white-space: normal;
+  margin: 16rpx 0;
+  background: #e8f0ed;
+  color: #146c5d;
+  border-radius: 16rpx;
+}
+.family-page button.primary {
+  background: #146c5d;
+  color: #fff;
+}
+.family-page .quiet {
+  background: transparent;
+}
+.family-box {
+  background: #fff;
+  padding: 28rpx;
+  margin: 28rpx 0;
+  border: 2rpx solid #d4e3df;
+  border-radius: 24rpx;
+}
+.family-heading {
+  font-weight: 700;
+  font-size: 40rpx;
+}
+.family-range {
+  font-weight: 700;
+  margin: 16rpx 0;
+}
+.family-note {
+  color: #64777c;
+  font-size: 30rpx;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 16rpx 0;
+}
+.family-page input {
+  min-height: 104rpx;
+  height: 104rpx;
+  font-size: 36rpx;
+  border: 2rpx solid #d4e3df;
+  padding: 0 16rpx;
+  margin-top: 12rpx;
+}
+.family-error {
+  color: #9a431c;
+  background: #fff3e5;
+  padding: 20rpx;
+  word-break: break-all;
+}
+.family-status {
+  padding: 20rpx;
+  background: #e8f0ed;
+}
+.family-picker {
+  padding: 24rpx 12rpx;
+  background: #f4f8f7;
+}
+.range-sketch {
+  text-align: center;
+  font-size: 26rpx;
+  color: #64777c;
+  margin: 24rpx 0;
+}
+.range-circle {
+  width: 220rpx;
+  height: 220rpx;
+  border: 3rpx dashed #78948a;
+  border-radius: 50%;
+  background: #e6efeb;
+  margin: 16rpx auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.range-dot {
+  width: 14rpx;
+  height: 14rpx;
+  background: #c46136;
+  border-radius: 50%;
+  margin: 16rpx;
+}
+.family-map {
+  width: 100%;
+  height: 500rpx;
+}

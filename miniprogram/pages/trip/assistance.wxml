@@ -1,4 +1,4 @@
-<view wx:if="{{active}}" class="card assist-panel">
+<view wx:if="{{active}}" class="card assist-panel" id="trip-assistance">
   <text class="h3">家人帮我一下</text><text wx:if="{{assistance.error}}" class="error">{{assistance.error}}</text><text wx:if="{{assistance.status}}" class="status">{{assistance.status}}</text>
   <block wx:if="{{!assistance.view}}"><label><text>想让家人帮什么</text><textarea value="{{helpRequest}}" maxlength="240" bindinput="helpRequest" auto-height/></label><button class="primary" disabled="{{assistance.busy || active.phase === 'finished'}}" bindtap="startHelp">发起这趟的远程协助</button><text class="note">先在“我的”连接服务。发起后将协助卡发给家人，只分享这趟地点名称和进度；照片另行选择分享。</text><button bindtap="restoreHelp" disabled="{{assistance.busy}}">恢复已有协助</button></block>
   <block wx:else>

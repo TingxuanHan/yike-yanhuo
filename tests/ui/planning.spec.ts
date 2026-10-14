@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 const open = async (page: any) => {
   await page.goto("/");
   await page.getByRole("button", { name: "我的日常", exact: true }).click();

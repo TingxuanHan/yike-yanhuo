@@ -5,7 +5,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ...init,
       signal:
         init?.signal ??
-        (/^\/api\/(?:life\/)?assistance(?:\/|$)/.test(path)
+        (/^\/api\/(?:life\/)?(?:assistance|family)(?:\/|$)/.test(path)
           ? AbortSignal.timeout(15000)
           : undefined),
       headers: { "content-type": "application/json", ...init?.headers },

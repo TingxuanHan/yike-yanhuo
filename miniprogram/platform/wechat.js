@@ -1,5 +1,58 @@
 // Platform access stays here so pages and the server contract remain portable.
 module.exports = {
+  async currentLocation() {
+    if (typeof wx.requirePrivacyAuthorize === "function")
+      await new Promise((resolve, reject) =>
+        wx.requirePrivacyAuthorize({
+          success: resolve,
+          fail: () =>
+            reject(
+              new Error(
+                "尚未同意位置使用说明。仍可打电话或使用最近确认的记录。",
+              ),
+            ),
+        }),
+      );
+    return new Promise((resolve, reject) => {
+      if (typeof wx.getLocation !== "function")
+        return reject(new Error("当前环境不支持定位，仍可通过电话联系家人。"));
+      wx.getLocation({
+        type: "gcj02",
+        isHighAccuracy: true,
+        highAccuracyExpireTime: 5000,
+        success: (r) =>
+          resolve({
+            source: "device",
+            name: "设备定位点",
+            position: { system: "gcj02", lng: r.longitude, lat: r.latitude },
+            at: Date.now(),
+            accuracyM:
+              Number.isFinite(r.horizontalAccuracy) && r.horizontalAccuracy >= 0
+                ? r.horizontalAccuracy
+                : Number.isFinite(r.accuracy) && r.accuracy >= 0
+                  ? r.accuracy
+                  : null,
+          }),
+        fail: () =>
+          reject(
+            new Error(
+              "未能获取位置。可检查微信和系统的定位权限，或使用最近确认的记录。",
+            ),
+          ),
+      });
+    });
+  },
+  locationSettings() {
+    return new Promise((resolve, reject) =>
+      wx.openSetting({
+        success: resolve,
+        fail: () =>
+          reject(
+            new Error("设置未能打开，请在微信和手机系统设置中检查定位权限。"),
+          ),
+      }),
+    );
+  },
   callFamily(phoneNumber) {
     if (!/^\+?\d{3,19}$/.test(phoneNumber || ""))
       return Promise.reject(new Error("请先填写有效的家人电话。"));

@@ -11,6 +11,7 @@ import type { PlanningDraft } from "../shared/planning.js";
 import { request } from "./api.js";
 import { VoiceInput } from "./VoiceInput.js";
 import { TripAssistance } from "./TripAssistance.js";
+import { FamilyPanel } from "./FamilyPanel.js";
 import "./planning.css";
 import "./trip.css";
 export function TripPanel({
@@ -20,6 +21,7 @@ export function TripPanel({
   seed,
   back,
   shopping,
+  simple = false,
 }: {
   book: LifeBook;
   save: (b: LifeBook) => void;
@@ -27,7 +29,9 @@ export function TripPanel({
   seed?: PlanningDraft;
   back: () => void;
   shopping: () => void;
+  simple?: boolean;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const panel = useRef<HTMLElement>(null);
   const [view, setView] = useState<TripView | null>(null),
     [session] = useState(
@@ -65,7 +69,7 @@ export function TripPanel({
   return (
     <section
       ref={panel}
-      className="planning-panel trip-panel"
+      className={`planning-panel trip-panel ${simple ? "trip-simple" : ""}`}
       aria-busy={s.busy}
     >
       <button className="secondary" onClick={back}>
@@ -81,6 +85,7 @@ export function TripPanel({
           · 出发点：{a?.input.origin.name ?? s.origin}
         </p>
       </header>
+      {simple && <FamilyPanel book={book} compact />}
       {s.error && (
         <p className="planning-error" role="alert">
           {s.error}
@@ -93,6 +98,39 @@ export function TripPanel({
       )}
       {!a && (
         <>
+          {simple && !expanded && (
+            <div className="planning-card">
+              <h3>这次想做什么</h3>
+              <div className="planning-actions">
+                {planningTasks.map((t) => (
+                  <button
+                    key={t.id}
+                    aria-pressed={s.tasks.includes(t.id)}
+                    className={s.tasks.includes(t.id) ? "primary" : "secondary"}
+                    onClick={() => session.task(t.id)}
+                    disabled={s.busy}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              <label>
+                整趟有多少分钟
+                <input
+                  type="number"
+                  min={10}
+                  max={240}
+                  value={s.form.tripMinutes}
+                  placeholder="45"
+                  onChange={(e) => session.set("tripMinutes", e.target.value)}
+                  disabled={s.busy}
+                />
+              </label>
+              <p className="muted">
+                包含办事、等待和回家。地点沿用已有记录；更多条件可展开修改。
+              </p>
+            </div>
+          )}
           <div className="trip-summary">
             <p>
               整趟上限 <strong>{s.form.tripMinutes || "45"}分钟</strong> ·{" "}
@@ -122,140 +160,155 @@ export function TripPanel({
             </button>
             <p className="muted">沿用下方条件，可先核算，也可修改后再比较。</p>
           </div>
-          <div className="planning-card">
-            <h3>把这几件事放在一起</h3>
-            <div className="planning-grid">
-              {planningFields.map((f) => (
-                <label key={f.key}>
-                  {f.label}
-                  <input
-                    type={f.type}
-                    inputMode={f.type === "number" ? "decimal" : undefined}
-                    value={s.form[f.key]}
-                    disabled={s.busy}
-                    placeholder={f.hint}
-                    onChange={(e) => session.set(f.key, e.target.value)}
-                  />
-                </label>
-              ))}
-            </div>
-            <p className="muted">
-              时间包含购物、办事、等待和返程。未填整趟时间按45分钟核算。
-            </p>
-            <div className="planning-actions">
-              {planningTasks.map((t) => (
-                <button
-                  key={t.id}
-                  className={s.tasks.includes(t.id) ? "primary" : "secondary"}
-                  aria-pressed={s.tasks.includes(t.id)}
-                  disabled={s.busy}
-                  onClick={() => session.task(t.id)}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-            <label>
-              这一趟要买的商品
-              <textarea
-                aria-label="这一趟要买的商品"
-                rows={2}
-                value={s.items}
-                maxLength={150}
-                disabled={s.busy}
-                onChange={(e) => session.set("items", e.target.value)}
-                placeholder="用顿号分隔；留空表示这趟不采购"
-              />
-            </label>
-            <p className="muted">已备清单：{s.shoppingSummary}</p>
-            <button className="secondary" disabled={s.busy} onClick={shopping}>
-              补充商品规格与价格
+          {simple && (
+            <button
+              className="secondary"
+              aria-expanded={expanded}
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? "收起更多设置" : "更多条件与AI修改"}
             </button>
-            <label className="trip-check">
-              <input
-                type="checkbox"
-                checked={s.returnEasy}
-                disabled={s.busy}
-                onChange={() => session.toggleReturn()}
-              />
-              买完轻松返程
-            </label>
-            {s.returnInherited && (
-              <p className="muted">返程节奏沿用已保存的步行偏好。</p>
-            )}
-            <p className="muted">
-              {s.movementSummary}可在“顺路动一动”设置交替步行节奏。
-            </p>
-          </div>
-          <div className="planning-card">
-            <h3>想调整，就再说一句</h3>
-            <label>
-              本次修改
-              <textarea
-                maxLength={600}
-                rows={3}
-                value={s.text}
-                disabled={s.busy}
-                onChange={(e) => session.set("text", e.target.value)}
-                placeholder="预算改成30元，药先不取了，其余不变。"
-              />
-            </label>
-            <VoiceInput
-              disabled={s.busy}
-              useText={(t) => session.set("text", t)}
-            />
-            <div className="planning-actions">
+          )}
+          <div hidden={simple && !expanded}>
+            <div className="planning-card">
+              <h3>把这几件事放在一起</h3>
+              <div className="planning-grid">
+                {planningFields.map((f) => (
+                  <label key={f.key}>
+                    {f.label}
+                    <input
+                      type={f.type}
+                      inputMode={f.type === "number" ? "decimal" : undefined}
+                      value={s.form[f.key]}
+                      disabled={s.busy}
+                      placeholder={f.hint}
+                      onChange={(e) => session.set(f.key, e.target.value)}
+                    />
+                  </label>
+                ))}
+              </div>
+              <p className="muted">
+                时间包含购物、办事、等待和返程。未填整趟时间按45分钟核算。
+              </p>
+              <div className="planning-actions">
+                {planningTasks.map((t) => (
+                  <button
+                    key={t.id}
+                    className={s.tasks.includes(t.id) ? "primary" : "secondary"}
+                    aria-pressed={s.tasks.includes(t.id)}
+                    disabled={s.busy}
+                    onClick={() => session.task(t.id)}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
               <label>
-                使用接口
-                <select
+                这一趟要买的商品
+                <textarea
+                  aria-label="这一趟要买的商品"
+                  rows={2}
+                  value={s.items}
+                  maxLength={150}
                   disabled={s.busy}
-                  value={s.mode}
-                  onChange={(e) => session.set("mode", e.target.value)}
-                >
-                  <option value="free">基础免费AI</option>
-                  <option value="own">我的API（按服务商计费）</option>
-                </select>
+                  onChange={(e) => session.set("items", e.target.value)}
+                  placeholder="用顿号分隔；留空表示这趟不采购"
+                />
               </label>
+              <p className="muted">已备清单：{s.shoppingSummary}</p>
               <button
                 className="secondary"
-                disabled={s.busy || !s.text.trim()}
-                onClick={() => void session.edit()}
+                disabled={s.busy}
+                onClick={shopping}
               >
-                整理这次修改
+                补充商品规格与价格
               </button>
+              <label className="trip-check">
+                <input
+                  type="checkbox"
+                  checked={s.returnEasy}
+                  disabled={s.busy}
+                  onChange={() => session.toggleReturn()}
+                />
+                买完轻松返程
+              </label>
+              {s.returnInherited && (
+                <p className="muted">返程节奏沿用已保存的步行偏好。</p>
+              )}
+              <p className="muted">
+                {s.movementSummary}可在“顺路动一动”设置交替步行节奏。
+              </p>
             </div>
-            <p className="muted">
-              只发送这段文字和当前时间、预算、任务及商品名称。地点坐标、价格记录和行后记录不会发送。没有连接服务时仍可直接改表单。
-            </p>
-            {s.pending && (
-              <div className="trip-diff">
-                <h4>先核对变化</h4>
-                {s.changes.length ? (
-                  <ul>
-                    {s.changes.map((x) => (
-                      <li key={x}>{x}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>条件没有变化。</p>
-                )}
-                <div className="planning-actions">
-                  <button
-                    className="primary"
-                    disabled={s.busy || !s.changes.length}
-                    onClick={() => session.accept()}
+            <div className="planning-card">
+              <h3>想调整，就再说一句</h3>
+              <label>
+                本次修改
+                <textarea
+                  maxLength={600}
+                  rows={3}
+                  value={s.text}
+                  disabled={s.busy}
+                  onChange={(e) => session.set("text", e.target.value)}
+                  placeholder="预算改成30元，药先不取了，其余不变。"
+                />
+              </label>
+              <VoiceInput
+                disabled={s.busy}
+                useText={(t) => session.set("text", t)}
+              />
+              <div className="planning-actions">
+                <label>
+                  使用接口
+                  <select
+                    disabled={s.busy}
+                    value={s.mode}
+                    onChange={(e) => session.set("mode", e.target.value)}
                   >
-                    确认这些修改
-                  </button>
-                  <button
-                    className="secondary"
-                    onClick={() => session.reject()}
-                  >
-                    保留原方案
-                  </button>
-                </div>
+                    <option value="free">基础免费AI</option>
+                    <option value="own">我的API（按服务商计费）</option>
+                  </select>
+                </label>
+                <button
+                  className="secondary"
+                  disabled={s.busy || !s.text.trim()}
+                  onClick={() => void session.edit()}
+                >
+                  整理这次修改
+                </button>
               </div>
-            )}
+              <p className="muted">
+                只发送这段文字和当前时间、预算、任务及商品名称。地点坐标、价格记录和行后记录不会发送。没有连接服务时仍可直接改表单。
+              </p>
+              {s.pending && (
+                <div className="trip-diff">
+                  <h4>先核对变化</h4>
+                  {s.changes.length ? (
+                    <ul>
+                      {s.changes.map((x) => (
+                        <li key={x}>{x}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>条件没有变化。</p>
+                  )}
+                  <div className="planning-actions">
+                    <button
+                      className="primary"
+                      disabled={s.busy || !s.changes.length}
+                      onClick={() => session.accept()}
+                    >
+                      确认这些修改
+                    </button>
+                    <button
+                      className="secondary"
+                      onClick={() => session.reject()}
+                    >
+                      保留原方案
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <details className="planning-card">
             <summary>参与比较的地点（最多5个）</summary>

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 
 test("four outing tools work offline on desktop and narrow screens with recoverable drafts", async ({
   page,

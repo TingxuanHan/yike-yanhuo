@@ -7,7 +7,8 @@
     "pages/movement/index",
     "pages/planning/index",
     "pages/trip/index",
-    "pages/assistance/index"
+    "pages/assistance/index",
+    "pages/family/index"
   ],
   "window": {
     "navigationBarTitleText": "一刻烟火",
@@ -18,9 +19,9 @@
   "permission": {
     "scope.record": { "desc": "仅在你主动录音时，将出门需求转成可核对的文字" },
     "scope.userLocation": {
-      "desc": "仅在你选择记录地点时，用于标记小店或常去地点的位置"
+      "desc": "在你主动记录地点或向家人说明位置时获取一次位置，分享另行确认"
     }
   },
-  "requiredPrivateInfos": ["chooseLocation"],
+  "requiredPrivateInfos": ["chooseLocation", "getLocation"],
   "sitemapLocation": "sitemap.json"
 }

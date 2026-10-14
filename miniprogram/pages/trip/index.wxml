@@ -1,10 +1,14 @@
 <import src="/components/privacy.wxml"/>
 <template is="privacy-dialog" data="{{showPrivacy,privacyError}}"/>
-<view class="trip-page {{careMode ? 'care' : ''}}">
-  <view class="heading"><text class="eyebrow">买好东西，办完事情，从容回来</text><text class="title">一趟出门</text><button bindtap="care">{{careMode ? '标准字号' : '大字模式'}}</button><text class="note">{{activeDemo ? '模拟社区与示例价格 · 不可据此出行' : '当前报告与私人地点记录'}} · {{active ? active.input.origin.name : origin}}</text></view>
+<view class="trip-page {{careMode || simpleMode ? 'care' : ''}}">
+  <view class="heading"><text class="eyebrow">买好东西，办完事情，从容回来</text><text class="title">一趟出门</text><button wx:if="{{!simpleMode}}" bindtap="care">{{careMode ? '标准字号' : '大字模式'}}</button><text class="note">{{activeDemo ? '模拟社区与示例价格 · 不可据此出行' : '当前报告与私人地点记录'}} · {{active ? active.input.origin.name : origin}}</text></view>
   <text wx:if="{{error}}" class="error">{{error}}</text><text wx:if="{{status}}" class="status">{{status}}</text>
+  <button bindtap="family">联系家人 · 告诉家人我在哪</button>
   <block wx:if="{{ready && !active}}">
+    <view wx:if="{{simpleMode && !showMore}}" class="card"><text class="h3">这次想做什么</text><view class="actions"><button wx:for="{{taskRows}}" wx:key="id" class="{{item.checked ? 'primary' : ''}}" data-id="{{item.id}}" bindtap="task" disabled="{{busy}}">{{item.label}}</button></view><label><text>整趟有多少分钟</text><input type="digit" value="{{form.tripMinutes}}" data-key="tripMinutes" placeholder="45" bindinput="field" disabled="{{busy}}"/></label><text class="note">包含办事、等待和回家。地点沿用已有记录，更多条件可展开修改。</text></view>
     <view class="trip-summary"><text class="metric">整趟上限{{form.tripMinutes || '45'}}分钟 · {{form.shoppingBudget ? '购物预算 ¥' + form.shoppingBudget : '未设购物预算'}}</text><button class="primary" bindtap="calculate" disabled="{{busy || pending}}">{{busy ? '正在核算…' : '核算整趟行程'}}</button><text class="note">沿用下方条件，可先核算，也可修改后再比较。</text></view>
+    <button wx:if="{{simpleMode}}" bindtap="more">{{showMore ? '收起更多设置' : '更多条件与AI修改'}}</button>
+    <block wx:if="{{!simpleMode || showMore}}">
     <view class="card"><text class="h3">把这几件事放在一起</text>
       <label wx:for="{{fields}}" wx:key="key"><text>{{item.label}}</text><input value="{{item.value}}" type="{{item.type === 'number' ? 'digit' : 'text'}}" placeholder="{{item.hint}}" disabled="{{busy}}" data-key="{{item.key}}" bindinput="field"/></label>
       <text class="note">时间包含购物、办事、等待和返程；未填整趟时间按45分钟核算。</text>
@@ -21,6 +25,7 @@
       <view wx:if="{{pending}}" class="diff"><text class="h3">先核对变化</text><text wx:for="{{changes}}" wx:key="*this" class="note">{{item}}</text><button class="primary" bindtap="accept" disabled="{{busy || !changes.length}}">确认这些修改</button><button bindtap="reject">保留原方案</button></view>
     </view>
     <view class="card"><text class="h3">参与比较的地点（最多5个）</text><view wx:for="{{candidates}}" wx:key="id" class="check" data-id="{{item.id}}" bindtap="candidate"><checkbox checked="{{item.checked}}" disabled="{{busy}}"/><text>{{item.name}}{{item.difficult ? ' · 曾标记难走' : ''}} · 停留{{item.stay}}分钟</text></view></view>
+    </block>
     <view wx:for="{{plans}}" wx:for-item="plan" wx:key="id" class="card trip-result"><text wx:if="{{demo}}" class="note">模拟社区与示例价格 · 不可据此出行</text><text class="eyebrow">{{plan.label}}</text><text class="h3">{{plan.finish}}前后回来</text><text class="metric">整趟{{plan.minutes}}分钟 · 步行{{plan.walking}}分钟</text><text class="metric">{{plan.priceComplete ? '清单估价' : '已知部分'}} ¥{{plan.low}}—{{plan.high}}</text><text class="note">{{plan.budget === 'unknown' ? '价格未齐，不能确认是否在预算内。' : plan.budget === 'over' ? '清单预计超过购物预算。' : '其他未记录消费需另算。'}}{{plan.gap > 0 ? '尚未达到步行目标，差' + plan.gap + '分钟。' : ''}}</text>
       <text wx:if="{{plan.missed.length}}" class="error">尚未安排：{{plan.missedText}}</text>
       <view wx:for="{{plan.legs}}" wx:for-item="leg" wx:key="index" class="stop"><text class="time">{{leg.arrival}}</text><view><text class="h3">{{leg.name}}</text><text class="note">本段走{{leg.walking}}分钟 · 停留{{leg.stay}}分钟</text><text class="note">{{leg.phasesText}}</text><text wx:if="{{leg.buy}}">买{{leg.buy}}</text></view></view>

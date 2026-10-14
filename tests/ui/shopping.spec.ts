@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 test("shopping completes a recoverable offline price and planning flow at desktop and phone widths", async ({
   page,
 }) => {

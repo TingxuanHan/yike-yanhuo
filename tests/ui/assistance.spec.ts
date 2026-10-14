@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 
 test("two independent browsers exchange scoped help, mark an entrance and confirm a changed trip", async ({
   page,

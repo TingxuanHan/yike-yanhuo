@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 test("movement checks the selected trip, preserves settings and remains usable at narrow widths without map calls", async ({
   page,
 }) => {

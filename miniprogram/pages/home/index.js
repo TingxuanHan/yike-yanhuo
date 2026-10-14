@@ -37,6 +37,8 @@ Page({
     editorMore: false,
     hasDraft: false,
     careMode: false,
+    simpleMode: true,
+    familyPhone: "",
     showAdvanced: false,
     showConnection: false,
     showReportDetails: false,
@@ -81,6 +83,8 @@ Page({
       server: platform.get("yike-server") || config.apiBaseUrl,
       connected: !!platform.get("yike-token"),
       careMode: !!platform.get("yike-care-mode"),
+      simpleMode: platform.get("yike-simple-mode") !== false,
+      familyPhone: platform.get("yike-help-phone") || "",
     });
     this.setData({ placeItems: experience.placeList(book.places) });
     const draft = platform.get("yike-place-draft");
@@ -111,6 +115,10 @@ Page({
   },
   onShow() {
     try {
+      this.setData({
+        familyPhone: platform.get("yike-help-phone") || "",
+        simpleMode: platform.get("yike-simple-mode") !== false,
+      });
       const saved = platform.get("yike-life");
       if (saved) {
         const book = cleanBook(saved);
@@ -157,6 +165,20 @@ Page({
   switchTab(e) {
     this.setData({ tab: e.currentTarget.dataset.tab });
     this.drawMap();
+  },
+  simple() {
+    return this.action(async () => {
+      const value = !this.data.simpleMode;
+      platform.set("yike-simple-mode", value);
+      this.setData({ simpleMode: value });
+      if (!value) this.drawMap();
+    });
+  },
+  family() {
+    wx.navigateTo({ url: "/pages/family/index" });
+  },
+  familyCall() {
+    return this.action(() => platform.callFamily(this.data.familyPhone));
   },
   openOutings() {
     return this.action(() => platform.openOutings());

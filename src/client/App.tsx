@@ -25,8 +25,21 @@ import { GAP_CATEGORIES, type GapCategory } from "../core/coverage.js";
 import { LifePanel } from "./LifePanel.js";
 import { personalize } from "../core/personalize.js";
 import type { PersonalPlace } from "../shared/life.js";
+import { SimpleHome } from "./SimpleHome.js";
+import { SIMPLE_KEY } from "../shared/family.js";
 
 export function App() {
+  const [simple, setSimple] = useState(
+    () => localStorage.getItem(SIMPLE_KEY) !== "false",
+  );
+  const switchMode = (value: boolean) => {
+    try {
+      localStorage.setItem(SIMPLE_KEY, String(value));
+      setSimple(value);
+    } catch {
+      setError("模式未能保存，请检查浏览器存储后重试。");
+    }
+  };
   const [config, setConfig] = useState<PublicConfig | null>(null);
   const [mode, setMode] = useState<Mode>("demo");
   const [point, setPoint] = useState<XY>(DEMO_CENTERS[0].point);
@@ -278,12 +291,28 @@ export function App() {
     !!config &&
     (mode === "demo" || (!!config.baiduConfigured && !!geo));
 
+  if (simple)
+    return (
+      <SimpleHome
+        result={result}
+        full={(life) => {
+          if (life) {
+            setLifeSection("places");
+            setView("life");
+          }
+          switchMode(false);
+        }}
+      />
+    );
   return (
     <>
       <a className="skip-link" href="#main-workspace">
         跳到体检工作台
       </a>
       <header className="app-header no-print">
+        <button className="secondary" onClick={() => switchMode(true)}>
+          简易模式
+        </button>
         <a href="/" className="brand" aria-label="一刻烟火首页">
           <img src="/favicon.svg" alt="" width="38" height="38" />
           <div>

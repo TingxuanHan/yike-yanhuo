@@ -1,10 +1,10 @@
 <import src="/components/privacy.wxml" />
-<view class="page {{careMode?'care-mode':''}}">
+<view class="page {{careMode || simpleMode?'care-mode':''}}">
   <view class="brand"
     ><image src="/assets/place.png" class="brand-mark" /><view
       ><text class="title">一刻烟火</text
       ><text class="muted">从家门口，走进好生活</text></view
-    ><button class="care-toggle" bindtap="care"
+    ><button wx:if="{{!simpleMode}}" class="care-toggle" bindtap="care"
       >{{careMode?'标准字号':'大字模式'}}</button
     ></view
   >
@@ -15,7 +15,15 @@
       >取消计算</button
     ></view
   >
-  <view wx:if="{{tab==='nearby'}}">
+  <button class="mode-switch" bindtap="simple">{{simpleMode ? '简易模式 · 切换完整版' : '切换简易模式'}}</button>
+  <view wx:if="{{simpleMode && tab==='nearby'}}" class="simple-start">
+    <text class="heading">今天想去哪里？</text>
+    <button class="simple-entry primary" bindtap="openTrip"><text>我要出门</text><text class="simple-caption">选几件事，算好时间再出发</text></button>
+    <button class="simple-entry" data-tab="places" bindtap="switchTab"><text>常用地点</text><text class="simple-caption">找小店、看入口、大字指引</text></button>
+    <view class="section"><text class="heading">家人就在身边</text><button wx:if="{{familyPhone}}" class="primary" bindtap="familyCall">一键拨打家人电话</button><button bindtap="family">联系家人 · 告诉家人我在哪</button><text class="muted">没有开始行程，也能联系家人。</text></view>
+  </view>
+  <view wx:if="{{tab==='nearby' && !simpleMode}}">
+    <button class="outing-entry" bindtap="family">联系家人 · 位置说明</button>
     <button class="outing-entry primary" bindtap="openOutings" disabled="{{busy}}">出门办事 · 熟路与歇脚</button>
     <button class="outing-entry primary" bindtap="openTrip" disabled="{{busy}}">一趟出门 · 边办事边走走</button>
     <button class="outing-entry" id="open-planning" bindtap="openPlanning" disabled="{{busy}}">一句话安排 · AI辅助</button>

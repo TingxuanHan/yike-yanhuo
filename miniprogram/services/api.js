@@ -74,10 +74,30 @@ async function assistRequest(id, token, server, method = "GET", data) {
 function serverAddress() {
   return platform.get("yike-server") || config.apiBaseUrl;
 }
+async function familyRequest(id, token, server) {
+  if (
+    !validServer(server) ||
+    !/^[a-f0-9-]{36}$/.test(id || "") ||
+    !/^[A-Za-z0-9_-]{43}$/.test(token || "")
+  )
+    throw new Error("位置卡链接不完整，请让家人重新发送。");
+  const r = await platform.request({
+    url: server + "/api/family/" + id,
+    method: "GET",
+    timeout: 15000,
+    header: { "X-Yike-Family": token },
+  });
+  if (r.statusCode !== 200)
+    throw Object.assign(new Error(r.data?.error || "位置卡暂时无法打开。"), {
+      status: r.statusCode,
+    });
+  return r.data;
+}
 module.exports = {
   request,
   validServer,
   readSharedCard,
   assistRequest,
   serverAddress,
+  familyRequest,
 };

@@ -9,8 +9,16 @@ const {
   planningTasks,
 } = require("../../shared/trip-ui.js");
 Page({
-  data: { ready: false, error: "", careMode: false },
-  onLoad() {
+  data: {
+    ready: false,
+    error: "",
+    careMode: false,
+    simpleMode: false,
+    showMore: false,
+  },
+  onLoad(options = {}) {
+    this.helpRequested = options.help === "1";
+    this.setData({ simpleMode: platform.get("yike-simple-mode") !== false });
     this.load();
   },
   load() {
@@ -54,6 +62,10 @@ Page({
     )
       this.load();
     else this.session.reopen();
+    if (this.helpRequested) {
+      this.helpRequested = false;
+      platform.reveal("#trip-assistance");
+    }
   },
   onHide() {
     this.releasePrivacy?.();
@@ -63,6 +75,12 @@ Page({
   onUnload() {
     this.releasePrivacy?.();
     this.session?.close();
+  },
+  more() {
+    this.setData({ showMore: !this.data.showMore });
+  },
+  family() {
+    wx.navigateTo({ url: "/pages/family/index" });
   },
   render(s) {
     const active = s.active;

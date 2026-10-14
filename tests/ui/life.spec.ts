@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 import { analyze } from "../../src/core/analyze.js";
 import { DemoProvider, DEMO_CENTERS } from "../../src/core/demo.js";
 test("personal journey, local shop, readable card, private sync and mobile layout use no paid calls", async ({
