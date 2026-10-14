@@ -11,7 +11,8 @@ import type { PlanningDraft } from "../shared/planning.js";
 import { request } from "./api.js";
 import { VoiceInput } from "./VoiceInput.js";
 import { TripAssistance } from "./TripAssistance.js";
-import { FamilyPanel } from "./FamilyPanel.js";
+import { FamilyPanel, localValue } from "./FamilyPanel.js";
+import { RoutinePanel, TripPreparation } from "./TripPreparation.js";
 import "./planning.css";
 import "./trip.css";
 export function TripPanel({
@@ -40,7 +41,7 @@ export function TripPanel({
           book,
           result,
           {
-            get: (k) => JSON.parse(localStorage.getItem(k) || "null"),
+            get: localValue,
             set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
             save,
             request: <T,>(p: string, m = "GET", b?: unknown) =>
@@ -96,6 +97,7 @@ export function TripPanel({
           {s.status}
         </p>
       )}
+      <RoutinePanel session={session} s={s} />
       {!a && (
         <>
           {simple && !expanded && (
@@ -418,6 +420,34 @@ export function TripPanel({
                 >
                   按这条安排出门
                 </button>
+                <div className="planning-actions">
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      session.prepare(p.id);
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById("trip-preparation")
+                          ?.scrollIntoView({ block: "start" }),
+                      );
+                    }}
+                  >
+                    准备这趟出门卡
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      session.offerRoutine(p.id);
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById("routine-editor")
+                          ?.scrollIntoView({ block: "start" }),
+                      );
+                    }}
+                  >
+                    存为常用方案
+                  </button>
+                </div>
               </article>
             ))}
           </div>
@@ -499,6 +529,17 @@ export function TripPanel({
             </button>
           </div>
           <TripAssistance session={session} s={s} />
+          <div className="planning-actions">
+            <button className="secondary" onClick={() => session.prepare()}>
+              准备当前出门卡
+            </button>
+            <button
+              className="secondary"
+              onClick={() => session.offerRoutine()}
+            >
+              存为常用方案
+            </button>
+          </div>
           <details open={a.phase === "finished"}>
             <summary>结束这趟，记下实际情况</summary>
             <p>只填纯步行时间，排除购物、等灯和歇脚。实付总额仅作本次记录。</p>
@@ -568,6 +609,7 @@ export function TripPanel({
           </button>
         </div>
       )}
+      <TripPreparation session={session} s={s} />
       {!!s.recent.length && (
         <details className="planning-card">
           <summary>最近的出门记录（随私人地点簿同步）</summary>

@@ -26,7 +26,7 @@ import {
   cleanPlanning,
   planningTasks,
   type PlanningDraft,
-} from "./planning.js";
+} from "./planning-draft.js";
 
 export interface TripStop extends OutingNode {
   category: string;

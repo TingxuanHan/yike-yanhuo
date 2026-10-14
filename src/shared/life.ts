@@ -13,6 +13,7 @@ import { cleanShopping, mergeShopping, type ShoppingBook } from "./shopping.js";
 import { cleanMovement, type MovementSettings } from "./movement.js";
 import { cleanTripFeedback, type TripFeedback } from "./trip-feedback.js";
 import { cleanEntrance, cleanPhoto, type EntranceGuide } from "./entrance.js";
+import { cleanRoutine, type TripRoutine } from "./departure.js";
 export { cleanPhoto, MAX_PHOTO_LENGTH } from "./entrance.js";
 export type PlacePosition =
   | { system: "demo"; x: number; y: number }
@@ -43,6 +44,7 @@ export interface LifeBook {
   movement?: MovementSettings;
   trips?: TripFeedback[];
   entrances?: EntranceGuide[];
+  routines?: TripRoutine[];
 }
 export interface LifeSnapshot {
   revision: number;
@@ -148,6 +150,9 @@ export function cleanBook(value: unknown): LifeBook {
     ...(b.entrances !== undefined
       ? { entrances: cleanItems(b.entrances, cleanEntrance, 12) }
       : {}),
+    ...(b.routines !== undefined
+      ? { routines: cleanItems(b.routines, cleanRoutine, 8) }
+      : {}),
   };
   if (utf8Bytes(JSON.stringify(result)) > MAX_BOOK_BYTES)
     throw new Error("地点簿已接近本机容量，请备份并移除部分入口照片后重试。");
@@ -177,6 +182,9 @@ export function mergeBooks(local: LifeBook, incoming: LifeBook): LifeBook {
       incoming.familiarRoutes ?? [],
     ),
     restPoints: merge(local.restPoints ?? [], incoming.restPoints ?? []),
+    ...(local.routines || incoming.routines
+      ? { routines: merge(local.routines ?? [], incoming.routines ?? []) }
+      : {}),
     ...(local.entrances || incoming.entrances
       ? {
           entrances: merge(local.entrances ?? [], incoming.entrances ?? []),

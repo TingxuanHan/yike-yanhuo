@@ -6,6 +6,17 @@ import {
   type PlanningDraft,
 } from "../shared/planning.js";
 import { planningDiff } from "../shared/planning-edit.js";
+import {
+  cleanRoutine,
+  routineFrom,
+  prepareDeparture,
+  cleanDeparture,
+  departureBasis,
+  departureAge,
+  DEPARTURE_KEY,
+  type TripRoutine,
+  type DeparturePack,
+} from "../shared/departure.js";
 import { allPairs, todayLocal, type RouteBundle } from "../shared/outings.js";
 import {
   cleanShopping,
@@ -97,6 +108,12 @@ export interface TripView {
   adjustPreview: string[];
   entrance: EntranceGuide | null;
   entrances: EntranceGuide[];
+  routines: TripRoutine[];
+  routineDraft: TripRoutine | null;
+  routineSuggestion: TripRoutine | null;
+  pack: DeparturePack | null;
+  packAge: string;
+  packOutdated: boolean;
 }
 export class TripSession {
   state: TripView;
@@ -106,6 +123,7 @@ export class TripSession {
   private shopping: ShoppingBook;
   private cache: OutingRouteCache;
   private input: TripInput | null = null;
+  private packInvalidated = false;
   private alive = true;
   private generation = 0;
   private now: () => number;
@@ -206,6 +224,12 @@ export class TripSession {
       adjustPreview: [],
       entrance: null,
       entrances: book.entrances ?? [],
+      routines: book.routines ?? [],
+      routineDraft: null,
+      routineSuggestion: null,
+      pack: null,
+      packAge: "",
+      packOutdated: false,
     };
     this.cache = new OutingRouteCache(deps.get("yike-outing-routes"));
     try {
@@ -253,6 +277,10 @@ export class TripSession {
       const raw = deps.get("yike-active-trip");
       if (raw && JSON.stringify(raw).length < 300_000)
         this.state.active = cleanActiveTrip(raw);
+      const pack = deps.get(DEPARTURE_KEY);
+      if (pack) this.state.pack = cleanDeparture(pack);
+      const suggestion = deps.get("yike-last-routine");
+      if (suggestion) this.state.routineSuggestion = cleanRoutine(suggestion);
     } catch (e) {
       this.state.error = (e as Error).message;
     }
@@ -304,6 +332,19 @@ export class TripSession {
     });
   }
   emit() {
+    const p = this.state.pack,
+      a = this.state.active;
+    this.state.packAge = p ? departureAge(p, this.now()) : "";
+    this.state.packOutdated = !!(
+      p &&
+      (a
+        ? p.basis !== departureBasis(a.input, a.plan, a)
+        : this.packInvalidated ||
+          (this.input &&
+            this.state.plans.every(
+              (plan) => p.basis !== departureBasis(this.input!, plan),
+            )))
+    );
     if (this.alive)
       this.deps.notify({
         ...this.state,
@@ -355,6 +396,7 @@ export class TripSession {
     this.invalidate();
   }
   private invalidate() {
+    this.packInvalidated = !!this.state.pack;
     this.state.plans = [];
     this.input = null;
     this.state.pending = null;
@@ -517,6 +559,160 @@ export class TripSession {
       this.state.status = solved.note;
     });
   }
+  async useRoutine(id: string) {
+    if (this.state.busy || this.state.active) return;
+    const r = this.state.routines.find((r) => r.id === id);
+    if (!r) return;
+    if (
+      JSON.stringify(r.origin.position) !==
+      JSON.stringify(this.scene.origin.position)
+    )
+      return this.message(
+        "这份方案的出发点与当前社区不同，请先打开对应地点的报告。模拟方案不能用于真实出行。",
+      );
+    const now = new Date(this.now());
+    this.fill({
+      ...r.draft,
+      departure: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
+      speedMps: this.book.preferences.speedMps,
+    });
+    const matches = r.stops.filter((n) =>
+      this.state.candidates.some(
+        (c) =>
+          c.id === n.id &&
+          JSON.stringify(c.position) === JSON.stringify(n.position),
+      ),
+    );
+    this.state.candidates.forEach(
+      (c) => (c.checked = matches.some((n) => n.id === c.id)),
+    );
+    this.invalidate();
+    const missing = r.stops.filter((n) => !matches.some((m) => m.id === n.id));
+    if (missing.length)
+      return this.message(
+        `已带入条件，但${missing.map((n) => n.name).join("、")}不在当前地点记录中。请展开更多条件重新选择；尚未核算，也未替换成其他地点。`,
+      );
+    await this.calculate();
+    if (!this.state.error && this.state.plans.length) {
+      this.state.status = `已按当前时间${this.state.form.departure}和当前步速重新核算“${r.name}”。营业、库存与价格仍需确认。`;
+      this.emit();
+    }
+  }
+  offerRoutine(id?: string) {
+    try {
+      if (this.state.busy) return;
+      const a = this.state.active;
+      const plan = id ? this.state.plans.find((p) => p.id === id) : null;
+      this.state.routineDraft = a
+        ? routineFrom(a.input, a.plan, this.now())
+        : plan && this.input
+          ? routineFrom(this.input, plan, this.now())
+          : this.state.routineSuggestion
+            ? cleanRoutine(this.state.routineSuggestion)
+            : null;
+      this.state.error = "";
+      this.emit();
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
+  routineName(name: string) {
+    if (this.state.routineDraft)
+      this.state.routineDraft = {
+        ...this.state.routineDraft,
+        name: name.slice(0, 40),
+      };
+    this.emit();
+  }
+  cancelRoutine() {
+    this.state.routineDraft = null;
+    this.emit();
+  }
+  saveRoutine() {
+    try {
+      if (!this.state.routineDraft) return;
+      const r = cleanRoutine(this.state.routineDraft);
+      const next = cleanBook({
+        ...this.book,
+        routines: [
+          r,
+          ...(this.book.routines ?? []).filter((x) => x.id !== r.id),
+        ],
+      });
+      this.deps.save(next);
+      this.book = next;
+      this.state.routines = next.routines!;
+      this.state.routineDraft = null;
+      this.state.error = "";
+      this.state.status =
+        "已保存常用方案，可随私人地点簿同步。下次使用会重新核算。";
+      this.emit();
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
+  async removeRoutine(id: string) {
+    if (
+      this.state.busy ||
+      !(await this.deps.confirm("移除这份常用方案？已保存的行程和地点仍保留。"))
+    )
+      return;
+    try {
+      const next = cleanBook({
+        ...this.book,
+        routines: (this.book.routines ?? []).filter((r) => r.id !== id),
+      });
+      this.deps.save(next);
+      this.book = next;
+      this.state.routines = next.routines ?? [];
+      this.state.status = "已移除常用方案。";
+      this.emit();
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
+  prepare(id?: string) {
+    try {
+      const a = this.state.active,
+        plan = id ? this.state.plans.find((p) => p.id === id) : a?.plan;
+      const input = a?.input ?? this.input;
+      if (!input || !plan || this.state.busy) return;
+      const pack = prepareDeparture(
+        input,
+        plan,
+        this.book,
+        String(this.deps.get("yike-help-phone") || ""),
+        this.now(),
+        a ?? undefined,
+      );
+      this.deps.set(DEPARTURE_KEY, pack);
+      const stored = cleanDeparture(this.deps.get(DEPARTURE_KEY));
+      if (JSON.stringify(stored) !== JSON.stringify(pack))
+        throw new Error("未能确认出门卡保存成功，请清理本机空间后重试。");
+      this.state.pack = stored;
+      this.packInvalidated = false;
+      this.state.error = "";
+      this.state.status =
+        "出门卡已保存在本机，未发送给家人。请核对下方待确认项。";
+      this.emit();
+    } catch (e) {
+      this.message(`保存未完成，原出门卡仍可查看。${(e as Error).message}`);
+    }
+  }
+  async removePack() {
+    if (
+      !(await this.deps.confirm("移除本机出门卡？已下载的离线文件需另行删除。"))
+    )
+      return;
+    try {
+      this.deps.set(DEPARTURE_KEY, null);
+      this.state.pack = null;
+      this.state.status = "本机出门卡已移除。";
+      this.emit();
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
   private async action(fn: () => Promise<void>) {
     this.state.busy = true;
     this.state.error = "";
@@ -660,6 +856,12 @@ export class TripSession {
       this.deps.save(next);
       this.book = next;
       this.state.recent = next.trips!;
+      try {
+        this.state.routineSuggestion = routineFrom(a.input, a.plan, this.now());
+        this.deps.set("yike-last-routine", this.state.routineSuggestion);
+      } catch {
+        /* The saved feedback is independent of this optional shortcut. */
+      }
       this.state.pace = a.phase === "walking" ? null : feedbackPace(record);
       this.storeActive(null);
       void this.assistance.end();

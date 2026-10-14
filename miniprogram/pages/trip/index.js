@@ -83,6 +83,7 @@ Page({
     wx.navigateTo({ url: "/pages/family/index" });
   },
   render(s) {
+    const packChanged = s.pack?.preparedAt !== this.data.pack?.preparedAt;
     const active = s.active;
     const nodes = active ? [active.input.origin, ...active.input.stops] : [],
       name = (id) => nodes.find((n) => n.id === id)?.name || id;
@@ -97,8 +98,12 @@ Page({
         helpChanges = [e.message];
       }
     }
+    const { pack, entrances, ...smallState } = s;
+    this.setData({ pack });
     this.setData({
-      ...s,
+      ...smallState,
+      packTime: s.pack ? new Date(s.pack.preparedAt).toLocaleString() : "",
+      showPack: packChanged && !!s.pack ? true : !!this.data.showPack,
       helpChanges,
       helpExpires: s.assistance.view
         ? new Date(s.assistance.view.expiresAt).toLocaleTimeString()
@@ -218,6 +223,51 @@ Page({
   },
   start(e) {
     return this.session.start(e.currentTarget.dataset.id);
+  },
+  useRoutine(e) {
+    return this.session.useRoutine(e.currentTarget.dataset.id);
+  },
+  offerRoutine(e) {
+    this.session.offerRoutine(e.currentTarget.dataset.id);
+    platform.reveal?.("#routine-editor");
+  },
+  routineName(e) {
+    this.session.routineName(e.detail.value);
+  },
+  saveRoutine() {
+    this.session.saveRoutine();
+  },
+  cancelRoutine() {
+    this.session.cancelRoutine();
+  },
+  removeRoutine(e) {
+    return this.session.removeRoutine(e.currentTarget.dataset.id);
+  },
+  routinesMore() {
+    this.setData({ showRoutines: !this.data.showRoutines });
+  },
+  prepare(e) {
+    this.session.prepare(e.currentTarget.dataset.id);
+    platform.reveal?.("#trip-preparation");
+  },
+  packToggle() {
+    this.setData({ showPack: !this.data.showPack });
+  },
+  packPlaces() {
+    this.setData({ showPackPlaces: !this.data.showPackPlaces });
+  },
+  packChecks() {
+    this.setData({ showPackChecks: !this.data.showPackChecks });
+  },
+  removePack() {
+    return this.session.removePack();
+  },
+  async callPack() {
+    try {
+      await platform.callFamily(this.data.pack.phone);
+    } catch (e) {
+      this.session.message(e.message);
+    }
   },
   step(e) {
     return this.session.step(e.currentTarget.dataset.kind);

@@ -1,0 +1,18 @@
+<template name="departure-place">
+  <view class="departure-place"><text class="h3">{{p.name}}</text><text>{{p.address}}</text><text>{{p.landmark}}</text>
+    <view wx:if="{{p.photo}}" class="departure-photo"><image src="{{p.photo}}" mode="widthFix"/><text wx:if="{{p.marker}}" class="departure-marker" style="left:{{p.marker.x*100}}%;top:{{p.marker.y*100}}%">＋</text></view>
+    <text class="note">{{p.freshness}}</text><text class="note">{{p.opening}}</text>
+  </view>
+</template>
+<view wx:if="{{pack}}" id="trip-preparation" class="card">
+  <button bindtap="packToggle">{{showPack ? '收起出门卡' : '查看已保存的出门卡'}} · {{pack.finish}}回来</button>
+  <block wx:if="{{showPack}}"><text class="note">{{packTime}}保存 · {{packAge}}</text><text wx:if="{{pack.demo}}" class="error">模拟社区与示例价格 · 不可据此出行</text><text wx:if="{{packOutdated}}" class="error">当前行程已变化，这份卡尚未更新。请重新准备。</text>
+    <text class="h3">出门前看一眼</text><text wx:for="{{pack.checks}}" wx:key="*this" wx:if="{{index < 2}}" class="note">{{item}}</text><button bindtap="packChecks">{{showPackChecks ? '收起依据' : '价格记录与路线依据'}}</button><block wx:if="{{showPackChecks}}"><text wx:for="{{pack.checks}}" wx:key="*this" wx:if="{{index >= 2}}" class="note">{{item}}</text></block>
+    <button wx:if="{{pack.phone}}" class="primary" bindtap="callPack">拨打卡内家人电话</button><text wx:else class="note">卡内尚无家人电话，可在“联系家人”中保存后重新准备。</text>
+    <text class="note">资料已保存到本机，断网仍可在此查看，尚未发送给家人。没有逐路口导航；地图、语音识别和远程协助仍需网络。</text>
+    <text class="h3">返程地点</text><template is="departure-place" data="{{p:pack.returnPlace}}"/>
+    <button bindtap="packPlaces">{{showPackPlaces ? '收起沿途资料' : '本次安排与沿途入口'}}</button>
+    <block wx:if="{{showPackPlaces}}"><text wx:for="{{pack.schedule}}" wx:key="*this" class="note">{{item}}</text><template wx:for="{{pack.places}}" wx:key="id" is="departure-place" data="{{p:item}}"/></block>
+    <button bindtap="removePack">移除本机出门卡</button>
+  </block>
+</view>
