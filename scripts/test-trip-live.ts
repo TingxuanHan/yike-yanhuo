@@ -5,6 +5,7 @@ import { existsSync } from "node:fs";
 import type { AddressInfo } from "node:net";
 import { chromium } from "@playwright/test";
 import { createApp } from "../src/server/app.js";
+import { requireZeroPrice } from "../src/server/ai-pricing.js";
 
 // Explicit, synthetic-speech smoke test. Each real model request verifies zero pricing.
 if (process.env.CONFIRM_FREE_AI_LIVE !== "1")
@@ -15,17 +16,31 @@ if (!existsSync(".cache/voice-fixture.wav"))
   throw new Error(
     "Run scripts/generate-voice-fixture.ps1 before this synthetic-speech test.",
   );
-const server = createApp({
-  ...process.env,
-  PORT: "8792",
-  HOST: "127.0.0.1",
-  PUBLIC_ORIGIN: undefined,
-  PERSONAL_DATA_PATH: ":memory:",
-  AI_DATA_PATH: ".cache/trip-live-ai.sqlite",
-  AI_FREE_LOCAL_LIMITS: "false",
-  BAIDU_SERVER_AK: "",
-  BAIDU_BROWSER_AK: "",
-});
+const server = createApp(
+  {
+    ...process.env,
+    PORT: "8792",
+    HOST: "127.0.0.1",
+    PUBLIC_ORIGIN: undefined,
+    PERSONAL_DATA_PATH: ":memory:",
+    AI_DATA_PATH: ".cache/trip-live-ai.sqlite",
+    AI_FREE_LOCAL_LIMITS: "false",
+    BAIDU_SERVER_AK: "",
+    BAIDU_BROWSER_AK: "",
+  },
+  undefined,
+  undefined,
+  async (config, signal) => {
+    await requireZeroPrice(config, signal);
+    console.log(
+      JSON.stringify({
+        stage: "official-price-check",
+        model: config.model,
+        zeroPrice: true,
+      }),
+    );
+  },
+);
 server.listen(8792, "127.0.0.1");
 await once(server, "listening");
 const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -44,6 +59,9 @@ try {
       viewport: { width: 390, height: 844 },
     }),
     page = await context.newPage();
+  await context.addInitScript(() =>
+    localStorage.setItem("yike-simple-mode", "false"),
+  );
   const r = await context.request.post(base + "/api/life/create", { data: {} });
   assert.equal(r.status(), 200);
   let audioCalls = 0,
@@ -71,6 +89,15 @@ try {
     )
       mapCalls++;
   });
+  page.on("requestfailed", (r) =>
+    console.log(
+      JSON.stringify({
+        stage: "request-failed",
+        path: new URL(r.url()).pathname,
+        error: r.failure()?.errorText,
+      }),
+    ),
+  );
   await page.goto(base);
   await page.getByRole("button", { name: "我的日常", exact: true }).click();
   await page
@@ -85,6 +112,7 @@ try {
     page.waitForResponse(
       (r) =>
         r.request().method() === "POST" && r.url().endsWith("/api/ai/voice"),
+      { timeout: 45000 },
     ),
     page.getByRole("button", { name: "发送录音识别", exact: true }).click(),
   ]);

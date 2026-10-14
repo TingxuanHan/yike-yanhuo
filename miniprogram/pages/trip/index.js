@@ -102,6 +102,20 @@ Page({
     this.setData({ pack });
     this.setData({
       ...smallState,
+      guideLegLabels: s.guide.legs.map(
+        (l, i) => `${i + 1}. ${l.from.name} → ${l.to.name}`,
+      ),
+      guideDemo:
+        s.guide.legs[s.guide.selected]?.from.position.system === "demo",
+      guideMeters: Math.round(s.guide.guide?.meters || 0),
+      guideMinutes: Math.round((s.guide.guide?.seconds || 0) / 60),
+      packGuides:
+        s.pack?.guides.map((g) => ({
+          from: g.from.name,
+          to: g.to.name,
+          time: new Date(g.obtainedAt).toLocaleString(),
+          steps: g.steps,
+        })) || [],
       packTime: s.pack ? new Date(s.pack.preparedAt).toLocaleString() : "",
       showPack: packChanged && !!s.pack ? true : !!this.data.showPack,
       helpChanges,
@@ -245,6 +259,30 @@ Page({
   },
   routinesMore() {
     this.setData({ showRoutines: !this.data.showRoutines });
+  },
+  openGuide(e) {
+    this.session.openGuide(e.currentTarget.dataset.id);
+    this.setData({ showGuideAll: false });
+    platform.reveal("#walking-guide");
+  },
+  guideSelect(e) {
+    this.setData({ showGuideAll: false });
+    this.session.walking.select(Number(e.detail.value));
+  },
+  guideLoad() {
+    return this.session.walking.load();
+  },
+  guideTurn(e) {
+    this.session.walking.turn(Number(e.currentTarget.dataset.delta));
+  },
+  guideClose() {
+    this.session.walking.close();
+  },
+  guideAll() {
+    this.setData({ showGuideAll: !this.data.showGuideAll });
+  },
+  packGuidesToggle() {
+    this.setData({ showPackGuides: !this.data.showPackGuides });
   },
   prepare(e) {
     this.session.prepare(e.currentTarget.dataset.id);

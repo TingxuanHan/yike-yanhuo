@@ -211,3 +211,24 @@ textarea {
   color: white;
   background: #8b3500;
 }
+.guide-picker {
+  min-height: 88rpx;
+  padding: 20rpx;
+  background: #edf5f0;
+  border-radius: 12rpx;
+}
+.walking-step {
+  margin: 24rpx 0;
+  padding: 24rpx;
+  border-left: 8rpx solid #146c5d;
+  background: #edf5f0;
+}
+.walking-step .instruction {
+  display: block;
+  font-size: 44rpx;
+  line-height: 1.65;
+  font-weight: 600;
+}
+.care .walking-step .instruction {
+  font-size: 52rpx;
+}

@@ -1,6 +1,7 @@
 import type { TripSession, TripView } from "../mini/trip.js";
 import type { DeparturePlace } from "../shared/departure.js";
 import { downloadDeparture } from "./offline-departure.js";
+import { guideAge } from "../shared/walking-guide.js";
 
 export function RoutinePanel({
   session,
@@ -194,7 +195,28 @@ export function TripPreparation({
           <Place key={x.id} p={x} />
         ))}
       </details>
-      <p className="muted">已保存的安排供参考，未包含逐路口导航。</p>
+      <details>
+        <summary>卡内步行步骤（{p.guides.length}段）</summary>
+        {p.guides.map((g, i) => (
+          <div key={i}>
+            <h3>
+              {g.from.name} → {g.to.name}
+            </h3>
+            <p className="muted">{guideAge(g)}</p>
+            <ol>
+              {g.steps.map((x, j) => (
+                <li key={j}>{x.instruction}</li>
+              ))}
+            </ol>
+          </div>
+        ))}
+        {p.guideMissing.map((l, i) => (
+          <p key={i}>未获取：{l}</p>
+        ))}
+        <p className="muted">
+          仅含已经获取的文字步骤，不跟踪定位。刷新步骤后需重新准备出门卡，现场通行情况优先。
+        </p>
+      </details>
     </details>
   );
 }

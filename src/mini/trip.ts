@@ -13,6 +13,7 @@ import {
   cleanDeparture,
   departureBasis,
   departureAge,
+  tripWalkingLegs,
   DEPARTURE_KEY,
   type TripRoutine,
   type DeparturePack,
@@ -41,6 +42,7 @@ import {
 } from "../shared/trip.js";
 import { demoScene, sceneFromReport, OutingRouteCache } from "./outings.js";
 import { demoShopping } from "./shopping.js";
+import { WalkingGuideSession, type GuideView } from "./walking-guide.js";
 import type { AnalysisResult } from "../shared/types.js";
 import { planningFields } from "./planning.js";
 import { AssistanceSession, type AssistState } from "./assistance.js";
@@ -114,10 +116,12 @@ export interface TripView {
   pack: DeparturePack | null;
   packAge: string;
   packOutdated: boolean;
+  guide: GuideView;
 }
 export class TripSession {
   state: TripView;
   assistance: AssistanceSession;
+  walking: WalkingGuideSession;
   private book: LifeBook;
   private scene: ReturnType<typeof demoScene>;
   private shopping: ShoppingBook;
@@ -135,6 +139,14 @@ export class TripSession {
   ) {
     this.book = cleanBook(book);
     this.now = deps.now ?? Date.now;
+    this.walking = new WalkingGuideSession({
+      ...deps,
+      now: this.now,
+      notify: (guide) => {
+        this.state.guide = guide;
+        this.emit();
+      },
+    });
     this.scene =
       report?.mode === "baidu"
         ? sceneFromReport(report, this.book)
@@ -230,6 +242,7 @@ export class TripSession {
       pack: null,
       packAge: "",
       packOutdated: false,
+      guide: this.walking.state,
     };
     this.cache = new OutingRouteCache(deps.get("yike-outing-routes"));
     try {
@@ -353,6 +366,7 @@ export class TripSession {
       });
   }
   close() {
+    this.walking.close();
     this.assistance?.close();
     this.alive = false;
     this.generation++;
@@ -396,6 +410,7 @@ export class TripSession {
     this.invalidate();
   }
   private invalidate() {
+    this.walking.close();
     this.packInvalidated = !!this.state.pack;
     this.state.plans = [];
     this.input = null;
@@ -671,6 +686,19 @@ export class TripSession {
       this.message((e as Error).message);
     }
   }
+  openGuide(id?: string) {
+    try {
+      const a = this.state.active,
+        input = a?.input ?? this.input;
+      const plan = id ? this.state.plans.find((p) => p.id === id) : a?.plan;
+      if (!input || !plan || this.state.busy) return;
+      const legs = tripWalkingLegs(input, plan, a ?? undefined);
+      if (!legs.length) return this.message("当前没有需要查看的步行路段。");
+      this.walking.show(legs);
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
   prepare(id?: string) {
     try {
       const a = this.state.active,
@@ -684,6 +712,7 @@ export class TripSession {
         String(this.deps.get("yike-help-phone") || ""),
         this.now(),
         a ?? undefined,
+        this.walking.saved(tripWalkingLegs(input, plan, a ?? undefined)),
       );
       this.deps.set(DEPARTURE_KEY, pack);
       const stored = cleanDeparture(this.deps.get(DEPARTURE_KEY));
@@ -744,6 +773,7 @@ export class TripSession {
     }
   }
   private storeActive(a: ActiveTrip | null) {
+    this.walking.close();
     this.deps.set("yike-active-trip", a);
     this.state.active = a;
     const location = tripLocation(a, this.now());

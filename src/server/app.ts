@@ -27,6 +27,7 @@ import { cleanJourney } from "../shared/journey.js";
 import { parseResultFile } from "../shared/result-file.js";
 import { MAX_BOOK_BYTES } from "../shared/life.js";
 import { readOutingRoutes } from "./outing-routes.js";
+import { readWalkingGuide } from "./walking-guide.js";
 import { AiService } from "./ai-service.js";
 import type { requireZeroPrice } from "./ai-pricing.js";
 import type { AiTransport } from "./ai-transport.js";
@@ -508,7 +509,12 @@ export function createApp(
         publicServer && url.pathname.startsWith("/api/")
           ? life.authenticate(tokenOf(req))
           : "local";
-      if (method === "POST" && url.pathname === "/api/outings/routes") {
+      if (
+        method === "POST" &&
+        ["/api/outings/routes", "/api/outings/walking-guide"].includes(
+          url.pathname,
+        )
+      ) {
         rate("outing:" + owner + ":" + peer, 40);
         const body = await readJson(req, 24000);
         const controller = new AbortController();
@@ -520,7 +526,11 @@ export function createApp(
           return json(
             res,
             200,
-            await readOutingRoutes(body, gateway, quota, controller.signal),
+            await (
+              url.pathname === "/api/outings/walking-guide"
+                ? readWalkingGuide
+                : readOutingRoutes
+            )(body, gateway, quota, controller.signal),
           );
         } finally {
           res.off("close", abort);

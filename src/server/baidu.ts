@@ -32,6 +32,7 @@ function upstreamError(status: unknown, path: string): ServiceError {
       "/geoconv/v2/": "坐标转换",
       "/place/v3/around": "地点检索",
       "/routematrix/v2/walking": "批量算路（步行）",
+      "/directionlite/v1/walking": "轻量路线规划（步行）",
     }[path] ?? "对应";
   const guidance: Record<number, string> = {
     3: "权限校验失败，请核对服务端应用类型和访问限制。",
@@ -142,6 +143,7 @@ export class BaiduGateway {
     const allowed = [
       "/place/v3/around",
       "/routematrix/v2/walking",
+      "/directionlite/v1/walking",
       "/geocoding/v3/",
       "/geoconv/v2/",
     ];

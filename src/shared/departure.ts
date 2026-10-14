@@ -5,6 +5,12 @@ import {
 } from "./planning-draft.js";
 import { cleanNode, type OutingNode } from "./outings.js";
 import { cleanPhoto } from "./entrance.js";
+import {
+  cleanWalkingGuide,
+  guideKey,
+  type WalkingGuide,
+  type WalkingLeg,
+} from "./walking-guide.js";
 import type { LifeBook } from "./life.js";
 import {
   remainingTrip,
@@ -107,8 +113,34 @@ export interface DeparturePack {
   places: DeparturePlace[];
   schedule: string[];
   checks: string[];
+  guides: WalkingGuide[];
+  guideMissing: string[];
 }
 export const DEPARTURE_KEY = "yike-departure-pack";
+export function tripWalkingLegs(
+  input: TripInput,
+  plan: TripPlan,
+  active?: ActiveTrip,
+): WalkingLeg[] {
+  const nodes = [input.origin, ...input.stops];
+  const ids = active
+    ? [active.currentId, ...active.remaining]
+    : [input.origin.id, ...plan.stopIds, input.origin.id];
+  return ids
+    .slice(1)
+    .map((id, i) => ({
+      from: nodes.find((n) => n.id === ids[i])!,
+      to: nodes.find((n) => n.id === id)!,
+    }))
+    .filter(
+      (l) =>
+        l.from &&
+        l.to &&
+        l.from.id !== l.to.id &&
+        JSON.stringify(l.from.position) !== JSON.stringify(l.to.position),
+    )
+    .map((l) => ({ from: cleanNode(l.from), to: cleanNode(l.to) }));
+}
 export function departureBasis(
   input: TripInput,
   plan: TripPlan,
@@ -138,11 +170,12 @@ export function prepareDeparture(
   phone: unknown,
   now = Date.now(),
   active?: ActiveTrip,
+  guides: WalkingGuide[] = [],
 ): DeparturePack {
   const place = (node: OutingNode): DeparturePlace => {
     const p = book.places.find(
       (p) =>
-        p.id === node.id &&
+        (p.id === node.id || `p-${p.id}` === node.id) &&
         JSON.stringify(p.position) === JSON.stringify(node.position),
     );
     // Entrance guides use the matching scene's ID; never mix real and demo records.
@@ -178,6 +211,10 @@ export function prepareDeparture(
   const name = (id: string) =>
     [input.origin, ...input.stops].find((n) => n.id === id)?.name ||
     "地点待核对";
+  const legs = tripWalkingLegs(input, plan, active);
+  const matching = legs
+    .map((l) => guides.find((g) => guideKey(g) === guideKey(l)))
+    .filter((g): g is WalkingGuide => !!g);
   return cleanDeparture({
     version: 1,
     preparedAt: now,
@@ -186,6 +223,10 @@ export function prepareDeparture(
     finish: estimate?.finish ?? plan.finish,
     phone:
       typeof phone === "string" && /^\+?\d{3,19}$/.test(phone) ? phone : "",
+    guides: matching,
+    guideMissing: legs
+      .filter((l) => !matching.some((g) => guideKey(l) === guideKey(g)))
+      .map((l) => `${l.from.name} → ${l.to.name}`),
     returnPlace: place(input.origin),
     places: selected.map((id) => place(input.stops.find((s) => s.id === id)!)),
     schedule: progressed
@@ -209,7 +250,7 @@ export function prepareDeparture(
       ...plan.purchases.map(
         (x) => `${x.item.name}：${x.reason}；售价与库存以现场为准。`,
       ),
-      "地点顺序和时间供参考，未包含逐路口导航；路线可能沿用24小时内缓存，等灯按手动假设计算。",
+      "地点顺序和时间供参考；仅收录已获取路段的文字步骤，不跟踪定位。路线可能沿用缓存，等灯按手动假设计算。",
     ],
   });
 }
@@ -266,6 +307,15 @@ export function cleanDeparture(raw: unknown): DeparturePack {
     places: p.places.map(place),
     schedule: list(p.schedule, 7),
     checks: list(p.checks, 12),
+    guides:
+      p.guides === undefined
+        ? []
+        : (() => {
+            if (!Array.isArray(p.guides) || p.guides.length > 6)
+              throw new Error("出门卡最多保存6段指引。");
+            return p.guides.map(cleanWalkingGuide);
+          })(),
+    guideMissing: list(p.guideMissing ?? [], 6),
   };
 }
 export function departureAge(pack: DeparturePack, now = Date.now()) {

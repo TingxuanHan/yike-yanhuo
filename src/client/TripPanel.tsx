@@ -13,6 +13,7 @@ import { VoiceInput } from "./VoiceInput.js";
 import { TripAssistance } from "./TripAssistance.js";
 import { FamilyPanel, localValue } from "./FamilyPanel.js";
 import { RoutinePanel, TripPreparation } from "./TripPreparation.js";
+import { WalkingGuidePanel } from "./WalkingGuide.js";
 import "./planning.css";
 import "./trip.css";
 export function TripPanel({
@@ -67,6 +68,14 @@ export function TripPanel({
   }, [session]);
   const s = view ?? session.state,
     a = s.active;
+  const showGuide = (id?: string) => {
+    session.openGuide(id);
+    requestAnimationFrame(() =>
+      document
+        .getElementById("walking-guide")
+        ?.scrollIntoView({ block: "start" }),
+    );
+  };
   return (
     <section
       ref={panel}
@@ -421,6 +430,9 @@ export function TripPanel({
                   按这条安排出门
                 </button>
                 <div className="planning-actions">
+                  <button className="secondary" onClick={() => showGuide(p.id)}>
+                    查看步行指引
+                  </button>
                   <button
                     className="secondary"
                     onClick={() => {
@@ -455,6 +467,11 @@ export function TripPanel({
       )}
       {a && (
         <div className="planning-card trip-active">
+          {a.phase !== "finished" && (
+            <button className="secondary" onClick={() => showGuide()}>
+              查看剩余路段指引
+            </button>
+          )}
           <p className="eyebrow">
             {a.input.bundle.mode === "demo" ? "模拟行程演练" : "进行中的行程"} ·
             本机保存
@@ -609,6 +626,7 @@ export function TripPanel({
           </button>
         </div>
       )}
+      <WalkingGuidePanel session={session.walking} s={s.guide} />
       <TripPreparation session={session} s={s} />
       {!!s.recent.length && (
         <details className="planning-card">

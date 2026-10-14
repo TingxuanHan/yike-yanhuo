@@ -21,7 +21,9 @@ async function request(path, method = "GET", data) {
     timeout:
       path === "/api/outings/routes"
         ? 60000
-        : path === "/api/ai/parse" || path === "/api/ai/voice"
+        : path === "/api/ai/parse" ||
+            path === "/api/ai/voice" ||
+            path === "/api/outings/walking-guide"
           ? 35000
           : 15000,
     header: {

@@ -113,6 +113,10 @@ test("public server requires pairing auth, protects jobs and handles stale write
   assert.equal((await call("/api/life")).status, 401);
   assert.equal((await call("/api/outings/routes", "POST", {})).status, 401);
   assert.equal(
+    (await call("/api/outings/walking-guide", "POST", {})).status,
+    401,
+  );
+  assert.equal(
     (await call("/api/life/create", "POST", { client: "mini" })).status,
     403,
   );

@@ -9,10 +9,11 @@
   <block wx:if="{{showPack}}"><text class="note">{{packTime}}保存 · {{packAge}}</text><text wx:if="{{pack.demo}}" class="error">模拟社区与示例价格 · 不可据此出行</text><text wx:if="{{packOutdated}}" class="error">当前行程已变化，这份卡尚未更新。请重新准备。</text>
     <text class="h3">出门前看一眼</text><text wx:for="{{pack.checks}}" wx:key="*this" wx:if="{{index < 2}}" class="note">{{item}}</text><button bindtap="packChecks">{{showPackChecks ? '收起依据' : '价格记录与路线依据'}}</button><block wx:if="{{showPackChecks}}"><text wx:for="{{pack.checks}}" wx:key="*this" wx:if="{{index >= 2}}" class="note">{{item}}</text></block>
     <button wx:if="{{pack.phone}}" class="primary" bindtap="callPack">拨打卡内家人电话</button><text wx:else class="note">卡内尚无家人电话，可在“联系家人”中保存后重新准备。</text>
-    <text class="note">资料已保存到本机，断网仍可在此查看，尚未发送给家人。没有逐路口导航；地图、语音识别和远程协助仍需网络。</text>
+    <text class="note">资料已保存到本机，断网仍可在此查看，尚未发送给家人。仅包含已经获取的文字步骤，不跟踪定位。地图、语音识别和远程协助仍需网络。</text>
     <text class="h3">返程地点</text><template is="departure-place" data="{{p:pack.returnPlace}}"/>
     <button bindtap="packPlaces">{{showPackPlaces ? '收起沿途资料' : '本次安排与沿途入口'}}</button>
     <block wx:if="{{showPackPlaces}}"><text wx:for="{{pack.schedule}}" wx:key="*this" class="note">{{item}}</text><template wx:for="{{pack.places}}" wx:key="id" is="departure-place" data="{{p:item}}"/></block>
+    <button bindtap="packGuidesToggle">{{showPackGuides ? '收起卡内步骤' : '卡内步行步骤'}}（{{packGuides.length}}段）</button><block wx:if="{{showPackGuides}}"><view wx:for="{{packGuides}}" wx:for-item="g" wx:key="index"><text class="h3">{{g.from}} → {{g.to}}</text><text class="note">{{g.time}}获取 · 资料不随路况更新，非今日资料请重新核对。</text><text wx:for="{{g.steps}}" wx:key="index" class="note">{{index+1}}. {{item.instruction}}</text></view><text wx:for="{{pack.guideMissing}}" wx:key="*this" class="note">未获取：{{item}}</text><text class="note">更新步骤后需重新准备出门卡，现场通行情况优先。</text></block>
     <button bindtap="removePack">移除本机出门卡</button>
   </block>
 </view>

@@ -98,7 +98,7 @@ const bounded = (v: number, min: number, max: number, message: string) => {
 };
 export function cleanNode(v: unknown): OutingNode {
   const p = v as OutingNode;
-  if (!p || typeof p.id !== "string" || !/^[a-zA-Z0-9_-]{1,80}$/.test(p.id))
+  if (!p || typeof p.id !== "string" || !/^[a-zA-Z0-9_:-]{1,80}$/.test(p.id))
     throw new Error("地点编号无效。");
   const c = p.position;
   let position: PlacePosition;
