@@ -121,6 +121,12 @@
 
 `meters`是已确认路段的已知道路长度合计，不是GPS实测轨迹。只有符合条件的真实记录才可另经确认更新步速；音频、设备凭证和模型密钥不属于该结构。完整步骤见[一趟出门与语音](trip-and-voice.md)。
 
+## 常用出门方案与本机卡片
+
+`book.routines`为可选数组，最多8条。每条包含`id,name,savedAt,origin,stops,draft`，候选地点1—5个；`draft.departure`和`draft.speedMps`规范化为null，使用时填入当前时间与当前步速。不得重复地点或混合模拟与真实坐标。其他字段丢弃，沿用整本750000字节限制、同编号本机优先合并和版本冲突机制；Web与微信同步预览包含方案数量。
+
+出门卡只存当前设备，不属于`book`或同步API。字段和500000字符限制见`src/shared/departure.ts`；Web导出独立HTML，不包含设备凭证、计算坐标或分享令牌。功能与离线边界见[常用方案与出门卡](departure-preparation.md)。
+
 ## 单次位置分享
 
 | 接口 | 用途 |
@@ -128,9 +134,12 @@
 | `POST /api/life/family` | 拥有者鉴权后提交`{snapshot:{record,speedMps}}`，返回`{view,invite}`。一小时到期；同一私人空间重新创建使旧卡失效。请求体上限3000字节。 |
 | `GET /api/life/family/:id` | 拥有者读取自己分享的单次记录。 |
 | `DELETE /api/life/family/:id` | 拥有者停止分享，重复撤销安全。 |
-| `GET /api/family/:id` | 家人仅用`X-Yike-Family`令牌读取。没有写入、私人地点簿或付费接口权限。 |
+| `GET /api/family/:id` | 家人仅用`X-Yike-Family`令牌读取该卡。没有私人地点簿或付费接口权限。 |
+| `POST /api/family/:id` | 同一专用令牌；提交`{revision,receipt:{id,kind,name}}`，只更新该卡最新回应。请求体上限1000字节，来源检查及独立20次/10分钟频率限制。 |
 
-`record`只有`source,position,name,at,accuracyM`；source为`device|confirmed`，position为带`wgs84|gcj02|bd09`体系的经纬度，拒绝模拟点、无效经纬度与超过当前服务端时钟一分钟的未来时间。本人确认的精度字段强制为null；超过一天的记录不新建链接。`view`只有`id,createdAt,expiresAt,snapshot`。手机号、设备凭证、历史轨迹和其他地点均不属于分享载荷。
+`record`只有`source,position,name,at,accuracyM`；source为`device|confirmed`，position为带`wgs84|gcj02|bd09`体系的经纬度，拒绝模拟点、无效经纬度与超过当前服务端时钟一分钟的未来时间。本人确认的精度字段强制为null；超过一天的记录不新建链接。`view`包含`id,createdAt,expiresAt,snapshot,revision,receipt`，旧记录可不带后两项，版本按1处理。手机号、设备凭证、历史轨迹和其他地点均不属于分享载荷。
+
+`receipt.kind`只接受`seen|coming|calling`；称呼去除首尾空白后1—20字符，拒绝换行与尖括号，身份未核验。请求编号为12—80字符，最新回应的同编号同内容重试直接返回原结果；同编号异内容或过期版本返回409。新回应使用服务端时间`at`，版本加一。不会因GET产生回执，也不发送推送；家人令牌不能修改位置记录。撤销、替换与到期同时终止读取和回应并清除正文。
 
 访问凭证为32字节随机数，服务端保存SHA-256散列；Web放在URL片段，家人请求省略Cookie、禁止重定向并使用`no-referrer`。微信接收页面仅将位置卡凭证发给链接中的服务地址，不发送本机设备凭证。接口沿用来源检查、独立频率限制、无缓存响应及过期正文清理。估算范围由客户端按记录年龄计算，公式与限制见[简易模式与家人位置线索](simple-family.md)。
 
