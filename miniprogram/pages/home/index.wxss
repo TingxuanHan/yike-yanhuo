@@ -37,3 +37,17 @@
   margin: 16rpx 0;
   line-height: 1.7;
 }
+.time-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding: 18rpx;
+  font-size: 24rpx;
+}
+.legend-square {
+  display: inline-block;
+  width: 18rpx;
+  height: 18rpx;
+  margin-right: 8rpx;
+  border: 1px solid #7d9088;
+}

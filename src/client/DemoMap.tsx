@@ -5,6 +5,7 @@ import {
   type GapCategory,
 } from "../core/coverage.js";
 import { demoRoads } from "../core/demo.js";
+import { walkingTimeBands } from "../core/time-bands.js";
 import {
   CATEGORIES,
   type AnalysisResult,
@@ -206,30 +207,24 @@ export function DemoMap({
             </g>
           </>
         )}
-        {result?.contours
-          .filter((c) => c.minutes <= minutes)
-          .slice()
-          .reverse()
-          .map((c) => (
-            <path
-              key={c.minutes}
-              d={contourPath(c.polygons)}
-              fill={
-                c.minutes === 5
-                  ? "#257a65"
-                  : c.minutes === 10
-                    ? "#56a38b"
-                    : "#86b8a2"
-              }
-              fillOpacity={c.minutes === 5 ? 0.29 : 0.24}
-              fillRule="evenodd"
-              stroke={c.minutes === 5 ? "#146c5d" : "#4e957b"}
-              strokeWidth={c.minutes === minutes ? 3 : 1.4}
-              strokeDasharray={c.minutes === 15 ? "8 5" : undefined}
-              vectorEffect="non-scaling-stroke"
-              pointerEvents="none"
-            />
-          ))}
+        {(result ? walkingTimeBands(result, minutes) : []).map((c) => (
+          <path
+            key={c.to}
+            data-testid="time-band"
+            aria-label={c.label}
+            d={contourPath(c.polygons)}
+            fill={c.color}
+            fillOpacity={0.38}
+            fillRule="evenodd"
+            stroke="#146c5d"
+            strokeWidth={c.to === minutes ? 2.5 : 1}
+            strokeDasharray={c.to === minutes ? "8 5" : undefined}
+            vectorEffect="non-scaling-stroke"
+            pointerEvents="none"
+          >
+            <title>{c.label}近似步行范围</title>
+          </path>
+        ))}
         {cells &&
           (["missing", "unknown"] as const).map((status) => (
             <g key={status} pointerEvents="none">

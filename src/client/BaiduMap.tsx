@@ -7,6 +7,7 @@ import {
   type XY,
 } from "../shared/types.js";
 import { toGeo } from "../core/geo.js";
+import { walkingTimeBands } from "../core/time-bands.js";
 import {
   gapCells,
   coveragePoints,
@@ -153,10 +154,9 @@ export function BaiduMap(props: Props) {
     const geoPoint = (g: LngLat) => new BMap.Point(g.lng, g.lat);
     const localPoint = (p: XY) =>
       geoPoint(toGeo(p, props.result?.center.geo ?? props.center));
-    for (const contour of props.result?.contours
-      .filter((c) => c.minutes <= props.minutes)
-      .slice()
-      .reverse() ?? []) {
+    for (const contour of props.result
+      ? walkingTimeBands(props.result, props.minutes)
+      : []) {
       for (const polygon of contour.polygons)
         instance.addOverlay(
           new BMap.Polygon(
@@ -164,8 +164,8 @@ export function BaiduMap(props: Props) {
             {
               strokeColor: "#146c5d",
               strokeWeight: 2,
-              fillColor: "#4b9d82",
-              fillOpacity: 0.13,
+              fillColor: contour.color,
+              fillOpacity: 0.38,
               strokeOpacity: 0.7,
             },
           ),

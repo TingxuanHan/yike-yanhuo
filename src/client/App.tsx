@@ -28,6 +28,7 @@ import type { PersonalPlace } from "../shared/life.js";
 import { SimpleHome } from "./SimpleHome.js";
 import { CoverageInspector } from "./CoverageInspector.js";
 import { CommunityGuide } from "./CommunityGuide.js";
+import { walkingTimeBands } from "../core/time-bands.js";
 import { SIMPLE_KEY } from "../shared/family.js";
 
 export function App() {
@@ -896,18 +897,10 @@ export function App() {
               )}
               {result && (
                 <div className="map-legend">
-                  {result.contours.map((c) => (
-                    <span key={c.minutes}>
-                      <i
-                        className={
-                          c.minutes <= 5
-                            ? "legend-5"
-                            : c.minutes <= 10
-                              ? "legend-10"
-                              : "legend-15"
-                        }
-                      />
-                      {c.minutes}分钟
+                  {walkingTimeBands(result, minutes).map((c) => (
+                    <span key={c.to}>
+                      <i style={{ backgroundColor: c.color }} />
+                      {c.label}
                     </span>
                   ))}
                   <span className="legend-note">近似可达范围</span>
@@ -916,6 +909,9 @@ export function App() {
             </div>
             {result ? (
               <>
+                <p className="caption map-range-note">
+                  色带为测时采样推算的时段范围。空白可能是不可达、未采样或缺测区域，需结合报告核查。
+                </p>
                 {showGaps && (
                   <div className="gap-explanation">
                     <label htmlFor="gap-category">核查类别</label>

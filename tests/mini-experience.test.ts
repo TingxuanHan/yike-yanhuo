@@ -178,16 +178,20 @@ test("mini scenarios match the core, preserve coordinate provenance, and never m
             [0, 0],
           ],
           [
-            [20, 20],
-            [30, 20],
-            [20, 30],
-            [20, 20],
+            [50, 20],
+            [60, 20],
+            [50, 30],
+            [50, 20],
           ],
         ],
       ],
     },
   ];
   const view = reportView(real);
+  assert.deepEqual(
+    view.timeLegend.map((b) => b.label),
+    ["0–20分钟"],
+  );
   assert.equal(view.mapNative, true);
   assert.equal(view.mapPolygons.length, 0);
   assert.equal(view.mapPolylines.length, 2);

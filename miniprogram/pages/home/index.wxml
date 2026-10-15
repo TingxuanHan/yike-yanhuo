@@ -156,9 +156,10 @@
           class="sketch"
           disable-scroll="{{true}}"
         /><text class="sketch-label"
-          >绿色线：估算边界 · 圆点：清单中的地点</text
+          >色线：各时段估算边界 · 圆点：清单地点</text
         ></view
       >
+      <view class="time-legend"><text wx:for="{{timeLegend}}" wx:key="to"><text class="legend-square" style="background-color:{{item.color}};"></text>{{item.label}}</text></view>
       <view class="map-summary"
         ><text>{{minutes}}分钟内 · {{nearby.length}}处清单地点</text
         ><text class="muted">约 {{rangeArea}} km²</text></view
@@ -166,7 +167,7 @@
       <text wx:if="{{rangeClipped}}" class="warning map-note"
         >已到采样边界，更远的范围尚未核验。</text
       ><text wx:if="{{mapHasHoles}}" class="muted map-note"
-        >带空洞的范围仅画边线，线内空白不代表全部可达。</text
+        >带空洞的时段区域仅画色线；空白可能未采样或缺测，不能直接认定不可达。</text
       >
     </view>
     <view wx:if="{{result}}" class="section coverage-section">

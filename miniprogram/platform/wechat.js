@@ -314,16 +314,38 @@ module.exports = {
         ctx.lineTo(320, y);
         ctx.stroke();
       }
-      ctx.setStrokeStyle("#146c5d");
-      ctx.setLineWidth(2.5);
-      sketch.rings.forEach((ring) => {
+      const drawRing = (ring) => {
         ctx.beginPath();
         ring.forEach((p, i) =>
           i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
         );
         ctx.closePath();
-        ctx.stroke();
-      });
+      };
+      ctx.setLineWidth(2.5);
+      if (sketch.bands)
+        sketch.bands.forEach((band) => {
+          ctx.setStrokeStyle(band.color);
+          ctx.setFillStyle(band.color);
+          band.polygons.forEach((polygon) => {
+            if (polygon.length === 1) {
+              drawRing(polygon[0]);
+              ctx.setGlobalAlpha(0.28);
+              ctx.fill();
+              ctx.setGlobalAlpha(1);
+            }
+            polygon.forEach((ring) => {
+              drawRing(ring);
+              ctx.stroke();
+            });
+          });
+        });
+      else {
+        ctx.setStrokeStyle("#146c5d");
+        sketch.rings.forEach((ring) => {
+          drawRing(ring);
+          ctx.stroke();
+        });
+      }
       sketch.places.forEach((p, i) => {
         ctx.setFillStyle("#146c5d");
         ctx.beginPath();

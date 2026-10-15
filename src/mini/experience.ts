@@ -1,4 +1,5 @@
 import { personalize } from "../core/personalize.js";
+import { walkingTimeBands } from "../core/time-bands.js";
 import { toGeo } from "../core/geo.js";
 import {
   coveragePoints,
@@ -134,6 +135,7 @@ export function reportView(
         CATEGORIES.find((c) => c.id === p.category)?.label ?? "地点",
     }));
   const contour = result.contours.find((c) => c.minutes === minutes);
+  const bands = walkingTimeBands(result, minutes);
   const native = result.mode === "baidu" && !!result.center.geo;
   const convert = (xy: XY) => {
     const p = bd09ToGcj02(toGeo(xy, result.center.geo!));
@@ -146,22 +148,28 @@ export function reportView(
     ) ?? [];
   // Draw rings as lines: native map polygons cannot represent holes consistently.
   const polylines = native
-    ? paths.map((points) => ({
-        points: points.map(convert),
-        color: "#146c5d",
-        width: 3,
-        dottedLine: false,
-      }))
+    ? bands.flatMap((band) =>
+        band.polygons.flatMap((polygon) =>
+          polygon.map((points) => ({
+            points: points.map(convert),
+            color: band.color,
+            width: 3,
+            dottedLine: false,
+          })),
+        ),
+      )
     : [];
   const polygons = native
-    ? (contour?.polygons ?? [])
-        .filter((p) => p.length === 1)
-        .map((p) => ({
-          points: p[0].map(convert),
-          strokeWidth: 1,
-          strokeColor: "#146c5d",
-          fillColor: "#146c5d20",
-        }))
+    ? bands.flatMap((band) =>
+        band.polygons
+          .filter((p) => p.length === 1)
+          .map((p) => ({
+            points: p[0].map(convert),
+            strokeWidth: 1,
+            strokeColor: band.color,
+            fillColor: band.color + "55",
+          })),
+      )
     : [];
   const markers = native
     ? nearby.map((p) => ({
@@ -212,6 +220,10 @@ export function reportView(
       : [],
     sketch: {
       rings: paths.map((r) => r.map(plot)),
+      bands: bands.map((b) => ({
+        color: b.color,
+        polygons: b.polygons.map((p) => p.map((r) => r.map(plot))),
+      })),
       places: nearby.map((p) => ({ ...plot(p.point), id: p.id })),
     },
     areas: result.contours.map((c) => ({
@@ -221,7 +233,12 @@ export function reportView(
     })),
     rangeArea: contour?.areaKm2.toFixed(2) ?? "0.00",
     rangeClipped: !!contour?.clipped,
+    timeLegend: bands.map((b) => ({
+      label: b.label,
+      color: b.color,
+      to: b.to,
+    })),
     generatedLabel: result.generatedAt.slice(0, 10),
-    mapHasHoles: !!contour?.polygons.some((p) => p.length > 1),
+    mapHasHoles: bands.some((b) => b.polygons.some((p) => p.length > 1)),
   };
 }
