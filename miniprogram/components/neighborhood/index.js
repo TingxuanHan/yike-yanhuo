@@ -12,6 +12,8 @@ Component({
   },
   data: {
     ready: false,
+    setupError: "",
+    expanded: "",
     history: false,
     kindLabels: NOTICE_KINDS.map((k) => k.label),
     ages: [
@@ -71,7 +73,10 @@ Component({
         );
         this.render(this.session.state);
       } catch {
-        this.setData({ ready: false });
+        this.setData({
+          ready: false,
+          setupError: "提醒位置暂不可用，请重新选择地点或获取这段步行指引。",
+        });
       }
     },
     startClock() {
@@ -85,9 +90,13 @@ Component({
       this.setData({
         ...s,
         ready: true,
+        setupError: "",
         activeCount: active.length,
         oldCount: s.notices.length - active.length,
-        visible: this.data.history ? s.notices : active,
+        visible: (this.data.history ? s.notices : active).map((n) => ({
+          ...n,
+          showEvidence: n.id === this.data.expanded,
+        })),
         choiceLabels: s.choices.map((c) => c.label),
         kindIndex: NOTICE_KINDS.findIndex((k) => k.id === s.kind),
         sourceIndex: s.basis === "seen" ? 0 : 1,
@@ -138,6 +147,11 @@ Component({
     },
     historyToggle() {
       this.setData({ history: !this.data.history });
+      this.session?.tick();
+    },
+    evidence(e) {
+      const id = e.currentTarget.dataset.id;
+      this.setData({ expanded: this.data.expanded === id ? "" : id });
       this.session?.tick();
     },
     restore() {

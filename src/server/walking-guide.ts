@@ -6,6 +6,45 @@ import {
 import { emptyUsage } from "../shared/types.js";
 import { BaiduGateway, ServiceError } from "./baidu.js";
 import type { QuotaLedger } from "./quota.js";
+import { noticeDistance } from "../shared/neighborhood.js";
+import type { PlacePosition } from "../shared/life.js";
+
+export function walkingGeometry(steps: { path?: string }[]) {
+  const segments: PlacePosition[][] = [];
+  for (const step of steps) {
+    if (typeof step.path !== "string") return null;
+    const points: PlacePosition[] = [];
+    for (const token of step.path.split(";").filter(Boolean)) {
+      const parts = token.split(",");
+      if (parts.length !== 2 || parts.some((p) => !p.trim())) return null;
+      const [lng, lat] = parts.map(Number);
+      if (
+        !Number.isFinite(lng) ||
+        !Number.isFinite(lat) ||
+        lng < 73 ||
+        lng > 136 ||
+        lat < 3 ||
+        lat > 54
+      )
+        return null;
+      points.push({ system: "gcj02", lng, lat });
+    }
+    if (
+      points.length < 2 ||
+      (segments.length &&
+        noticeDistance(segments.at(-1)!.at(-1)!, points[0]) > 10)
+    )
+      return null;
+    segments.push(points);
+  }
+  const path = segments.flat();
+  const meters = path
+    .slice(1)
+    .reduce((sum, p, i) => sum + noticeDistance(p, path[i]), 0);
+  return path.length >= 2 && path.length <= 2000 && meters <= 35000
+    ? { path, starts: segments.map((s) => s[0]) }
+    : null;
+}
 
 export async function readWalkingGuide(
   body: unknown,
@@ -78,30 +117,8 @@ export async function readWalkingGuide(
     };
     const route = result?.routes?.[0];
     if (!route || !Array.isArray(route.steps)) throw new Error();
-    const path = route.steps.flatMap((s) =>
-      typeof s.path === "string"
-        ? s.path
-            .split(";")
-            .filter(Boolean)
-            .map((value) => {
-              const [lng, lat] = value.split(",").map(Number);
-              return { system: "gcj02", lng, lat };
-            })
-        : [],
-    );
+    const geometry = walkingGeometry(route.steps);
     // Older responses without geometry remain readable. Never invent a straight-line route.
-    const usable =
-      path.length >= 2 &&
-      path.length <= 2000 &&
-      path.every(
-        (p) =>
-          Number.isFinite(p.lng) &&
-          Number.isFinite(p.lat) &&
-          p.lng >= 73 &&
-          p.lng <= 136 &&
-          p.lat >= 3 &&
-          p.lat <= 54,
-      );
     return cleanWalkingGuide({
       ...leg,
       version: 1,
@@ -109,15 +126,11 @@ export async function readWalkingGuide(
       obtainedAt: Date.now(),
       meters: route.distance,
       seconds: route.duration,
-      ...(usable ? { path } : {}),
-      steps: route.steps.map((s) => ({
+      ...(geometry ? { path: geometry.path } : {}),
+      steps: route.steps.map((s, i) => ({
         meters: s.distance,
         instruction: plainInstruction(s.instruction),
-        ...(s.start_location &&
-        Number.isFinite(s.start_location.lng) &&
-        Number.isFinite(s.start_location.lat)
-          ? { position: { system: "gcj02", ...s.start_location } }
-          : {}),
+        ...(geometry ? { position: geometry.starts[i] } : {}),
       })),
     });
   } catch {

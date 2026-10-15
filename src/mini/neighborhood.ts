@@ -12,6 +12,34 @@ import {
   type ObservationState,
 } from "../shared/neighborhood.js";
 export { NOTICE_KINDS };
+import type { WalkingGuide, WalkingLeg } from "../shared/walking-guide.js";
+export function guideNotices(leg: WalkingLeg, guide: WalkingGuide | null) {
+  let path = guide?.path;
+  let target = { name: leg.to.name, position: path?.at(-1) ?? leg.to.position };
+  try {
+    cleanNoticeQuery({ target, ...(path ? { path } : {}) });
+  } catch {
+    path = undefined;
+    target = { name: leg.to.name, position: leg.to.position };
+  }
+  return {
+    query: cleanNoticeQuery({ target, ...(path ? { path } : {}) }),
+    choices: [
+      { ...target, label: "目的地附近" },
+      ...(path ? guide!.steps : []).flatMap((step, i) =>
+        step.position
+          ? [
+              {
+                name: `路段${i + 1}附近`,
+                position: step.position,
+                label: `第${i + 1}段起点：${step.instruction}`,
+              },
+            ]
+          : [],
+      ),
+    ],
+  };
+}
 interface Deps {
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>;
   get: (key: string) => unknown;
@@ -217,7 +245,6 @@ export class NeighborhoodSession {
   ) {
     if (this.state.busy) return;
     Object.assign(this.state, { [key]: value });
-    this.pending = null;
     this.emit();
   }
   choose(index: number) {
@@ -225,7 +252,6 @@ export class NeighborhoodSession {
       return;
     this.state.choice = index;
     this.state.name = this.state.choices[index].name;
-    this.pending = null;
     this.emit();
   }
   age(minutes: number) {
@@ -233,7 +259,6 @@ export class NeighborhoodSession {
       return;
     this.state.age = minutes;
     this.state.at = this.now() - minutes * 60000;
-    this.pending = null;
     this.emit();
   }
   private draftData() {

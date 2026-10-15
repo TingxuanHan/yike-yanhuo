@@ -19,11 +19,52 @@ import {
 import { NeighborhoodSession } from "../src/mini/neighborhood.js";
 import { miniRuntime } from "./helpers/mini.js";
 import { demoWalkingGuide } from "../src/mini/walking-guide.js";
+import { walkingGeometry } from "../src/server/walking-guide.js";
+import { guideNotices } from "../src/mini/neighborhood.js";
 
 const target = {
   name: "模拟东入口",
   position: { system: "demo" as const, x: 0, y: 0 },
 };
+test("partial or disconnected provider geometry never creates a fabricated bridge, and WGS inputs use returned route coordinates", () => {
+  const a = { path: "121.5,31.2;121.501,31.2" },
+    b = { path: "121.501,31.2;121.501,31.201" };
+  const geometry = walkingGeometry([a, b]);
+  assert.equal(geometry?.path.length, 4);
+  assert.equal(walkingGeometry([a, {}]), null);
+  assert.equal(
+    walkingGeometry([a, { path: "121.505,31.2;121.505,31.201" }]),
+    null,
+  );
+  assert.equal(walkingGeometry([{ path: "121.5,31.2,42;121.501,31.2" }]), null);
+  const leg = {
+    from: {
+      id: "a",
+      name: "起点",
+      position: { system: "wgs84" as const, lng: 121.5, lat: 31.2 },
+    },
+    to: {
+      id: "b",
+      name: "目的地",
+      position: { system: "wgs84" as const, lng: 121.502, lat: 31.201 },
+    },
+  };
+  const n = guideNotices(leg, {
+    ...leg,
+    version: 1,
+    source: "baidu",
+    obtainedAt: Date.now(),
+    meters: 200,
+    seconds: 200,
+    path: geometry!.path,
+    steps: [
+      { instruction: "沿路前行", meters: 200, position: geometry!.starts[0] },
+    ],
+  });
+  assert.equal(n.query.target.position.system, "gcj02");
+  assert.equal(n.choices.length, 2);
+  assert.equal(guideNotices(leg, null).choices.length, 1);
+});
 let serial = 0;
 const report = (now: number, extra: Record<string, unknown> = {}) => ({
   share: true,
@@ -298,6 +339,13 @@ test("neighborhood observations persist across restart and enforce explicit shar
       () => db.neighborhood.write(a, n.id, report(now, { version: 40 })),
       /今天/,
     );
+    const withdrawn = db.neighborhood.write(
+      a,
+      n.id,
+      report(now, { version: 40, withdraw: true }),
+    );
+    assert.equal(withdrawn.state, "withdrawn");
+    assert.equal(withdrawn.present, 0);
   } finally {
     db.close();
     assert.ok(resolve(dir).startsWith(resolve(tmpdir()) + sep));
@@ -349,9 +397,14 @@ test("session preserves drafts and retry identity, ignores departed reads and ma
     await s.submit();
     assert.match(s.state.error, /网络中断/);
     assert.equal(s.state.note, "刚刚看到东入口围挡。");
-    await s.submit();
+    s.saveDraft();
+    const retry = new NeighborhoodSession({ target }, [], deps);
+    retry.restore();
+    assert.equal(retry.state.share, false);
+    retry.field("share", true);
+    await retry.submit();
     assert.equal(posted[0].requestId, posted[1].requestId);
-    assert.match(s.state.status, /已共享/);
+    assert.match(retry.state.status, /已共享/);
     await s.refresh();
     assert.equal(s.state.feed!.notices[0].present, 1);
     now += 300001;

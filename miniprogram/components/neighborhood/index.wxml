@@ -1,3 +1,4 @@
+<view wx:if="{{setupError}}" class="neighbor"><text class="neighbor-error">{{setupError}}</text></view>
 <view wx:if="{{ready}}" class="neighbor {{large ? 'neighbor-large' : ''}}">
   <button bindtap="toggle">邻里提醒 · {{open ? '收起' : '查看或补充'}}</button>
   <view wx:if="{{open}}" class="neighbor-content">
@@ -8,17 +9,18 @@
     <checkbox-group bindchange="filter"><label class="neighbor-check"><checkbox value="steps" checked="{{stepsOnly}}" disabled="{{busy}}"/><text>只看台阶或门槛</text></label></checkbox-group>
     <text wx:if="{{error}}" class="neighbor-error">{{error}}</text><text wx:if="{{error}}" class="neighbor-note">可在“我的”中连接设备；草稿可先存本机。其他人需连接同一个服务。</text>
     <text wx:if="{{status}}" class="neighbor-note">{{status}}</text><text wx:if="{{asOf}}" class="neighbor-note">上次读取：{{asOf}}</text>
-    <text wx:if="{{stale &amp;&amp; feed}}" class="neighbor-warning">上次记录已过刷新时间或连接中断，请刷新后确认现状。</text>
-    <text wx:if="{{feed &amp;&amp; !activeCount}}" class="neighbor-note">没有收到仍需关注的问题报告；不代表门店一定营业或道路畅通。</text>
+    <text wx:if="{{stale && feed}}" class="neighbor-warning">上次记录已过刷新时间或连接中断，请刷新后确认现状。</text>
+    <text wx:if="{{feed && !activeCount}}" class="neighbor-note">没有收到仍需关注的问题报告；不代表门店一定营业或道路畅通。</text>
     <text wx:if="{{feed.truncated}}" class="neighbor-warning">仅显示前50条相关记录，请缩小查看范围。</text>
     <view wx:for="{{visible}}" wx:key="id" class="neighbor-event neighbor-{{item.state}}">
       <text class="neighbor-title">{{stale ? '历史快照 · ' : ''}}{{item.label}}</text><text class="neighbor-title">{{item.target.name}} · {{item.kindLabel}}</text>
-      <text class="neighbor-note">{{item.relation}}</text><text class="neighbor-note">最近观察：{{item.observedLabel}}</text><text class="neighbor-note">{{item.reason}}</text>
-      <text wx:for="{{item.notesLabel}}" wx:for-item="note" wx:key="index" class="neighbor-note">{{note}}</text>
-      <view class="neighbor-actions"><button data-id="{{item.id}}" data-state="present" bindtap="begin" disabled="{{busy || stale}}">我看到仍有问题</button><button data-id="{{item.id}}" data-state="clear" bindtap="begin" disabled="{{busy || stale}}">我看到已经恢复</button><button data-id="{{item.id}}" data-state="unsure" bindtap="begin" disabled="{{busy || stale}}">我不能确定</button><button wx:if="{{item.mine &amp;&amp; !item.mine.withdrawn}}" data-id="{{item.id}}" bindtap="withdraw" disabled="{{busy}}">撤回我的反馈</button></view>
+      <text class="neighbor-note">{{item.relation}}</text><text class="neighbor-note">最近观察：{{item.observedLabel}}</text>
+      <button data-id="{{item.id}}" bindtap="evidence">{{item.showEvidence ? '收起反馈依据' : '查看反馈依据'}}</button>
+      <block wx:if="{{item.showEvidence}}"><text class="neighbor-note">{{item.reason}}</text><text wx:for="{{item.notesLabel}}" wx:for-item="note" wx:key="index" class="neighbor-note">{{note}}</text></block>
+      <view class="neighbor-actions"><button data-id="{{item.id}}" data-state="present" bindtap="begin" disabled="{{busy || stale}}">我看到仍有问题</button><button data-id="{{item.id}}" data-state="clear" bindtap="begin" disabled="{{busy || stale}}">我看到已经恢复</button><button data-id="{{item.id}}" data-state="unsure" bindtap="begin" disabled="{{busy || stale}}">我不能确定</button><button wx:if="{{item.mine && !item.mine.withdrawn}}" data-id="{{item.id}}" bindtap="withdraw" disabled="{{busy}}">撤回我的反馈</button></view>
     </view>
     <button wx:if="{{oldCount}}" bindtap="historyToggle">{{history ? '收起较早记录' : '查看恢复、过期或撤回记录（' + oldCount + '）'}}</button>
-    <button wx:if="{{draft &amp;&amp; !editor}}" bindtap="restore">继续本机草稿</button>
+    <button wx:if="{{draft && !editor}}" bindtap="restore">继续本机草稿</button>
     <view wx:if="{{editor}}" class="neighbor-editor">
       <text class="neighbor-title">{{editing ? '补充这条提醒' : '报告遇到的情况'}}</text>
       <block wx:if="{{!editing}}"><text class="neighbor-note">报告位置</text><picker range="{{choiceLabels}}" value="{{choice}}" bindchange="choiceChange" disabled="{{busy}}"><view class="neighbor-picker">{{choiceLabels[choice]}} ▾</view></picker>

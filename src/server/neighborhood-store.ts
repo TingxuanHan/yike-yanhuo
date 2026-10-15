@@ -165,7 +165,7 @@ export class NeighborhoodStore {
         "SELECT count(*) AS n FROM neighbor_audit WHERE actor=? AND received>?",
       )
       .get(actor, this.now() - 86400000) as { n: number };
-    if (count.n >= 40)
+    if (count.n >= 40 && raw.withdraw !== true)
       throw new ServiceError(
         "今天的共享操作较多，请明天再补充；已有提醒仍可查看。",
         429,
