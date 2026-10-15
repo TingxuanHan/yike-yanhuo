@@ -1,9 +1,9 @@
 <import src="/components/privacy.wxml" />
-<view class="page {{careMode || simpleMode?'care-mode':''}}">
+<view class="page {{careMode || simpleMode?'care-mode':''}} {{reviewMode?'review-mode':''}}">
   <view class="brand"
     ><image src="/assets/place.png" class="brand-mark" /><view
       ><text class="title">一刻烟火</text
-      ><text class="muted">从家门口，走进好生活</text></view
+      ><text wx:if="{{!reviewMode}}" class="muted">从家门口，走进好生活</text></view
     ><button wx:if="{{!simpleMode}}" class="care-toggle" bindtap="care">
       {{careMode?'标准字号':'大字模式'}}
     </button></view
@@ -45,17 +45,11 @@
   <view wx:if="{{tab==='nearby' && !simpleMode}}">
     <view wx:if="{{reviewMode}}" class="section review-guide">
       <text class="heading">社区体检演示</text
-      ><text class="muted">选择已有案例，再看范围、缺口和报告。</text>
+      ><button class="disclosure review-tools-toggle" data-key="showReviewTools" bindtap="toggle">案例与实验说明 {{showReviewTools?'−':'＋'}}</button>
+      <view wx:if="{{showReviewTools}}">
       <view class="actions"
         ><button class="primary" bindtap="reviewExample">体验模拟社区</button
         ><button bindtap="reviewOriginal">打开原报告</button></view
-      >
-      <view class="review-steps"
-        ><button data-step="range" bindtap="reviewStep">1. 看步行范围</button
-        ><button data-step="coverage" bindtap="reviewStep">2. 查设施缺口</button
-        ><button data-step="report" bindtap="reviewStep">
-          3. 阅读报告
-        </button></view
       >
       <button class="disclosure" data-key="showStudy" bindtap="toggle">
         上海真实接口对照 · {{showStudy?'收起':'查看'}}实验结果
@@ -75,6 +69,8 @@
           >本节为实验摘要，和当前地图展示的案例分开。</text
         ></view
       >
+      </view>
+      <view class="review-steps"><button data-step="range" bindtap="reviewStep">1. 范围</button><button data-step="coverage" bindtap="reviewStep">2. 核查</button><button data-step="report" bindtap="reviewStep">3. 报告</button></view>
     </view>
     <view wx:if="{{!reviewMode}}">
       <button bindtap="openReview" disabled="{{busy}}">社区体检演示</button>
@@ -102,8 +98,8 @@
         一句话安排 · AI辅助
       </button>
     </view>
-    <view class="section"
-      ><text class="eyebrow">这次想走多远</text
+    <view class="section journey-time-section"
+      ><text wx:if="{{!reviewMode}}" class="eyebrow">这次想走多远</text
       ><view class="time-row"
         ><button
           wx:for="{{timePresets}}"
@@ -170,12 +166,18 @@
         >带空洞的时段区域仅画色线；空白可能未采样或缺测，不能直接认定不可达。</text
       >
     </view>
-    <view wx:if="{{result}}" class="section coverage-section">
-      <button bindtap="coverageToggle">
+    <view wx:if="{{reviewMode && result}}" class="review-panel-switch">
+      <button data-panel="places" bindtap="reviewDetail" class="{{reviewPanel==='places'?'active':''}}">地点</button>
+      <button data-panel="coverage" bindtap="reviewDetail" class="{{reviewPanel==='coverage'?'active':''}}">核查</button>
+      <button data-panel="compare" bindtap="reviewDetail" class="{{reviewPanel==='compare'?'active':''}}">对比</button>
+    </view>
+    <view wx:if="{{result && (!reviewMode || reviewPanel==='coverage')}}" class="section coverage-section">
+      <button wx:if="{{!reviewMode}}" bindtap="coverageToggle">
         {{showCoverage?'收起':'查看'}}设施覆盖核查
       </button>
       <view wx:if="{{showCoverage}}" class="coverage-detail">
-        <view wx:if="{{reminders}}" class="review-reminders">
+        <button wx:if="{{reminders}}" class="disclosure" data-key="showReminders" bindtap="toggle">复核提醒 · {{reminders.due}}处到期 {{showReminders?'−':'＋'}}</button>
+        <view wx:if="{{reminders && showReminders}}" class="review-reminders">
           <text class="heading">资料该再确认了吗</text>
           <text>{{reminders.due}}处已到复核日期 · {{reminders.soon}}处7天内需复核</text>
           <text class="muted">按本机时间 {{reminders.asOf}} 检查。到期不代表停业，也不证明现在仍可用；历史结论保持不变。</text>
@@ -233,8 +235,8 @@
         >
       </view>
     </view>
-    <view wx:if="{{result}}" class="section comparison-section">
-      <button bindtap="comparisonToggle">{{showComparison?'收起':'打开'}}个人条件对比</button>
+    <view wx:if="{{result && (!reviewMode || reviewPanel==='compare')}}" class="section comparison-section">
+      <button wx:if="{{!reviewMode}}" bindtap="comparisonToggle">{{showComparison?'收起':'打开'}}个人条件对比</button>
       <view wx:if="{{showComparison}}" class="comparison-detail">
         <text class="heading">换个步速，看看范围变化</text>
         <text class="muted">两种条件均按{{minutes}}分钟、同一批路线距离试算，不改原报告与个人偏好。</text>
@@ -248,7 +250,8 @@
         </view>
         <button class="primary" bindtap="compareJourney">比较这两种条件</button>
         <text wx:if="{{comparisonError}}" class="error" role="alert">{{comparisonError}}</text>
-        <view wx:if="{{comparison}}">
+        <view wx:if="{{comparison}}" class="comparison-result">
+          <text class="muted">{{result.mode==='demo'?'模拟社区':'已有路线条件试算'}} · {{result.center.label}} · {{minutes}}分钟 · 原记录 {{generatedLabel}}</text>
           <view class="comparison-score"><view><text>原条件 · {{comparison.baselineSpeed}}米/秒</text><text class="heading">{{comparison.baselineCount}}处设施</text><text>约{{comparison.baselineArea}} km²</text></view><view><text>对比 · {{comparison.candidateSpeed}}米/秒</text><text class="heading">{{comparison.candidateCount}}处设施</text><text>约{{comparison.candidateArea}} km²</text></view></view>
           <canvas id="comparison-sketch" canvas-id="comparison-sketch" class="sketch" disable-scroll="{{true}}" />
           <text class="muted">范围差异示意，不含道路底图；带空洞的区域仅画边线。</text>
@@ -270,6 +273,7 @@
         体验示例
       </button></view
     >
+    <block wx:if="{{!reviewMode || reviewPanel==='places'}}">
     <scroll-view scroll-x class="category-scroll"
       ><view class="category-row"
         ><button
@@ -324,6 +328,7 @@
         >营业与入口信息请在出发前确认；估算不含未记录的停歇和障碍。</text
       >
     </view>
+    </block>
     <view class="section report-section"
       ><button class="disclosure" data-key="showReportDetails" bindtap="toggle">
         {{showReportDetails?'收起':'查看'}}范围与数据说明</button

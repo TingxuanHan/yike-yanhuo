@@ -16,7 +16,8 @@ test("comparison is temporary, refreshes after an input change and fits a small 
   });
   const summary = (await page.locator(".result-strip").textContent())!;
   await page
-    .getByText("个人条件对比 · 换个步速或等灯时间", { exact: true })
+    .getByRole("group", { name: "结果详情" })
+    .getByRole("button", { name: "对比", exact: true })
     .click();
   await page.getByLabel("对比步速（米/秒）").fill("0.6");
   await page.getByRole("button", { name: "比较这两种条件" }).click();

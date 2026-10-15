@@ -83,3 +83,80 @@
   display: block;
   margin-bottom: 16rpx;
 }
+.review-mode .brand {
+  margin: 0 0 16rpx;
+}
+.review-mode .brand-mark {
+  width: 70rpx;
+  height: 70rpx;
+}
+.review-mode .title {
+  font-size: 36rpx;
+}
+.review-mode .mode-switch {
+  min-height: 88rpx;
+  margin: 0 0 16rpx;
+  padding: 12rpx;
+  font-size: 28rpx;
+}
+.review-mode .review-guide {
+  padding: 20rpx 24rpx;
+  margin-bottom: 16rpx;
+}
+.review-mode .review-guide .heading {
+  font-size: 32rpx;
+  margin-bottom: 0;
+}
+.review-mode .review-tools-toggle {
+  text-align: left;
+  padding: 12rpx 0;
+  margin: 0;
+  min-height: 88rpx;
+}
+.review-mode .review-steps {
+  display: flex;
+  gap: 10rpx;
+}
+.review-mode .review-steps button {
+  flex: 1;
+  padding: 16rpx 4rpx;
+  margin: 0;
+  min-height: 88rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+.review-mode .journey-time-section {
+  padding: 12rpx 20rpx;
+  margin-bottom: 16rpx;
+}
+.review-panel-switch {
+  display: flex;
+  gap: 8rpx;
+  border-bottom: 1px solid #dce6e2;
+  margin: 24rpx 0;
+}
+.review-panel-switch button {
+  flex: 1;
+  min-height: 88rpx;
+  padding: 14rpx 0;
+  margin: 0;
+  font-size: 32rpx;
+  background: transparent;
+  border-radius: 12rpx 12rpx 0 0;
+}
+.review-panel-switch .active {
+  color: #146c5d;
+  background: #e5efea;
+  box-shadow: inset 0 -6rpx #146c5d;
+}
+.review-panel-switch button::after {
+  border: none;
+}
+.review-mode .comparison-detail,
+.review-mode .coverage-detail {
+  margin-top: 0;
+}
+.review-mode.care-mode .review-steps button {
+  font-size: 32rpx;
+  padding: 18rpx 0;
+}

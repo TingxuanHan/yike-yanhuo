@@ -2284,3 +2284,129 @@ dd {
   background: #fff0dc;
   color: #8c4b14;
 }
+.guided-mobile-tools,
+.guided-mobile-alert {
+  display: none;
+}
+.community-guide h2 {
+  margin: 0 0 12px;
+}
+.guide-options > summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+  color: var(--green);
+}
+.guide-steps li {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.guide-steps button {
+  min-height: 44px;
+  padding: 10px 4px;
+}
+.has-result .community-guide {
+  padding: 16px 20px;
+}
+.has-result .community-guide h2 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.has-result .guide-current {
+  margin: 6px 0;
+  font-size: 13px;
+}
+.has-result .guide-steps {
+  margin: 0;
+  padding-top: 8px;
+}
+.result-detail-switch {
+  display: flex;
+  gap: 6px;
+  margin: 16px 28px;
+  border-bottom: 1px solid var(--line);
+}
+.result-detail-switch button {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 8px 8px 0 0;
+  color: var(--muted);
+  background: transparent;
+  font-size: 16px;
+  font-weight: 600;
+}
+.result-detail-switch button[aria-pressed="true"] {
+  color: var(--green);
+  background: #e5efea;
+  box-shadow: inset 0 -3px var(--green);
+}
+.coverage-reminders {
+  margin-top: 20px;
+}
+.coverage-reminders > summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .guided > .control-panel:not(.settings-expanded) {
+    display: none;
+  }
+  .guided .guided-mobile-tools {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 14px;
+  }
+  .guided .guided-mobile-alert {
+    display: block;
+  }
+  .guided .guided-times {
+    display: flex;
+    flex: 1;
+    gap: 6px;
+  }
+  .guided-times button {
+    min-height: 44px;
+    padding: 10px 8px;
+    flex: 1;
+    font-weight: 600;
+    background: #e5efea;
+    color: var(--green);
+  }
+  .guided-times button[aria-pressed="true"] {
+    color: white;
+    background: var(--green);
+  }
+  .guided-mobile-tools > button {
+    min-height: 44px;
+  }
+  .guided.has-result .content-topbar > div:first-child {
+    display: none;
+  }
+  .guided.has-result .content-topbar {
+    justify-content: flex-end;
+  }
+  .guided .map-stage {
+    height: 350px;
+  }
+  .guided .view-switch {
+    display: flex;
+    width: 100%;
+  }
+  .guided .view-switch button {
+    flex: 1;
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .guided .community-guide {
+    margin-bottom: 8px;
+  }
+  .guided .result-strip {
+    padding: 16px;
+  }
+  .result-detail-switch {
+    margin: 12px 16px;
+  }
+}

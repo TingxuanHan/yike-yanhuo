@@ -39,6 +39,9 @@ Page({
     careMode: false,
     simpleMode: true,
     reviewMode: false,
+    reviewPanel: "places",
+    showReviewTools: false,
+    showReminders: false,
     reviewStudy: experience.shanghaiStudy,
     showStudy: false,
     familyPhone: "",
@@ -209,10 +212,12 @@ Page({
     };
     this.setData({
       reviewMode: true,
+      reviewPanel: "places",
+      showComparison: false,
       simpleMode: false,
       tab: "nearby",
       timePresets: [5, 10, 15],
-      status: "社区体检演示：切换时长与查看依据使用已有数据。",
+      status: "",
     });
     this.drawMap();
   },
@@ -247,7 +252,9 @@ Page({
   reviewStep(e) {
     const step = e.currentTarget.dataset.step;
     this.setData({
+      reviewPanel: step === "coverage" ? "coverage" : "places",
       showCoverage: step === "coverage",
+      showComparison: false,
       showReportDetails: step === "report",
     });
     this.updateCoverage();
@@ -260,6 +267,21 @@ Page({
             : ".map-section",
       duration: 0,
     });
+  },
+  reviewDetail(e) {
+    const panel = e.currentTarget.dataset.panel;
+    if (!["places", "coverage", "compare"].includes(panel)) return;
+    this.setData(
+      {
+        reviewPanel: panel,
+        showCoverage: panel === "coverage",
+        showComparison: panel === "compare",
+      },
+      () => {
+        this.updateCoverage();
+        this.drawComparison();
+      },
+    );
   },
   family() {
     wx.navigateTo({ url: "/pages/family/index" });
@@ -337,6 +359,8 @@ Page({
         "showConnection",
         "showReportDetails",
         "showStudy",
+        "showReviewTools",
+        "showReminders",
       ].includes(key)
     )
       return;
@@ -528,9 +552,10 @@ Page({
       };
       if (utf8Bytes(JSON.stringify(comparison)) > 900_000)
         throw new Error("对比图过大，请在Web查看。原结果仍保留。");
-      this.setData({ comparison, comparisonError: "" }, () =>
-        this.drawComparison(),
-      );
+      this.setData({ comparison, comparisonError: "" }, () => {
+        this.drawComparison();
+        wx.pageScrollTo?.({ selector: ".comparison-result", duration: 0 });
+      });
     } catch (e) {
       this.setData({
         comparison: null,
@@ -540,7 +565,13 @@ Page({
     }
   },
   drawComparison() {
-    if (this.data.showComparison && this.data.comparison)
+    if (
+      this.data.tab === "nearby" &&
+      !this.data.simpleMode &&
+      (!this.data.reviewMode || this.data.reviewPanel === "compare") &&
+      this.data.showComparison &&
+      this.data.comparison
+    )
       platform.drawSketch(
         this.data.comparison.sketch,
         this,

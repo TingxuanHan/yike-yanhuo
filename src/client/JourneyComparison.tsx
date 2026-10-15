@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   compareJourneys,
   comparisonDefaults,
@@ -22,6 +22,7 @@ export function JourneyComparison({
   const [crossings, setCrossings] = useState("2");
   const [comparison, setComparison] = useState<Comparison | null>(null);
   const [error, setError] = useState("");
+  const resultPanel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setComparison(null);
     setError("");
@@ -53,6 +54,10 @@ export function JourneyComparison({
               }),
             );
             setError("");
+            requestAnimationFrame(() => {
+              resultPanel.current?.focus();
+              resultPanel.current?.scrollIntoView({ block: "start" });
+            });
           } catch (e) {
             setComparison(null);
             setError(
@@ -136,7 +141,12 @@ export function JourneyComparison({
         </p>
       )}
       {comparison && (
-        <div className="comparison-result" aria-live="polite">
+        <div
+          className="comparison-result"
+          aria-live="polite"
+          tabIndex={-1}
+          ref={resultPanel}
+        >
           <p className="comparison-source">
             {result.mode === "demo" ? "模拟社区" : "已有路线的条件试算"} ·{" "}
             {result.center.label} · {minutes}分钟

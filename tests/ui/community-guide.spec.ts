@@ -2,6 +2,57 @@ import { test, expect } from "@playwright/test";
 import { analyze } from "../../src/core/analyze.js";
 import { DemoProvider, DEMO_CENTERS } from "../../src/core/demo.js";
 
+test("mobile review keeps the map early, switches task sections and exposes settings on demand", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?showcase=1");
+  await page.getByRole("button", { name: "体验模拟社区", exact: true }).click();
+  await expect(page.locator(".result-strip")).toBeVisible();
+  await page.evaluate(() => scrollTo(0, 0));
+  await expect(
+    page.getByRole("complementary", { name: "体检设置" }),
+  ).toBeHidden();
+  expect((await page.locator(".map-container").boundingBox())!.y).toBeLessThan(
+    600,
+  );
+  await page.screenshot({ path: "docs/images/community-mobile-390.png" });
+  await page.getByRole("button", { name: "查看10分钟", exact: true }).click();
+  await expect(page.locator(".result-strip")).toContainText(
+    "10分钟近似可达面积",
+  );
+  const sections = page.getByRole("group", { name: "结果详情" });
+  await sections.getByRole("button", { name: "核查", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#coverage-inspector")).toBeVisible();
+  await expect(page.locator(".facility-section")).toBeHidden();
+  await sections.getByRole("button", { name: "对比", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "个人条件对比" }),
+  ).toBeVisible();
+  await expect(page.locator("#coverage-inspector")).toHaveCount(0);
+  await sections.getByRole("button", { name: "地点", exact: true }).click();
+  await expect(page.locator(".facility-section")).toBeVisible();
+  await page.getByRole("button", { name: "起点与筛选", exact: true }).click();
+  await expect(
+    page.getByRole("complementary", { name: "体检设置" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "收起设置 · 返回结果", exact: true })
+    .click();
+  await expect(page.locator("#guided-settings-toggle")).toBeFocused();
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.evaluate(() => scrollTo(0, 0));
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({ path: "docs/images/community-mobile-320.png" });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({ path: "docs/images/community-desktop.png" });
+});
+
 test("guided community tour starts from simple mode, keeps evidence separate and exports", async ({
   page,
 }, info) => {

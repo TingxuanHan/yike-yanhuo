@@ -113,9 +113,11 @@ test("native condition comparison matches shared calculation without modifying s
     page = runtime.page();
   page.onLoad();
   page.openReview();
+  page.reviewDetail({ currentTarget: { dataset: { panel: "compare" } } });
+  assert.equal(page.data.showComparison, true);
+  assert.equal(page.data.showCoverage, false);
   const saved = JSON.stringify([...runtime.storage]),
     original = JSON.stringify(page.data.result);
-  page.comparisonToggle();
   page.compareJourney();
   assert.equal(page.data.comparisonError, "");
   const expected = compareJourneys(
@@ -126,6 +128,10 @@ test("native condition comparison matches shared calculation without modifying s
   assert.equal(page.data.comparison.candidateCount, expected.candidate.count);
   assert.equal(JSON.stringify(page.data.result), original);
   assert.equal(JSON.stringify([...runtime.storage]), saved);
+  page.reviewDetail({ currentTarget: { dataset: { panel: "coverage" } } });
+  assert.equal(page.data.showComparison, false);
+  assert.equal(page.data.showCoverage, true);
+  page.reviewDetail({ currentTarget: { dataset: { panel: "compare" } } });
   page.comparisonField({
     currentTarget: { dataset: { key: "speedMps" } },
     detail: { value: "" },

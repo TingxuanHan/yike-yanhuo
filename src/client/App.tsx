@@ -29,6 +29,7 @@ import { SimpleHome } from "./SimpleHome.js";
 import { CoverageInspector } from "./CoverageInspector.js";
 import { CommunityGuide } from "./CommunityGuide.js";
 import { JourneyComparison } from "./JourneyComparison.js";
+import { ReviewReminders } from "./ReviewReminders.js";
 import { walkingTimeBands } from "../core/time-bands.js";
 import { SIMPLE_KEY } from "../shared/family.js";
 
@@ -61,7 +62,13 @@ export function App() {
   const [showGaps, setShowGaps] = useState(false);
   const [gapCategory, setGapCategory] = useState<GapCategory>("school");
   const [gapPoint, setGapPoint] = useState<string | null>(null);
+  const [detailView, setDetailView] = useState<
+    "places" | "coverage" | "compare"
+  >("places");
+  const [mobileSettings, setMobileSettings] = useState(false);
   const selectGap = (id: string) => {
+    setDetailView("coverage");
+    setShowGaps(true);
     setGapPoint(id);
     setSelected(null);
     requestAnimationFrame(() =>
@@ -388,9 +395,26 @@ export function App() {
       )}
       <main
         id="main-workspace"
-        className={`workspace ${guided ? "guided" : ""} ${view === "life" ? "life-view" : ""}`}
+        className={`workspace ${guided ? "guided" : ""} ${result ? "has-result" : ""} ${view === "life" ? "life-view" : ""}`}
       >
-        <aside className="control-panel no-print" aria-label="体检设置">
+        <aside
+          id="analysis-controls"
+          className={`control-panel no-print ${mobileSettings ? "settings-expanded" : ""}`}
+          aria-label="体检设置"
+        >
+          {guided && (
+            <button
+              className="guided-mobile-tools text-button"
+              onClick={() => {
+                setMobileSettings(false);
+                requestAnimationFrame(() =>
+                  document.getElementById("guided-settings-toggle")?.focus(),
+                );
+              }}
+            >
+              收起设置 · 返回结果
+            </button>
+          )}
           <div className="panel-intro">
             <p className="eyebrow">从家门口出发</p>
             <h1>看看附近的生活</h1>
@@ -663,7 +687,10 @@ export function App() {
                 type="checkbox"
                 checked={showGaps}
                 disabled={!result}
-                onChange={(e) => setShowGaps(e.target.checked)}
+                onChange={(e) => {
+                  setShowGaps(e.target.checked);
+                  if (e.target.checked) setDetailView("coverage");
+                }}
               />
               <span>显示设施覆盖核查点</span>
             </label>
@@ -689,14 +716,18 @@ export function App() {
               busy={busy || locating}
               onExample={() => void run(true)}
               onImport={() => {
+                setMobileSettings(true);
                 const library =
                   document.querySelector<HTMLDetailsElement>(".result-library");
                 if (library) library.open = true;
-                document.getElementById("result-import")?.focus();
+                requestAnimationFrame(() =>
+                  document.getElementById("result-import")?.focus(),
+                );
               }}
               onStep={(step) => {
                 setView(step === "report" ? "report" : "map");
                 setShowGaps(step === "coverage");
+                setDetailView(step === "coverage" ? "coverage" : "places");
                 if (step === "coverage") setMobileLayers(true);
                 requestAnimationFrame(() => {
                   if (step === "coverage")
@@ -712,6 +743,59 @@ export function App() {
                 });
               }}
             />
+          )}
+          {guided && (
+            <div className="guided-mobile-tools">
+              {result && view === "map" && (
+                <div
+                  className="guided-times"
+                  role="group"
+                  aria-label="当前结果时长"
+                >
+                  {result.contours.map((c) => (
+                    <button
+                      key={c.minutes}
+                      aria-label={`查看${c.minutes}分钟`}
+                      aria-pressed={minutes === c.minutes}
+                      onClick={() => {
+                        setMinutes(c.minutes);
+                        setSelected(null);
+                      }}
+                    >
+                      {c.minutes}分钟
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                id="guided-settings-toggle"
+                className="text-button"
+                aria-expanded={mobileSettings}
+                aria-controls="analysis-controls"
+                onClick={() => {
+                  const next = !mobileSettings;
+                  setMobileSettings(next);
+                  if (next)
+                    requestAnimationFrame(() =>
+                      document
+                        .getElementById("analysis-controls")
+                        ?.scrollIntoView({ block: "start" }),
+                    );
+                }}
+              >
+                {mobileSettings ? "收起设置" : "起点与筛选"}
+              </button>
+            </div>
+          )}
+          {guided && error && !mobileSettings && (
+            <p className="error-message guided-mobile-alert" role="alert">
+              {error}
+            </p>
+          )}
+          {guided && busy && (
+            <p className="guided-mobile-alert" role="status">
+              正在体检：{progress.stage} · {progress.done}/{progress.total}
+            </p>
           )}
           <div className="content-topbar no-print">
             <div>
@@ -913,36 +997,6 @@ export function App() {
                 <p className="caption map-range-note">
                   色带为测时采样推算的时段范围。空白可能是不可达、未采样或缺测区域，需结合报告核查。
                 </p>
-                {showGaps && (
-                  <div className="gap-explanation">
-                    <label htmlFor="gap-category">核查类别</label>
-                    <select
-                      id="gap-category"
-                      value={gapCategory}
-                      onChange={(e) =>
-                        setGapCategory(e.target.value as GapCategory)
-                      }
-                    >
-                      {GAP_CATEGORIES.map((id) => (
-                        <option key={id} value={id}>
-                          {CATEGORIES.find((c) => c.id === id)!.label}
-                        </option>
-                      ))}
-                    </select>
-                    <p>
-                      灰色实填 / ×：1公里内未检索到；浅灰斜线或虚线 /
-                      ?：数据不足。色块仅提示采样点周边，不是连续缺口面积。
-                    </p>
-                    <CoverageInspector
-                      key={`${result.id}:${gapCategory}:${minutes}`}
-                      result={result}
-                      category={gapCategory}
-                      minutes={minutes}
-                      selected={gapPoint}
-                      onSelect={setGapPoint}
-                    />
-                  </div>
-                )}
                 <section className="result-strip" aria-label="体检摘要">
                   <div>
                     <span>{minutes}分钟近似可达面积</span>
@@ -975,11 +1029,94 @@ export function App() {
                     阅读体检报告 <span aria-hidden="true">→</span>
                   </button>
                 </section>
-                <details className="comparison-disclosure">
-                  <summary>个人条件对比 · 换个步速或等灯时间</summary>
-                  <JourneyComparison result={result} minutes={minutes} />
-                </details>
-                <section className="facility-section">
+                {guided && (
+                  <div
+                    className="result-detail-switch"
+                    role="group"
+                    aria-label="结果详情"
+                  >
+                    {(
+                      [
+                        ["places", "地点"],
+                        ["coverage", "核查"],
+                        ["compare", "对比"],
+                      ] as const
+                    ).map(([key, label]) => (
+                      <button
+                        key={key}
+                        aria-pressed={detailView === key}
+                        onClick={() => {
+                          setDetailView(key);
+                          setShowGaps(key === "coverage");
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {showGaps && (!guided || detailView === "coverage") && (
+                  <div className="gap-explanation">
+                    <label htmlFor="gap-category">核查类别</label>
+                    <select
+                      id="gap-category"
+                      value={gapCategory}
+                      onChange={(e) =>
+                        setGapCategory(e.target.value as GapCategory)
+                      }
+                    >
+                      {GAP_CATEGORIES.map((id) => (
+                        <option key={id} value={id}>
+                          {CATEGORIES.find((c) => c.id === id)!.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p>
+                      灰色实填 / ×：1公里内未检索到；浅灰斜线或虚线 /
+                      ?：数据不足。色块仅提示采样点周边，不是连续缺口面积。
+                    </p>
+                    <CoverageInspector
+                      key={`${result.id}:${gapCategory}:${minutes}`}
+                      result={result}
+                      category={gapCategory}
+                      minutes={minutes}
+                      selected={gapPoint}
+                      onSelect={setGapPoint}
+                    />
+                    <details className="coverage-reminders">
+                      <summary>核查资料的复核提醒</summary>
+                      <ReviewReminders facilities={result.facilities} />
+                      <button
+                        className="secondary"
+                        onClick={() => {
+                          setView("report");
+                          requestAnimationFrame(() =>
+                            document
+                              .querySelector(".facility-review")
+                              ?.scrollIntoView({ block: "start" }),
+                          );
+                        }}
+                      >
+                        在报告中补充核查
+                      </button>
+                    </details>
+                  </div>
+                )}
+                {guided ? (
+                  <div
+                    className={`comparison-disclosure ${detailView !== "compare" ? "view-hidden" : ""}`}
+                  >
+                    <JourneyComparison result={result} minutes={minutes} />
+                  </div>
+                ) : (
+                  <details className="comparison-disclosure">
+                    <summary>个人条件对比 · 换个步速或等灯时间</summary>
+                    <JourneyComparison result={result} minutes={minutes} />
+                  </details>
+                )}
+                <section
+                  className={`facility-section ${guided && detailView !== "places" ? "view-hidden" : ""}`}
+                >
                   <div className="section-line">
                     <h2>步行范围内的设施</h2>
                     <span>按当前分类显示 {visible.length} 处</span>
