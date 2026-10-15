@@ -4,29 +4,104 @@
     ><image src="/assets/place.png" class="brand-mark" /><view
       ><text class="title">一刻烟火</text
       ><text class="muted">从家门口，走进好生活</text></view
-    ><button wx:if="{{!simpleMode}}" class="care-toggle" bindtap="care"
-      >{{careMode?'标准字号':'大字模式'}}</button
-    ></view
+    ><button wx:if="{{!simpleMode}}" class="care-toggle" bindtap="care">
+      {{careMode?'标准字号':'大字模式'}}
+    </button></view
   >
   <view wx:if="{{error}}" class="error" role="alert">{{error}}</view
   ><view wx:if="{{status}}" class="notice" role="status">{{status}}</view>
   <view wx:if="{{busy}}" class="notice"
-    >正在处理，请稍候。<button wx:if="{{analyzing}}" bindtap="cancelAnalysis"
-      >取消计算</button
-    ></view
+    >正在处理，请稍候。<button wx:if="{{analyzing}}" bindtap="cancelAnalysis">
+      取消计算
+    </button></view
   >
-  <button class="mode-switch" bindtap="simple">{{simpleMode ? '简易模式 · 切换完整版' : '切换简易模式'}}</button>
+  <button wx:if="{{!reviewMode}}" class="mode-switch" bindtap="simple">
+    {{simpleMode ? '简易模式 · 切换完整版' : '切换简易模式'}}
+  </button>
+  <button wx:else class="mode-switch" bindtap="closeReview" disabled="{{busy}}">
+    结束体检演示 · 返回日常
+  </button>
   <view wx:if="{{simpleMode && tab==='nearby'}}" class="simple-start">
     <text class="heading">今天想去哪里？</text>
-    <button class="simple-entry primary" bindtap="openTrip"><text>我要出门</text><text class="simple-caption">选几件事，算好时间再出发</text></button>
-    <button class="simple-entry" data-tab="places" bindtap="switchTab"><text>常用地点</text><text class="simple-caption">找小店、看入口、大字指引</text></button>
-    <view class="section"><text class="heading">家人就在身边</text><button wx:if="{{familyPhone}}" class="primary" bindtap="familyCall">一键拨打家人电话</button><button bindtap="family">联系家人 · 告诉家人我在哪</button><text class="muted">没有开始行程，也能联系家人。</text></view>
+    <button class="simple-entry primary" bindtap="openTrip">
+      <text>我要出门</text
+      ><text class="simple-caption">选几件事，算好时间再出发</text>
+    </button>
+    <button class="simple-entry" data-tab="places" bindtap="switchTab">
+      <text>常用地点</text
+      ><text class="simple-caption">找小店、看入口、大字指引</text>
+    </button>
+    <view class="section"
+      ><text class="heading">家人就在身边</text
+      ><button wx:if="{{familyPhone}}" class="primary" bindtap="familyCall">
+        一键拨打家人电话</button
+      ><button bindtap="family">联系家人 · 告诉家人我在哪</button
+      ><text class="muted">没有开始行程，也能联系家人。</text></view
+    >
+    <button bindtap="openReview" disabled="{{busy}}">
+      社区体检演示 · 看范围与设施缺口
+    </button>
   </view>
   <view wx:if="{{tab==='nearby' && !simpleMode}}">
-    <button class="outing-entry" bindtap="family">联系家人 · 位置说明</button>
-    <button class="outing-entry primary" bindtap="openOutings" disabled="{{busy}}">出门办事 · 熟路与歇脚</button>
-    <button class="outing-entry primary" bindtap="openTrip" disabled="{{busy}}">一趟出门 · 边办事边走走</button>
-    <button class="outing-entry" id="open-planning" bindtap="openPlanning" disabled="{{busy}}">一句话安排 · AI辅助</button>
+    <view wx:if="{{reviewMode}}" class="section review-guide">
+      <text class="heading">社区体检演示</text
+      ><text class="muted">选择已有案例，再看范围、缺口和报告。</text>
+      <view class="actions"
+        ><button class="primary" bindtap="reviewExample">体验模拟社区</button
+        ><button bindtap="reviewOriginal">打开原报告</button></view
+      >
+      <view class="review-steps"
+        ><button data-step="range" bindtap="reviewStep">1. 看步行范围</button
+        ><button data-step="coverage" bindtap="reviewStep">2. 查设施缺口</button
+        ><button data-step="report" bindtap="reviewStep">
+          3. 阅读报告
+        </button></view
+      >
+      <button class="disclosure" data-key="showStudy" bindtap="toggle">
+        上海真实接口对照 · {{showStudy?'收起':'查看'}}实验结果
+      </button>
+      <view wx:if="{{showStudy}}"
+        ><text>{{reviewStudy.title}} · {{reviewStudy.date}}</text
+        ><text class="muted"
+          >与24个API对照点一致的数量：直线圆 / 规则网格 / 边界加密</text
+        ><text
+          class="coverage-line"
+          wx:for="{{reviewStudy.rows}}"
+          wx:key="minutes"
+          >{{item.minutes}}分钟：{{item.cells[0]}} / {{item.cells[1]}} /
+          {{item.cells[2]}}</text
+        ><text class="muted">{{reviewStudy.note}}</text
+        ><text class="muted"
+          >本节为实验摘要，和当前地图展示的案例分开。</text
+        ></view
+      >
+    </view>
+    <view wx:if="{{!reviewMode}}">
+      <button bindtap="openReview" disabled="{{busy}}">社区体检演示</button>
+      <button class="outing-entry" bindtap="family">联系家人 · 位置说明</button>
+      <button
+        class="outing-entry primary"
+        bindtap="openOutings"
+        disabled="{{busy}}"
+      >
+        出门办事 · 熟路与歇脚
+      </button>
+      <button
+        class="outing-entry primary"
+        bindtap="openTrip"
+        disabled="{{busy}}"
+      >
+        一趟出门 · 边办事边走走
+      </button>
+      <button
+        class="outing-entry"
+        id="open-planning"
+        bindtap="openPlanning"
+        disabled="{{busy}}"
+      >
+        一句话安排 · AI辅助
+      </button>
+    </view>
     <view class="section"
       ><text class="eyebrow">这次想走多远</text
       ><view class="time-row"
@@ -37,11 +112,17 @@
           data-minutes="{{item}}"
           bindtap="quickTime"
           disabled="{{busy}}"
-          >{{item}}分钟</button
-        ><button class="quiet" data-tab="mine" bindtap="switchTab"
-          >自定义</button
-        ></view
-      ><text class="muted"
+        >
+          {{item}}分钟</button
+        ><button
+          wx:if="{{!reviewMode}}"
+          class="quiet"
+          data-tab="mine"
+          bindtap="switchTab"
+        >
+          自定义
+        </button></view
+      ><text class="muted" wx:if="{{!reviewMode}}"
         >按 {{book.preferences.speedMps}} 米/秒 · {{book.preferences.departure}}
         出发试算</text
       ></view
@@ -88,29 +169,67 @@
         >带空洞的范围仅画边线，线内空白不代表全部可达。</text
       >
     </view>
-    <view wx:if="{{result}}" class="section">
-      <button bindtap="coverageToggle">{{showCoverage?'收起':'查看'}}设施覆盖核查</button>
+    <view wx:if="{{result}}" class="section coverage-section">
+      <button bindtap="coverageToggle">
+        {{showCoverage?'收起':'查看'}}设施覆盖核查
+      </button>
       <view wx:if="{{showCoverage}}" class="coverage-detail">
-        <text class="muted">{{minutes}}分钟可达采样点 · 周边{{result.parameters.gapDistanceMeters}}米直线距离</text>
-        <picker range="{{coverageCategories}}" range-key="label" value="{{coverageCategoryIndex}}" bindchange="coverageCategoryChange"><view class="picker">核查类别：{{coverageCategories[coverageCategoryIndex].label}} ▾</view></picker>
-        <picker wx:if="{{coveragePoints.length}}" range="{{coverageOptions}}" value="{{coverageIndex}}" bindchange="coveragePointChange"><view class="picker">{{coverageOptions[coverageIndex]}} ▾</view></picker>
+        <text class="muted"
+          >{{minutes}}分钟可达采样点 ·
+          周边{{result.parameters.gapDistanceMeters}}米直线距离</text
+        >
+        <picker
+          range="{{coverageCategories}}"
+          range-key="label"
+          value="{{coverageCategoryIndex}}"
+          bindchange="coverageCategoryChange"
+          ><view class="picker"
+            >核查类别：{{coverageCategories[coverageCategoryIndex].label}}
+            ▾</view
+          ></picker
+        >
+        <picker
+          wx:if="{{coveragePoints.length}}"
+          range="{{coverageOptions}}"
+          value="{{coverageIndex}}"
+          bindchange="coveragePointChange"
+          ><view class="picker"
+            >{{coverageOptions[coverageIndex]}} ▾</view
+          ></picker
+        >
         <view wx:if="{{coverageSelected}}">
           <text class="heading">{{coverageSelected.label}}</text>
-          <text wx:for="{{coverageSelected.reasons}}" wx:key="*this" class="coverage-line">{{item}}</text>
-          <text class="coverage-line">最近的已检索设施：{{coverageSelected.nearestLabel}}</text>
-          <text class="coverage-line">返回结果：{{coverageSelected.complete?'已取完':'不完整'}}；核查范围：{{coverageSelected.inSearchArea?'全部在检索范围内':'部分超出检索范围'}}</text>
-          <text class="muted">原始记录：{{generatedLabel}} · {{result.mode==='demo'?'模拟街区':'百度检索及已有核查记录'}}</text>
-          <text class="muted">仅比较未停用或冲突的已检索设施，候选缺口仍需社区台账和现场确认。</text>
+          <text
+            wx:for="{{coverageSelected.reasons}}"
+            wx:key="*this"
+            class="coverage-line"
+            >{{item}}</text
+          >
+          <text class="coverage-line"
+            >最近的已检索设施：{{coverageSelected.nearestLabel}}</text
+          >
+          <text class="coverage-line"
+            >返回结果：{{coverageSelected.complete?'已取完':'不完整'}}；核查范围：{{coverageSelected.inSearchArea?'全部在检索范围内':'部分超出检索范围'}}</text
+          >
+          <text class="muted"
+            >原始记录：{{generatedLabel}} ·
+            {{result.mode==='demo'?'模拟街区':'百度检索及已有核查记录'}}</text
+          >
+          <text class="muted"
+            >仅比较未停用或冲突的已检索设施，候选缺口仍需社区台账和现场确认。</text
+          >
         </view>
-        <text wx:else class="muted">当前没有有效核查点，可增加时长或查看报告。</text>
+        <text wx:else class="muted"
+          >当前没有有效核查点，可增加时长或查看报告。</text
+        >
       </view>
     </view>
-    <view class="start-actions"
-      ><button class="primary" bindtap="chooseStart" disabled="{{busy}}"
-        >选择真实起点</button
-      ><button class="secondary" bindtap="demo" disabled="{{busy}}"
-        >体验示例</button
-      ></view
+    <view wx:if="{{!reviewMode}}" class="start-actions"
+      ><button class="primary" bindtap="chooseStart" disabled="{{busy}}">
+        选择真实起点</button
+      ><button class="secondary" bindtap="demo" disabled="{{busy}}">
+        体验示例
+      </button></view
     >
     <scroll-view scroll-x class="category-scroll"
       ><view class="category-row"
@@ -121,8 +240,9 @@
           data-id="{{item.id}}"
           bindtap="filter"
           disabled="{{busy}}"
-          >{{item.label}}</button
-        ></view
+        >
+          {{item.label}}
+        </button></view
       ></scroll-view
     >
     <view wx:if="{{selectedFacility}}" class="section selected-place"
@@ -132,12 +252,12 @@
       ><text class="muted"
         >估算约 {{selectedFacility.minutes}} 分钟 ·
         {{selectedFacility.categoryLabel}}</text
-      ><view class="actions"
-        ><button class="primary" bindtap="rememberFacility" disabled="{{busy}}"
-          >记住这个地方</button
-        ><button class="secondary" bindtap="directions" disabled="{{busy}}"
-          >打开地图</button
-        ></view
+      ><view wx:if="{{!reviewMode}}" class="actions"
+        ><button class="primary" bindtap="rememberFacility" disabled="{{busy}}">
+          记住这个地方</button
+        ><button class="secondary" bindtap="directions" disabled="{{busy}}">
+          打开地图
+        </button></view
       ></view
     >
     <view class="section"
@@ -153,7 +273,8 @@
         class="nearby-item {{selectedFacility && selectedFacility.id===item.id?'nearby-selected':''}}"
         data-id="{{item.id}}"
         bindtap="selectFacility"
-        ><text class="item-number">{{index+1}}</text
+      >
+        <text class="item-number">{{index+1}}</text
         ><view class="item-body"
           ><text class="place-name">{{item.name}}</text
           ><text class="muted"
@@ -164,9 +285,9 @@
         >营业与入口信息请在出发前确认；估算不含未记录的停歇和障碍。</text
       >
     </view>
-    <view class="section"
-      ><button class="disclosure" data-key="showReportDetails" bindtap="toggle"
-        >{{showReportDetails?'收起':'查看'}}范围与数据说明</button
+    <view class="section report-section"
+      ><button class="disclosure" data-key="showReportDetails" bindtap="toggle">
+        {{showReportDetails?'收起':'查看'}}范围与数据说明</button
       ><view wx:if="{{showReportDetails}}"
         ><text class="muted"
           >数据日期：{{generatedLabel}}。范围来自已有步行路线，调整时间和步速使用本机试算。</text
@@ -177,9 +298,13 @@
           ><text wx:if="{{item.clipped}}">触及边界</text></view
         ><text wx:for="{{result.warnings}}" wx:key="*this" class="warning"
           >{{item}}</text
-        ><button bindtap="shareReport" disabled="{{busy || !connected}}"
-          >保存为家庭共享报告</button
-        ></view
+        ><button
+          wx:if="{{!reviewMode}}"
+          bindtap="shareReport"
+          disabled="{{busy || !connected}}"
+        >
+          保存为家庭共享报告
+        </button></view
       ></view
     >
   </view>
@@ -188,14 +313,14 @@
       ><view
         ><text class="heading">我的地点簿</text
         ><text class="muted">熟悉的小店，下次还找得到</text></view
-      ><button class="primary compact" bindtap="openEditor"
-        >{{hasDraft?'继续草稿':'记一个地点'}}</button
-      ></view
+      ><button class="primary compact" bindtap="openEditor">
+        {{hasDraft?'继续草稿':'记一个地点'}}
+      </button></view
     >
     <view wx:if="{{hasDraft && !showEditor}}" class="notice"
-      >有一份尚未完成的地点草稿。<button bindtap="openEditor"
-        >继续填写</button
-      ></view
+      >有一份尚未完成的地点草稿。<button bindtap="openEditor">
+        继续填写
+      </button></view
     >
     <view wx:if="{{showEditor}}" class="section editor"
       ><view class="section-top"
@@ -210,8 +335,8 @@
           bindinput="field"
           placeholder="例如：巷口修鞋铺"
       /></label>
-      <button class="secondary" bindtap="choose" disabled="{{busy}}"
-        >{{position?'重新选择入口位置':'在地图上选择入口'}}</button
+      <button class="secondary" bindtap="choose" disabled="{{busy}}">
+        {{position?'重新选择入口位置':'在地图上选择入口'}}</button
       ><text class="muted"
         >{{position?'位置已选好，填写名称即可保存。':'也可以先写地址留作草稿，稍后补位置。'}}</text
       >
@@ -223,9 +348,9 @@
           bindinput="field"
           placeholder="街道、门牌或附近建筑"
       /></label>
-      <button class="disclosure" data-key="editorMore" bindtap="toggle"
-        >{{editorMore?'收起':'补充'}}入口照片、地标与营业时间</button
-      >
+      <button class="disclosure" data-key="editorMore" bindtap="toggle">
+        {{editorMore?'收起':'补充'}}入口照片、地标与营业时间
+      </button>
       <view wx:if="{{editorMore}}"
         ><image
           wx:if="{{form.photo}}"
@@ -233,11 +358,11 @@
           mode="aspectFit"
           class="entrance-photo"
         /><view class="actions"
-          ><button bindtap="photo" disabled="{{busy}}"
-            >{{form.photo?'更换入口照片':'拍下或选择入口照片'}}</button
-          ><button wx:if="{{form.photo}}" class="quiet" bindtap="removePhoto"
-            >移除照片</button
-          ></view
+          ><button bindtap="photo" disabled="{{busy}}">
+            {{form.photo?'更换入口照片':'拍下或选择入口照片'}}</button
+          ><button wx:if="{{form.photo}}" class="quiet" bindtap="removePhoto">
+            移除照片
+          </button></view
         ><text class="muted"
           >照片随私人地点簿保存，分享地点卡时也会包含照片。</text
         >
@@ -275,11 +400,11 @@
             ></picker
           ></label
         > </view
-      ><button class="primary" bindtap="remember" disabled="{{busy}}"
-        >{{position?'保存到地点簿':'保存地址草稿'}}</button
-      ><button class="quiet" bindtap="discardDraft" disabled="{{busy}}"
-        >清除这份草稿</button
-      >
+      ><button class="primary" bindtap="remember" disabled="{{busy}}">
+        {{position?'保存到地点簿':'保存地址草稿'}}</button
+      ><button class="quiet" bindtap="discardDraft" disabled="{{busy}}">
+        清除这份草稿
+      </button>
     </view>
     <view class="search-row"
       ><input
@@ -290,8 +415,9 @@
       /><button
         class="filter-chip {{favoritesOnly?'selected':''}}"
         bindtap="favorites"
-        >只看收藏</button
-      ></view
+      >
+        只看收藏
+      </button></view
     >
     <view wx:if="{{!placeItems.length}}" class="section empty"
       >{{book.places.length?'没有匹配的记录，换个关键词试试。':'先记住一处常去的地方。地图没有收录，也可以自己标记入口。'}}</view
@@ -304,8 +430,9 @@
           data-id="{{item.id}}"
           bindtap="favorite"
           disabled="{{busy}}"
-          >{{item.favorite?'★ 已收藏':'☆ 收藏'}}</button
-        ></view
+        >
+          {{item.favorite?'★ 已收藏':'☆ 收藏'}}
+        </button></view
       ><image
         wx:if="{{item.photo}}"
         src="{{item.photo}}"
@@ -320,28 +447,30 @@
         >{{item.position.system==='demo'?'模拟地点':'个人记录'}} ·
         {{item.visitedOn?'最近到访 '+item.visitedOn:'到访时间未记录'}}</text
       ><view class="actions"
-        ><button class="primary" data-id="{{item.id}}" bindtap="card"
-          >给家人看</button
-        ><button class="secondary" data-id="{{item.id}}" bindtap="edit"
-          >修改</button
+        ><button class="primary" data-id="{{item.id}}" bindtap="card">
+          给家人看</button
+        ><button class="secondary" data-id="{{item.id}}" bindtap="edit">
+          修改</button
         ><button
           class="quiet"
           data-id="{{item.id}}"
           bindtap="remove"
           disabled="{{busy}}"
-          >移除</button
-        ></view
+        >
+          移除
+        </button></view
       ><button
         class="disclosure"
         data-id="{{item.id}}"
         bindtap="analyzePlace"
         disabled="{{busy}}"
-        >{{item.position.system==='demo'?'查看示例生活圈':'从这里计算步行范围'}}</button
-      ></view
+      >
+        {{item.position.system==='demo'?'查看示例生活圈':'从这里计算步行范围'}}
+      </button></view
     >
-    <button wx:if="{{undo}}" bindtap="undo" disabled="{{busy}}"
-      >撤销上次移除 / 合并</button
-    >
+    <button wx:if="{{undo}}" bindtap="undo" disabled="{{busy}}">
+      撤销上次移除 / 合并
+    </button>
   </view>
   <view wx:if="{{tab==='mine'}}">
     <view class="section"
@@ -366,9 +495,9 @@
           bindchange="pref"
           ><view class="picker">{{book.preferences.departure}}</view></picker
         ></label
-      ><button class="primary" bindtap="scenario" disabled="{{busy}}"
-        >按这个节奏看看附近</button
-      >
+      ><button class="primary" bindtap="scenario" disabled="{{busy}}">
+        按这个节奏看看附近
+      </button>
       <view class="calibration"
         ><text class="heading small-heading">不清楚自己的步速？</text
         ><text class="muted"
@@ -380,12 +509,12 @@
             data-key="calibrationSeconds"
             bindinput="field"
             placeholder="例如：125" /></label
-        ><button bindtap="calibrate" disabled="{{busy}}"
-          >用实走时间设置步速</button
-        ></view
+        ><button bindtap="calibrate" disabled="{{busy}}">
+          用实走时间设置步速
+        </button></view
       >
-      <button class="disclosure" data-key="showAdvanced" bindtap="toggle"
-        >{{showAdvanced?'收起':'展开'}}等灯时间假设</button
+      <button class="disclosure" data-key="showAdvanced" bindtap="toggle">
+        {{showAdvanced?'收起':'展开'}}等灯时间假设</button
       ><view wx:if="{{showAdvanced}}"
         ><label class="switch"
           >将等灯计入试算<switch
@@ -455,9 +584,9 @@
               ></picker
             ></label
           ></view
-        ><button bindtap="savePrefs" disabled="{{busy}}"
-          >保存出行偏好</button
-        ></view
+        ><button bindtap="savePrefs" disabled="{{busy}}">
+          保存出行偏好
+        </button></view
       >
     </view>
     <view class="section"
@@ -471,27 +600,28 @@
             maxlength="12"
             data-key="code"
             bindinput="field" /></label
-        ><button class="primary" bindtap="connect" disabled="{{busy || !code}}"
-          >连接家人的地点簿</button
+        ><button class="primary" bindtap="connect" disabled="{{busy || !code}}">
+          连接家人的地点簿</button
         ><label
           >创建邀请码<input
             password
             value="{{invite}}"
             data-key="invite"
             bindinput="field" /></label
-        ><button bindtap="create" disabled="{{busy}}"
-          >创建自己的地点簿</button
-        ></view
+        ><button bindtap="create" disabled="{{busy}}">
+          创建自己的地点簿
+        </button></view
       ><view wx:else
         ><view class="actions"
           ><button
             class="primary"
             bindtap="push"
             disabled="{{busy || revision===null || incoming}}"
-            >同步本机修改</button
-          ><button bindtap="pull" disabled="{{busy}}"
-            >读取最新内容</button
-          ></view
+          >
+            同步本机修改</button
+          ><button bindtap="pull" disabled="{{busy}}">
+            读取最新内容
+          </button></view
         ><button bindtap="pair" disabled="{{busy}}">邀请可信家人一起管理</button
         ><text class="muted"
           >配对设备可以修改整个地点簿。只给家人看一个地点，请使用地点卡分享。</text
@@ -506,17 +636,19 @@
           bindtap="applyIncoming"
           data-merge="{{true}}"
           disabled="{{busy}}"
-          >合并到本机</button
+        >
+          合并到本机</button
         ><button
           bindtap="applyIncoming"
           data-merge="{{false}}"
           disabled="{{busy}}"
-          >使用服务器版本</button
-        ></view
-      ><button wx:if="{{undo}}" bindtap="undo" disabled="{{busy}}"
-        >撤销本机移除 / 合并</button
-      ><button class="disclosure" data-key="showConnection" bindtap="toggle"
-        >{{showConnection?'收起':'展开'}}连接设置</button
+        >
+          使用服务器版本
+        </button></view
+      ><button wx:if="{{undo}}" bindtap="undo" disabled="{{busy}}">
+        撤销本机移除 / 合并</button
+      ><button class="disclosure" data-key="showConnection" bindtap="toggle">
+        {{showConnection?'收起':'展开'}}连接设置</button
       ><view wx:if="{{showConnection}}"
         ><label
           >服务地址<input
@@ -526,9 +658,9 @@
             disabled="{{connected || busy}}"
             placeholder="https://已部署的服务地址" /></label
         ><text class="muted">由部署者配置。手机不能用127.0.0.1访问电脑。</text
-        ><button wx:if="{{connected}}" bindtap="disconnect" disabled="{{busy}}"
-          >断开此设备</button
-        ></view
+        ><button wx:if="{{connected}}" bindtap="disconnect" disabled="{{busy}}">
+          断开此设备
+        </button></view
       ></view
     >
     <view wx:if="{{connected}}" class="section"
@@ -538,9 +670,9 @@
       ><button bindtap="loadCards" disabled="{{busy}}">查看有效分享卡</button
       ><view wx:for="{{sharedCards}}" wx:key="id" class="range"
         ><text>{{item.name}}</text
-        ><button data-id="{{item.id}}" bindtap="revokeCard" disabled="{{busy}}"
-          >撤销分享</button
-        ></view
+        ><button data-id="{{item.id}}" bindtap="revokeCard" disabled="{{busy}}">
+          撤销分享
+        </button></view
       ></view
     >
     <view wx:if="{{connected}}" class="section"
@@ -552,27 +684,31 @@
         data-id="{{item.id}}"
         bindtap="openReport"
         disabled="{{busy}}"
-        >{{item.label}} · {{item.mode==='demo'?'模拟':'地图'}}报告</button
-      ></view
+      >
+        {{item.label}} · {{item.mode==='demo'?'模拟':'地图'}}报告
+      </button></view
     >
   </view>
-  <view class="bottom-nav"
+  <view wx:if="{{!reviewMode}}" class="bottom-nav"
     ><button
       class="{{tab==='nearby'?'active':''}}"
       data-tab="nearby"
       bindtap="switchTab"
-      >附近</button
+    >
+      附近</button
     ><button
       class="{{tab==='places'?'active':''}}"
       data-tab="places"
       bindtap="switchTab"
-      >地点簿</button
+    >
+      地点簿</button
     ><button
       class="{{tab==='mine'?'active':''}}"
       data-tab="mine"
       bindtap="switchTab"
-      >我的</button
-    ></view
+    >
+      我的
+    </button></view
   >
   <view wx:if="{{card}}" class="card-overlay"
     ><scroll-view scroll-y class="card"
@@ -599,8 +735,8 @@
         >{{card.visitedOn?'最近到访：'+card.visitedOn+'。':''}}由本人或家人记录，非逐路口导航。</text
       ><button class="primary" bindtap="directions">打开目的地地图</button
       ><button bindtap="copyCard">复制文字，发给家人</button
-      ><button bindtap="prepareShare" disabled="{{busy || !connected}}"
-        >生成只读分享卡</button
+      ><button bindtap="prepareShare" disabled="{{busy || !connected}}">
+        生成只读分享卡</button
       ><text wx:if="{{!connected}}" class="muted"
         >连接云端后可生成分享卡；现在可以复制文字，或在Web打印。</text
       ><button bindtap="closeCard">收起地点卡</button></scroll-view

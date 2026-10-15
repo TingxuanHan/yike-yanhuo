@@ -27,9 +27,13 @@ import { personalize } from "../core/personalize.js";
 import type { PersonalPlace } from "../shared/life.js";
 import { SimpleHome } from "./SimpleHome.js";
 import { CoverageInspector } from "./CoverageInspector.js";
+import { CommunityGuide } from "./CommunityGuide.js";
 import { SIMPLE_KEY } from "../shared/family.js";
 
 export function App() {
+  const [guided, setGuided] = useState(
+    () => new URLSearchParams(location.search).get("showcase") === "1",
+  );
   const [simple, setSimple] = useState(
     () => localStorage.getItem(SIMPLE_KEY) !== "false",
   );
@@ -179,7 +183,9 @@ export function App() {
       setLocating(false);
     }
   }
-  async function run() {
+  async function run(demo = false) {
+    const runMode = demo ? "demo" : mode;
+    const runLabel = demo ? DEMO_CENTERS[0].label : label;
     setBusy(true);
     setError("");
     setSelected(null);
@@ -189,9 +195,11 @@ export function App() {
     setProgress({ stage: "准备体检", done: 0, total: 1 });
     try {
       const started = await post<{ id: string }>("/api/analyses", {
-        mode,
-        label,
-        ...(mode === "demo" ? { point } : { geo }),
+        mode: runMode,
+        label: runLabel,
+        ...(runMode === "demo"
+          ? { point: demo ? DEMO_CENTERS[0].point : point }
+          : { geo }),
       });
       jobId.current = started.id;
       if (cancelled.current) {
@@ -203,6 +211,13 @@ export function App() {
         if (cancelled.current) break;
         setProgress(job.progress);
         if (job.status === "done" && job.result) {
+          setMode(runMode);
+          setLabel(runLabel);
+          if (demo) {
+            setPoint(DEMO_CENTERS[0].point);
+            setGeo(null);
+            setLiveMap(false);
+          }
           setResult(job.result);
           setMinutes(15);
           setReplay(false);
@@ -300,9 +315,10 @@ export function App() {
     !!config &&
     (mode === "demo" || (!!config.baiduConfigured && !!geo));
 
-  if (simple)
+  if (simple && !guided)
     return (
       <SimpleHome
+        community={() => setGuided(true)}
         result={result}
         full={(life) => {
           if (life) {
@@ -319,8 +335,21 @@ export function App() {
         跳到体检工作台
       </a>
       <header className="app-header no-print">
-        <button className="secondary" onClick={() => switchMode(true)}>
-          简易模式
+        <button
+          className="secondary"
+          onClick={() => {
+            setGuided(false);
+            const url = new URL(location.href);
+            url.searchParams.delete("showcase");
+            history.replaceState(
+              null,
+              "",
+              url.pathname + url.search + url.hash,
+            );
+            switchMode(true);
+          }}
+        >
+          {guided ? "日常首页" : "简易模式"}
         </button>
         <a href="/" className="brand" aria-label="一刻烟火首页">
           <img src="/favicon.svg" alt="" width="38" height="38" />
@@ -357,13 +386,18 @@ export function App() {
       )}
       <main
         id="main-workspace"
-        className={`workspace ${view === "life" ? "life-view" : ""}`}
+        className={`workspace ${guided ? "guided" : ""} ${view === "life" ? "life-view" : ""}`}
       >
         <aside className="control-panel no-print" aria-label="体检设置">
           <div className="panel-intro">
             <p className="eyebrow">从家门口出发</p>
             <h1>看看附近的生活</h1>
             <p>一段步行，连起日常所需。</p>
+            {!guided && (
+              <button className="text-button" onClick={() => setGuided(true)}>
+                社区体检演示
+              </button>
+            )}
           </div>
           <div className="mode-switch" role="group" aria-label="数据模式">
             <button
@@ -647,6 +681,36 @@ export function App() {
           </div>
         </aside>
         <div className="workspace-content">
+          {guided && (
+            <CommunityGuide
+              result={result}
+              busy={busy || locating}
+              onExample={() => void run(true)}
+              onImport={() => {
+                const library =
+                  document.querySelector<HTMLDetailsElement>(".result-library");
+                if (library) library.open = true;
+                document.getElementById("result-import")?.focus();
+              }}
+              onStep={(step) => {
+                setView(step === "report" ? "report" : "map");
+                setShowGaps(step === "coverage");
+                if (step === "coverage") setMobileLayers(true);
+                requestAnimationFrame(() => {
+                  if (step === "coverage")
+                    document.getElementById("coverage-inspector")?.focus();
+                  else
+                    document
+                      .querySelector(
+                        step === "report"
+                          ? ".report-document"
+                          : ".map-container",
+                      )
+                      ?.scrollIntoView({ block: "start" });
+                });
+              }}
+            />
+          )}
           <div className="content-topbar no-print">
             <div>
               <span className={`status-tag ${mode}`}>

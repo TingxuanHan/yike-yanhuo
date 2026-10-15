@@ -38,6 +38,9 @@ Page({
     hasDraft: false,
     careMode: false,
     simpleMode: true,
+    reviewMode: false,
+    reviewStudy: experience.shanghaiStudy,
+    showStudy: false,
     familyPhone: "",
     showAdvanced: false,
     showConnection: false,
@@ -125,10 +128,12 @@ Page({
     try {
       this.setData({
         familyPhone: platform.get("yike-help-phone") || "",
-        simpleMode: platform.get("yike-simple-mode") !== false,
+        simpleMode: this.data.reviewMode
+          ? false
+          : platform.get("yike-simple-mode") !== false,
       });
       const saved = platform.get("yike-life");
-      if (saved) {
+      if (saved && !this.data.reviewMode) {
         const book = cleanBook(saved);
         this.setData({ book });
         this.setData({
@@ -180,6 +185,68 @@ Page({
       platform.set("yike-simple-mode", value);
       this.setData({ simpleMode: value });
       if (!value) this.drawMap();
+    });
+  },
+  openReview() {
+    if (this.data.busy || this.data.reviewMode) return;
+    this.reviewSnapshot = {
+      result: this.data.result,
+      simpleMode: this.data.simpleMode,
+      tab: this.data.tab,
+      category: this.data.category,
+      timePresets: this.data.timePresets,
+    };
+    this.setData({
+      reviewMode: true,
+      simpleMode: false,
+      tab: "nearby",
+      timePresets: [5, 10, 15],
+      status: "社区体检演示：切换时长与查看依据使用已有数据。",
+    });
+    this.drawMap();
+  },
+  closeReview() {
+    if (this.data.busy || !this.reviewSnapshot) return;
+    const previous = this.reviewSnapshot;
+    this.setData({ category: previous.category });
+    this.setResult(previous.result, false);
+    this.setData({
+      reviewMode: false,
+      simpleMode: previous.simpleMode,
+      tab: previous.tab,
+      timePresets: previous.timePresets,
+      showCoverage: false,
+      showReportDetails: false,
+      status: "已回到原来的日常页面。",
+    });
+    this.reviewSnapshot = null;
+    this.drawMap();
+  },
+  reviewExample() {
+    if (this.data.busy) return;
+    this.setResult(example, false);
+    this.setData({ status: "当前为构造道路与设施，不是上海社区。" });
+  },
+  reviewOriginal() {
+    if (this.data.busy || !this.reviewSnapshot?.result) return;
+    this.setResult(this.reviewSnapshot.result, false);
+    this.setData({ status: "已打开进入演示前的报告，原始记录时间保留。" });
+  },
+  reviewStep(e) {
+    const step = e.currentTarget.dataset.step;
+    this.setData({
+      showCoverage: step === "coverage",
+      showReportDetails: step === "report",
+    });
+    this.updateCoverage();
+    wx.pageScrollTo?.({
+      selector:
+        step === "coverage"
+          ? ".coverage-section"
+          : step === "report"
+            ? ".report-section"
+            : ".map-section",
+      duration: 0,
     });
   },
   family() {
@@ -256,6 +323,7 @@ Page({
         "editorMore",
         "showConnection",
         "showReportDetails",
+        "showStudy",
       ].includes(key)
     )
       return;
@@ -362,7 +430,7 @@ Page({
       category: e.currentTarget.dataset.id,
       selectedFacility: null,
     });
-    this.setResult(this.data.result, false);
+    this.setResult(this.data.result, false, this.data.minutes);
   },
   coverageToggle() {
     this.setData({ showCoverage: !this.data.showCoverage });
@@ -388,6 +456,7 @@ Page({
     const view = experience.coverageView(
       this.data.result,
       this.data.coverageCategory,
+      this.data.minutes,
     );
     const index = Math.max(
       0,
@@ -555,6 +624,16 @@ Page({
     }
   },
   quickTime(e) {
+    if (this.data.reviewMode) {
+      const minutes = Number(e.currentTarget.dataset.minutes);
+      if (this.data.result?.contours.some((c) => c.minutes === minutes))
+        this.setResult(this.data.result, false, minutes);
+      else
+        this.setData({
+          status: "这份报告没有该时长的轮廓，请体验模拟社区查看5、10、15分钟。",
+        });
+      return;
+    }
     this.setData({
       "book.preferences.minutes": Number(e.currentTarget.dataset.minutes),
     });
@@ -814,9 +893,9 @@ Page({
       });
     });
   },
-  setResult(result, cache = true) {
+  setResult(result, cache = true, minutes) {
     if (!result) return;
-    const view = experience.reportView(result, this.data.category);
+    const view = experience.reportView(result, this.data.category, minutes);
     if (utf8Bytes(JSON.stringify({ result, ...view })) > 900_000)
       throw new Error(
         "这份报告较大，请在Web打开，或选择范围较小的报告。原结果仍保留。",
@@ -833,7 +912,7 @@ Page({
         this.updateCoverage();
       },
     );
-    if (cache) {
+    if (cache && !this.data.reviewMode) {
       try {
         platform.set("yike-last-report", result);
       } catch {

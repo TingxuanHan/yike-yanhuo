@@ -15,6 +15,7 @@ import {
 } from "../shared/types.js";
 import type { PersonalPlace, PlacePosition } from "../shared/life.js";
 export { parseResultFile } from "../shared/result-file.js";
+export { shanghaiStudy } from "../presentation/case-study.js";
 
 // Display conversion only. Canonical coordinates and Baidu analysis inputs stay unchanged.
 export function bd09ToGcj02(p: LngLat): LngLat {
@@ -63,8 +64,9 @@ export const coverageCategories = GAP_CATEGORIES.map((id) => ({
 export function coverageView(
   result: AnalysisResult,
   category: GapCategory = "school",
+  minutes = result.scenario?.preferences.minutes ?? 15,
 ) {
-  const points = coveragePoints(result, category).map((p) => ({
+  const points = coveragePoints(result, category, minutes).map((p) => ({
     ...p,
     option: `点${p.number} · ${p.label}`,
     nearestLabel: p.nearest
@@ -105,8 +107,11 @@ export function placeList(
         a.name.localeCompare(b.name, "zh-CN"),
     );
 }
-export function reportView(result: AnalysisResult, category = "all") {
-  const minutes = result.scenario?.preferences.minutes ?? 15;
+export function reportView(
+  result: AnalysisResult,
+  category = "all",
+  minutes = result.scenario?.preferences.minutes ?? 15,
+) {
   const nearby = result.facilities
     .filter(
       (p) =>

@@ -11,9 +11,11 @@ import { TripPanel } from "./TripPanel.js";
 export function SimpleHome({
   full,
   result,
+  community,
 }: {
   full: (life?: boolean) => void;
   result: AnalysisResult | null;
+  community: () => void;
 }) {
   const [initial] = useState(() => {
     try {
@@ -138,6 +140,11 @@ export function SimpleHome({
             book={book}
             trip={active ? () => setPane("trip") : undefined}
           />
+          {pane === "home" && (
+            <button className="community-entry secondary" onClick={community}>
+              社区体检演示 · 看范围与设施缺口
+            </button>
+          )}
         </>
       )}
     </main>

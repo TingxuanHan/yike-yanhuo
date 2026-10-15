@@ -21,6 +21,33 @@ import { miniRuntime } from "./helpers/mini.js";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
+test("community tour preserves personal preferences and saved report while showing original timed contours", () => {
+  const runtime = miniRuntime();
+  const page = runtime.page();
+  page.onLoad();
+  const before = JSON.stringify([...runtime.storage.entries()]);
+  const original = page.data.result;
+  page.openReview();
+  page.reviewExample();
+  assert.equal(page.data.reviewMode, true);
+  assert.equal(page.data.simpleMode, false);
+  assert.equal(page.data.result.scenario, undefined);
+  page.quickTime({ currentTarget: { dataset: { minutes: 5 } } });
+  assert.equal(page.data.minutes, 5);
+  page.filter({ currentTarget: { dataset: { id: "school" } } });
+  assert.equal(page.data.minutes, 5);
+  page.reviewStep({ currentTarget: { dataset: { step: "coverage" } } });
+  assert.equal(page.data.showCoverage, true);
+  assert.ok(page.data.coveragePoints.every((p: any) => p.seconds <= 300));
+  page.onShow();
+  assert.equal(page.data.simpleMode, false);
+  page.closeReview();
+  assert.equal(page.data.result.id, original.id);
+  assert.equal(page.data.simpleMode, true);
+  assert.equal(JSON.stringify([...runtime.storage.entries()]), before);
+  page.onUnload();
+});
+
 test("native coverage inspector works offline and replaces stale selection when time or category changes", () => {
   const page = miniRuntime().page();
   page.onLoad();

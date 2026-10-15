@@ -12,6 +12,89 @@
   --surface: #fff;
   font-size: 14px;
 }
+.community-guide {
+  padding: 22px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--green);
+  background: white;
+  border-radius: 10px;
+}
+.guide-actions,
+.guide-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.guide-actions button {
+  padding: 10px 16px;
+}
+.guide-steps {
+  padding: 14px 0 0;
+  margin: 14px 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+.guide-steps li {
+  flex: 1 1 160px;
+}
+.guide-steps button {
+  width: 100%;
+}
+.guide-current {
+  color: var(--green);
+  font-weight: 600;
+}
+.study-summary summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-top: 12px;
+}
+.study-summary table {
+  min-width: 260px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.study-summary th,
+.study-summary td {
+  text-align: left;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.community-entry {
+  width: 100%;
+  margin-top: 22px;
+  font-size: 16px;
+}
+@media (max-width: 420px) {
+  body .app-header {
+    padding: 0 10px;
+    gap: 8px;
+  }
+  .app-header .brand strong {
+    font-size: 19px;
+    white-space: nowrap;
+  }
+  .app-header .brand {
+    gap: 5px;
+  }
+  .app-header > button {
+    white-space: nowrap;
+    padding: 8px;
+  }
+  .community-guide {
+    padding: 14px;
+  }
+  .guide-actions button {
+    width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .workspace.guided > .workspace-content {
+    order: -1;
+  }
+}
 .coverage-inspector {
   font-size: 14px;
   width: 100%;
@@ -149,6 +232,14 @@ small,
   color: white;
   padding: 12px;
   z-index: 100;
+}
+.skip-link:not(:focus-visible) {
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .skip-link:focus {
   top: 10px;
