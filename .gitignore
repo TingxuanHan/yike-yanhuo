@@ -14,4 +14,11 @@ test-results/
 playwright-report/
 *.log
 *.tsbuildinfo
+__pycache__/
+*.pyc
 .DS_Store
+/materials/yike-yanhuo-submission.mp4
+/materials/yike-yanhuo-source.zip
+/materials/yike-yanhuo-submission.zip
+/materials/SHA256SUMS.txt
+/materials/submission-manifest.json

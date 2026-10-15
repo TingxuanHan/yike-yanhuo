@@ -65,13 +65,15 @@ npm run dev
 
 ## 材料导航
 
-现有PDF和视频对应上一轮体检与设施核查功能；本轮日常出行、同步和小程序进展先以代码及设计文档为准，最终参赛录制时统一更新材料。
+2026-10-16提交版覆盖社区体检、日常出行、入口提醒、备选比较和家人协助。按技术创新30%、场景落地30%、开源治理20%、长期发展20%组织证据，保留模拟、API实测和现场待验证的区别。
 
 “一句话安排”支持基础AI、自用API和离线手工条件确认；已接入两端办事、购物及步行目标表单。模型接口由后端统一鉴权并保管密钥；开发环境已完成Qwen3-8B真实接口联调，新部署仍需独立配置服务。本机免费模式每次调用前核对指定模型零元价格，不能据此保证其他模型或未来价格。配置步骤、免费测试渠道与数据边界见[规划助手接入](docs/planning-assistant.md)。
 
-- [作品介绍 PDF](materials/yike-yanhuo-introduction.pdf)
-- [技术与验证报告 PDF](materials/yike-yanhuo-technical-report.pdf)
-- [操作演示视频](materials/yike-yanhuo-demo.webm)（无配音，含模拟操作与上海历史结果回放；录制不新增真实调用）
+- [提交版作品介绍 PDF · 14页](materials/yike-yanhuo-submission.pdf)
+- [带中文配音与字幕的演示视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-submission-v1/yike-yanhuo-submission.mp4)
+- [固定版本与完整交付包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-submission-v1)
+- [评审运行与材料索引](docs/submission-guide.md) · [可编辑文稿](docs/submission-brief.md) · [视频逐字稿](docs/submission-transcript.md)
+- [早期技术与验证报告](materials/yike-yanhuo-technical-report.pdf)（历史版本，当前状态以提交版为准）
 
 - [验收要求与交付清单](docs/requirements.md)
 - [实现计划](docs/roadmap.md)
@@ -92,6 +94,8 @@ npm run dev
 - [开发记录](CHANGELOG.md)
 
 开发仓库暂为私有；提交参赛材料前需落实评审可访问方式和开源发布。
+
+治理与参与：[贡献指南](CONTRIBUTING.md)、[维护与决策](GOVERNANCE.md)、[安全说明](SECURITY.md)、[第三方许可清单](THIRD_PARTY_NOTICES.md)。
 
 ## 许可证
 

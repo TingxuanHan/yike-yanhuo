@@ -1,0 +1,403 @@
+"""Build the score-aligned submission PDF and an editable text companion."""
+from pathlib import Path
+from xml.sax.saxutils import escape
+import json
+import argparse
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.utils import ImageReader
+
+ROOT = Path(__file__).resolve().parents[1]
+W, H = A4
+M = 44
+CW = W - M * 2
+INK = colors.HexColor("#183b3b")
+GREEN = colors.HexColor("#176c60")
+PALE = colors.HexColor("#edf4ef")
+PAPER = colors.HexColor("#fffdf7")
+MUTED = colors.HexColor("#657b79")
+ORANGE = colors.HexColor("#cc7549")
+LINE = colors.HexColor("#d9e4df")
+REPO = "https://github.com/TingxuanHan/yike-yanhuo"
+TAG = "os2026-submission-v1"
+RELEASE = REPO + "/releases/tag/" + TAG
+BASE = "09b3027"
+DATE = "2026.10.16"
+
+
+class Book:
+    def __init__(self, output):
+        self.c = canvas.Canvas(str(output), pagesize=A4)
+        self.c.setTitle("一刻烟火｜作品介绍与技术验证")
+        self.c.setAuthor("TingxuanHan")
+        self.c.setSubject("2026上海开源软件应用创新大赛：百度15分钟生活圈")
+        self.n = 0
+        self.y = 0
+        self.md = ["# 一刻烟火：作品介绍与技术验证", "", f"提交版 {DATE}；功能基线 {BASE}；固定版本 {TAG}。", ""]
+
+    def txt(self, s, x, y, size=10.5, bold=False, color=INK):
+        self.c.setFont("BodyBold" if bold else "Body", size)
+        self.c.setFillColor(color)
+        self.c.drawString(x, H - y - size, s)
+
+    def page(self, title, eyebrow=""):
+        if self.n:
+            self.c.showPage()
+        self.n += 1
+        self.c.setFillColor(PAPER)
+        self.c.rect(0, 0, W, H, fill=1, stroke=0)
+        self.txt("一刻烟火", M, 25, 10, True, GREEN)
+        self.txt("作品介绍与技术验证 · " + DATE, W - 205, 26, 8.5, color=MUTED)
+        self.c.setStrokeColor(LINE)
+        self.c.line(M, H - 49, W - M, H - 49)
+        if eyebrow:
+            self.txt(eyebrow, M, 67, 9.5, True, ORANGE)
+        self.txt(title, M, 88, 24, True)
+        self.txt(f"{self.n:02d} / 14", W - 87, H - 29, 8, color=MUTED)
+        self.txt("一刻烟火 · 开源AI工具赛道 · 百度地图企业赛题", M, H - 29, 8, color=MUTED)
+        self.y = 131
+        self.md.extend([f"## {self.n:02d} {title}", ""])
+
+    def p(self, text, size=10.5, leading=17, gap=11, color=INK, width=None, x=None, top=None, record=True):
+        width = CW if width is None else width
+        x = M if x is None else x
+        top = self.y if top is None else top
+        style = ParagraphStyle("p", fontName="Body", fontSize=size, leading=leading, textColor=color, wordWrap="CJK")
+        para = Paragraph(text, style)
+        _, height = para.wrap(width, 1000)
+        if top + height > H - 48:
+            raise ValueError(f"Page {self.n} overflow: {text[:55]} at {top}+{height}")
+        para.drawOn(self.c, x, H - top - height)
+        self.y = max(self.y, top + height + gap)
+        if record:
+            self.md.extend([text.replace("<br/>", "\n"), ""])
+        return height
+
+    def h(self, text):
+        self.y += 4
+        self.txt(text, M, self.y, 13, True, GREEN)
+        self.y += 27
+        self.md.extend(["### " + text, ""])
+
+    def note(self, text):
+        top = self.y
+        style = ParagraphStyle("note", fontName="Body", fontSize=9.5, leading=15, textColor=INK, wordWrap="CJK")
+        para = Paragraph(text, style)
+        _, height = para.wrap(CW - 26, 1000)
+        if top + height + 25 > H - 48:
+            raise ValueError(f"Note overflow on page {self.n}")
+        self.c.setFillColor(PALE)
+        self.c.roundRect(M, H - top - height - 22, CW, height + 22, 5, fill=1, stroke=0)
+        self.c.setFillColor(ORANGE)
+        self.c.rect(M, H - top - height - 22, 3, height + 22, fill=1, stroke=0)
+        para.drawOn(self.c, M + 13, H - top - height - 11)
+        self.y = top + height + 34
+        self.md.extend(["> " + text, ""])
+
+    def table(self, headers, rows, widths, size=9.2, leading=14):
+        widths = [CW * w / sum(widths) for w in widths]
+        for ri, row in enumerate([headers] + rows):
+            ps = []
+            for value, width in zip(row, widths):
+                ps.append(Paragraph(escape(str(value)).replace("\n", "<br/>"), ParagraphStyle("cell", fontName="BodyBold" if ri == 0 else "Body", fontSize=size, leading=leading, textColor=colors.white if ri == 0 else INK, wordWrap="CJK")))
+            heights = [p.wrap(width - 16, 1000)[1] for p, width in zip(ps, widths)]
+            rh = max(heights) + 17
+            if self.y + rh > H - 48:
+                raise ValueError(f"Table overflow on page {self.n}, row {ri}")
+            self.c.setFillColor(GREEN if ri == 0 else PALE if ri % 2 else colors.white)
+            self.c.rect(M, H - self.y - rh, CW, rh, fill=1, stroke=0)
+            x = M
+            for p, width, ph in zip(ps, widths, heights):
+                p.drawOn(self.c, x + 8, H - self.y - 8 - ph)
+                x += width
+            self.y += rh
+        self.y += 15
+        self.md.append("| " + " | ".join(headers) + " |")
+        self.md.append("| " + " | ".join("---" for _ in headers) + " |")
+        self.md.extend("| " + " | ".join(str(v).replace("\n", "；") for v in r) + " |" for r in rows)
+        self.md.append("")
+
+    def img(self, name, width=CW, height=None, crop=None, x=None, top=None):
+        x = M if x is None else x
+        top = self.y if top is None else top
+        reader = ImageReader(str(ROOT / name))
+        iw, ih = reader.getSize()
+        if crop:
+            left, upper, cw, ch = crop
+            height = ch * width / cw
+            scale = width / cw
+            self.c.saveState()
+            clip = self.c.beginPath()
+            clip.rect(x, H - top - height, width, height)
+            self.c.clipPath(clip, stroke=0)
+            self.c.drawImage(reader, x - left * scale, H - top - (ih - upper) * scale, width=iw * scale, height=ih * scale, mask="auto")
+            self.c.restoreState()
+        else:
+            height = ih * width / iw if height is None else height
+            self.c.drawImage(reader, x, H - top - height, width=width, height=height, preserveAspectRatio=True, anchor="c", mask="auto")
+        if top + height > H - 48:
+            raise ValueError(f"Image overflow on {self.n}")
+        self.c.setStrokeColor(LINE)
+        self.c.rect(x, H - top - height, width, height, fill=0, stroke=1)
+        self.y = max(self.y, top + height + 12)
+
+    def flow(self, blocks):
+        start = self.y
+        for i, (title, body) in enumerate(blocks):
+            self.c.setFillColor(PALE)
+            self.c.roundRect(M, H - self.y - 63, CW, 63, 5, fill=1, stroke=0)
+            self.txt(f"0{i+1}", M + 12, self.y + 12, 17, True, ORANGE)
+            self.txt(title, M + 48, self.y + 10, 11.5, True, GREEN)
+            self.p(body, width=CW - 65, x=M + 48, top=self.y + 30, size=9.2, leading=14, gap=0, record=False)
+            self.y = start + (i + 1) * 74
+            self.md.append(f"{i+1}. {title}：{body}")
+        self.md.append("")
+
+    def save(self):
+        if self.n != 14:
+            raise ValueError("Expected fourteen pages")
+        self.c.save()
+        (ROOT / "docs/submission-brief.md").write_text("\n".join(self.md), encoding="utf8")
+
+
+def build(output):
+    d = Book(output)
+    d.page("一刻烟火", "2026 上海开源软件应用创新大赛 · 作品提交版")
+    d.txt("15分钟生活圈智能体检与规划助手", M, 127, 16, True, GREEN)
+    d.y = 165
+    d.p("从社区的服务缺口，到居民的一趟出门。<br/>让步行范围、时间预算和家人协助，都有可以核对的依据。", size=12, leading=21)
+    d.img("docs/images/shanghai-map.png", crop=(350, 110, 980, 640))
+    d.p("上海抚顺路社区候选中心：2026-10-05 API结果与底图回放。入口尚未现场核验；本图保留地图来源标识。", size=8.5, leading=13, color=MUTED)
+    d.table(["双端实现", "验证规模", "可复现交付"], [["Web + 微信原生开发版", "184项业务测试 + 34项浏览器流程", "MIT自有代码 · 固定标签 · 无AK示例"]], [1, 1.2, 1], size=9.3)
+    d.p(f"维护者：TingxuanHan　　功能基线：{BASE}<br/>源码：<link href='{REPO}' color='#176c60'>{REPO}</link>", size=9.5, leading=16)
+
+    d.page("四项评分指标，一条证据链", "评审导读")
+    d.p("本材料按主评审的技术创新、场景落地、开源治理与长期发展组织，同时覆盖百度企业任务书的功能、API工程、交互和规范要求。以下是证据索引，不是自评得分。")
+    d.table(["评分项", "本作品提供什么", "阅读位置"], [
+        ["技术创新 30%", "有预算的共享边加密；未知状态保留；个人条件与反馈联动；明确的同点基线比较", "第4—6、9、11页"],
+        ["场景落地 30%", "上海API案例、仿真闭环、Web与微信、可运行源码、自动测试和有声实录", "第3、7—10页"],
+        ["开源治理 20%", "MIT、依赖清单、贡献与安全规范、固定版本、构建CI；如实区分准备与公开状态", "第12、14页"],
+        ["长期发展 20%", "按验收门槛推进的90天计划、维护职责、成本控制、接任与数据治理", "第13页"],
+    ], [1.05, 3.2, 1.2])
+    d.h("百度企业任务书的对应关系")
+    d.table(["任务书", "对应实现与材料"], [
+        ["功能与覆盖 40%", "真实路径测时、5/10/15分钟轮廓、六类设施、1公里核查依据"],
+        ["API工程优化 30%", "路线条数记账、串行限流、缓存回放、两轮加密及留出点实验"],
+        ["交互体验 15%", "简易模式、大字指引、参数对比、出门卡及家人确认"],
+        ["开源工程 15%", "安装构建、锁文件、MIT、CI、部署与验证说明"],
+    ], [1.3, 4.2])
+    d.note("证据分三类：人工构造街区验证可复现逻辑；真实API验证接口与测时；现场实走验证现实通行。当前已具备前两类，不能把它们替代第三类。")
+
+    d.page("同一个社区，不同人的十五分钟", "项目背景与应用场景")
+    d.p("生活服务的距离近，不等于走得到：桥梁、道路绕行、入口和个人步速都会改变体验。只画直线圆难以反映道路；只给单段导航，也不能直接回答买菜、取药并按时回家的整趟问题。")
+    d.table(["使用者", "具体问题", "对应流程"], [
+        ["社区工作者", "哪些地方值得补充核查？为什么判断这里缺设施？", "选中心→看路网范围→逐点看证据→核查台账与报告"],
+        ["居民与老人", "四十五分钟内办完事；走慢一点、推车或歇脚怎么办？", "选任务→核算往返与停留→大字指引→更新出门卡"],
+        ["协助家人", "老人说不清入口；没有定位权限时怎么提供线索？", "单次授权→地点与时间说明→建议由本人确认→主动结束"],
+    ], [.9, 2.2, 2.4])
+    d.h("一个可演示的使用闭环")
+    d.flow([
+        ("先看社区", "实际路线测时形成近似范围，区分已发现设施、候选缺口和数据不足。"),
+        ("再排一趟", "把办事、停留、购物参考价、步速和返程放进同一时间安排。"),
+        ("途中有变化", "核对入口反馈，比较新地点的时间与缺价，由本人决定是否替换。"),
+        ("留下可用资料", "保存地点、入口和出门卡；需要时请家人协助，保留原有事实。"),
+    ])
+    d.note("应用已在本地运行。跨网络的双端同步与远程协助需要共同的可达HTTPS后端；当前未购买云资源，也未完成微信公开发布。")
+
+    d.page("共享核心，让两端说同一套规则", "技术架构")
+    d.flow([
+        ("双端界面", "React / TypeScript Web；原生微信JS、WXML、WXSS；支付宝保留平台适配接口。"),
+        ("共享业务层", "空间分析、设施证据、个人步速、整趟规划、价格匹配、行程与协助状态。"),
+        ("受控服务层", "Node.js接口、输入校验、设备会话、任务隔离、串行队列、缓存与额度台账。"),
+        ("数据与供应商", "SQLite私人空间；百度地图提供地点与路线；可选模型／语音服务解析条件。"),
+    ])
+    d.h("三条数据路径，分别处理")
+    d.table(["路径", "边界"], [
+        ["社区分析与路线", "明确模式、坐标系、来源时间及完整性；未知不填成0，历史回放不重复请求。"],
+        ["私人地点与家人协助", "显式配对、版本冲突保留草稿；家庭链接只分享有限对象并可撤销。"],
+        ["自然语言与录音", "主动发送→文字可编辑→条件可核对→本人确认；模型不直接改行程。"],
+    ], [1.2, 4.3])
+    d.p("源码定位：src/core、src/shared、src/mini、src/server、src/client与miniprogram。客户端共享类型与计算实现，服务端集中保管密钥；私人数据和预算目录不进入Git或静态资源。", size=9.5, leading=16)
+    d.note("当前为邀请使用的单实例原型，SQLite与额度台账需要持久化。微信、Web共享服务能力已实现，跨网络实际部署仍是单独验收项。")
+
+    d.page("有限测时，也能逐步细化边界", "技术创新 ① · 有预算的等时圈")
+    d.p("不依赖下载底层路网，以百度步行测时作为采样值。先用规则网格建立范围，再把有限调用投向跨越时间阈值的边界。创新落点是本项目的预算调度、共享边一致性与可验证实现。")
+    d.table(["步骤", "实现"], [
+        ["粗采样", "默认中心四周各1600米、400米间距，共81个顶点；逐点保留有效、未知或不可达。"],
+        ["首轮加密", "最多使用96点加密预算的三分之二，按5、10、15分钟阈值处理跨界边中点。"],
+        ["第二轮", "剩余额度用于5分钟边界；测到共享边中点后同时细分两侧三角片。"],
+        ["构建轮廓", "仅在三个顶点均有效时做阈值线性插值；合并片区并保留孔洞。"],
+        ["保留未知", "缺测片不插值，不用凸包跨越空白；触及采样边缘时提示可能截断。"],
+    ], [1, 4.5])
+    d.h("边上交点")
+    d.note("p = p_A + (T - t_A) / (t_B - t_A) × (p_B - p_A)<br/>T是时长阈值，t_A、t_B是两端路线耗时。相邻片共享交点，并将局部坐标量化到毫米，减少浮点接缝。")
+    d.p("同一批观测同时生成5、10、15分钟范围，切换时长与图层不追加测时。设施是否可达仍按中心到设施的真实路线耗时判断，不用是否落在插值多边形内代替。")
+    d.note("等时圈与空间插值不是新概念，也已有成熟商业接口。本项目不宣称首创等时圈；有限采样仍可能跨越未采到的围墙，精度须由独立验证点和现场测量检验。")
+
+    d.page("把“缺少设施”和“缺少证据”分开", "技术创新 ② · 可解释的设施核查")
+    d.p("设施按菜市场、药店、小学、医疗、公园、养老六类整理。优先按同类UID去重，缺UID时结合规范化名称与30米邻近规则；不同UID的同名分店保留。多源核查资料可以记录来源、时间、冲突与撤销。")
+    d.h("两个距离口径，各自回答问题")
+    d.table(["口径", "问题", "判定依据"], [
+        ["15分钟步行", "从中心能走到哪些设施？", "中心到设施的路线耗时；受个人试算条件影响。"],
+        ["1公里设施覆盖", "核查点附近是否已检索到必需设施？", "分类设施直线距离，并检查该点完整1公里缓冲区是否被检索范围覆盖。"],
+    ], [1.15, 1.8, 2.55])
+    d.table(["结果状态", "使用者看见的依据"], [
+        ["已发现", "最近的已检索设施、位置、距离与记录时间。"],
+        ["候选缺口", "在检索范围覆盖且返回结果取完的前提下，未找到对应类别；仍需实地核查。"],
+        ["数据不足", "分页截断、类别结果缺失、位置无效或范围不覆盖；不推断当地没有设施。"],
+    ], [1.15, 4.35])
+    d.h("居民反馈也遵循相同证据原则")
+    d.p("邻里提醒记录具体入口或路段、方向、观察时间和亲见／转述；单份、多份、分歧、恢复与过期分别呈现。同一私人空间的多设备不重复计数，空间数不冒充独立真人数。通行偏好只突出相关反馈，不把它升级为已核验事实。")
+    d.note("已实现多源记录合并与冲突机制，但尚未开展真实第二来源POI采集。私人小店不会自动成为已核验公共设施；复核日期到期也不会自动判定门店停业。")
+
+    d.page("从“去哪”变成“这一趟怎么安排”", "场景落地 ① · 时间、预算与行动")
+    d.p("示例任务：买菜、取药，四十五分钟内回来，购物预算五十元。系统同时考虑有方向差异的路线、停留、营业窗口、返程与步行偏好；价格按商品规格和已有记录匹配，缺价、缺货及过期明确显示。")
+    d.img("docs/images/trip-web-result.png", width=247, height=385, x=M, top=d.y)
+    top = 211
+    d.p("<b>一次核算，三个相连的决定</b><br/><br/>办哪些事、以什么顺序走；<br/>何时返回，是否超出时长；<br/>哪些商品有参考价，哪些仍需确认。<br/><br/>个人步速可调整，峰谷等灯是手动情景假设；顺路运动给出计划节奏，不记作已经完成的运动。<br/><br/>遇到障碍时比较同类地点或本人记录的另一入口，重新计算两段接续路线。确认前不改行程，确认后保留已到达历史并更新出门卡。", width=235, x=M+270, top=top, size=10.5, leading=19)
+    d.y = max(d.y, 590)
+    d.note("截图为人工构造的街区和示例价格。没有把手工标价称作市场平均价或实时库存；替换到新店时不沿用原店报价。更换目的地也不代表系统能自动绕过任意上报障碍。")
+    d.p("AI辅助边界：自然语言或语音先提取可编辑条件，再由确定性规则核算路线与预算。已完成Qwen3-8B真实接口联调，语音链路使用合成测试音频验证；真实麦克风、口音及弱网仍待验收。", size=9.8, leading=16)
+
+    d.page("简易模式里，家人协助始终可达", "场景落地 ② · 老人、小店与途中变化")
+    y = d.y
+    d.img("docs/images/simple-home-mini.png", width=163, height=360, x=M, top=y)
+    d.img("docs/images/trip-alternative-mini-entry.png", width=163, height=360, x=M+172, top=y)
+    d.p("<b>三个直接入口</b><br/>我要出门<br/>常用地点<br/>联系家人<br/><br/><b>按需展开</b><br/>少走台阶、推车、歇脚需要<br/>下一站的备选比较<br/>大字与离线资料", width=152, x=M+355, top=y+15, size=10.3, leading=19)
+    d.y = y + 377
+    d.p("微信开发者工具原生截图，展示当前入口与简易模式；不是手机现场录像。使用者已反馈原首页手机预览及切换正常，新增流程仍需真机验收。", size=8.5, leading=14, color=MUTED)
+    d.table(["场景", "已经实现的帮助"], [
+        ["不会用复杂地图", "家人准备大字地点卡、入口地标和离线出门卡；语音先转文字，确认后使用。"],
+        ["小店未被地图收录", "主动记录坐标、照片、到访日期、营业观察和价格；保存在私人地点簿。"],
+        ["找不到入口或拒绝定位", "主动取一次位置，或按最近本人确认记录给出带时间的线索及假设范围；不称为实时定位。"],
+        ["需要远程帮忙", "单次短期协助，家人提供建议或标记入口，由本人采纳；可撤销、结束，无后台跟踪。"],
+    ], [1.35, 4.15], size=9.2)
+
+    d.page("上海留出点对照：提升与不足都保留", "技术创新与场景验证")
+    d.p("样例：上海杨浦区四平路街道抚顺路社区睦邻中心候选点。2026-10-05固定第一组24个验证点，对照同一百度API的另行测时；点不参与原轮廓构建，距训练点至少10米。")
+    summary = json.loads((ROOT / "docs/experiments/shanghai-summary.json").read_text(encoding="utf8"))
+    rows = summary["comparison"]
+    chart_top = d.y + 6
+    cols = [ORANGE, colors.HexColor("#72989b"), GREEN]
+    labels = ["直线圆", "81点规则网格", "133点加密"]
+    for j, (lab, col) in enumerate(zip(labels, cols)):
+        d.c.setFillColor(col); d.c.rect(M+j*165, H-chart_top-9, 9, 9, fill=1, stroke=0)
+        d.txt(lab, M+j*165+15, chart_top-2, 9.5)
+    chart_top += 35
+    for gi, minute in enumerate([5,10,15]):
+        group = [r for r in rows if r["minutes"] == minute]
+        d.txt(f"{minute}分钟", M, chart_top+gi*72+19, 10, True)
+        for j, r in enumerate(group):
+            correct = r["trueReachable"] + r["trueUnreachable"]
+            yy = chart_top + gi*72 + j*21
+            d.c.setFillColor(cols[j]); d.c.rect(M+65, H-yy-12, 345*correct/24, 12, fill=1, stroke=0)
+            d.txt(f"{correct}/24", M+65+345*correct/24+7, yy-1, 9)
+    d.y = chart_top + 224
+    d.p("15分钟：加密23/24，直线圆16/24，多判断正确7点；较规则网格少漏判1点。10分钟与规则网格相同。5分钟加密19/24，低于规则网格21/24，不能宣称全面提升。", size=10.2, leading=17)
+    d.h("另固定一组24点，复核短距离改动")
+    d.table(["5分钟方法", "TP", "FP", "FN", "TN", "一致数"], [
+        ["原133点，一轮加密", "6", "0", "4", "14", "20/24"],
+        ["177点，两轮共享边加密", "8", "1", "2", "13", "21/24"],
+    ], [2.6,.55,.55,.55,.55,.9], size=9)
+    d.note("第二组预先固定，半径180／280／380米，未复用第一组调参点。漏判少2个、误判多1个，净少1错。它们不能验证10／15分钟边界。两组均为同源API对照，不是现场真值或跨供应商验证。")
+    d.p("原始计数、固定协议与数据摘要：docs/experiments/shanghai-comparison.md、shanghai-refinement.md及对应JSON。该实验不评价设施缺口识别的现实准确率。", size=8.8, leading=14, color=MUTED)
+
+    d.page("能运行，也能让评审重复验证", "工程与部署证据")
+    d.table(["检查层", "当前证据", "没有据此声称"], [
+        ["业务与接口", "184项通过；算法、配额、权限、冲突、录音确认、行程历史等", "不能替代真实用户可用性测试"],
+        ["浏览器", "34项流程通过；桌面与320／390像素；失败保留草稿", "不能替代微信原生权限与真机体验"],
+        ["构建与CI", "Web／服务端／微信共享代码构建、格式及GitHub Actions通过", "Docker文件已提供，尚未本地构建验证"],
+        ["微信", "原生页面与入口截图；业务契约测试；原首页手机预览获使用者确认", "新增备选流程尚未完成手机及街道验收"],
+    ], [1.05, 2.7, 1.75], size=9.2)
+    d.h("最新真实路线链路：5次调用")
+    d.p("2026-10-15，抚顺路社区至两处菜市场：原往返410米，备选往返496米；备选去程248米、地图参考232秒，3条文字指引及18个路径点。重复比较和指引命中缓存，无追加检索、底图和模型调用。")
+    d.h("普通评审可先无密钥运行")
+    d.note("Node.js 24推荐，最低22.13。<br/>npm ci<br/>npm run build<br/>npm start<br/>打开 http://127.0.0.1:8787/?showcase=1，体验模拟社区。<br/>普通测试：npm test；浏览器：npm run test:ui。真实调用另行配置AK并确认预算。")
+    d.p("工程保护：按路线条数记账；默认每次1条、至少1100毫秒间隔；共享串行队列；有限重试计入预算；限流后停止后续调用；任务取消和短时缓存；同项目真实调用进程互斥。当前默认日预算500条路线、12次检索，不等于平台账户总额度。", size=9.8, leading=16)
+
+    d.page("优势来自可核对的应用组合", "相较已有方案的定位")
+    d.p("路线规划和等时圈已有成熟方案。百度步行接口提供起终点路线、耗时与步骤；Mapbox Isochrone提供步行等时轮廓。本作品在这些基础能力之上，形成面向社区与家庭的应用流程，不宣称所有同类产品都不具备这些功能。")
+    d.table(["参照方式", "它能回答", "本作品增加的能力"], [
+        ["直线距离圆", "按统一速度估计半径", "采用道路测时；上海15分钟同点对照23/24对16/24。"],
+        ["单段路径接口", "两点如何走、距离和耗时", "多任务、停留、返程、个人步速与价格缺失一起核算。"],
+        ["通用等时圈接口", "某时长内的大致可达区域", "分类设施证据、灰色核查点、来源冲突、复核日期和报告。"],
+        ["单独的地点收藏", "保存地点与备注", "私人入口资料、出门卡、有限家人协助及确认后的替换。"],
+    ], [1.1, 1.5, 2.9])
+    d.h("三项可检验的项目特点")
+    d.p("<b>预算可控：</b>加密与多时长复用有明确点数、调用统计和退化策略。<br/><b>证据可解释：</b>缺价、缺测、分歧和旧数据都有状态，不靠生成文本补齐事实。<br/><b>行为可追溯：</b>同一核心服务两端，确认后才改行程，历史事件与原方案保留。")
+    d.note("比较边界：除直线圆／规则网格实验外，没有开展与商业应用的统一用户测试、速度竞赛或跨社区精度排名；本表是功能定位与已验证机制的对照。")
+    d.p("参考：百度步行路线与批量算路官方文档；Mapbox Isochrone API官方文档。具体链接见第14页。", size=9, leading=14, color=MUTED)
+
+    d.page("把开源治理落到文件与流程", "开源治理 20%")
+    inv = json.loads((ROOT / "docs/governance/dependencies.json").read_text(encoding="utf8"))["packages"]
+    counts = {}
+    for r in inv: counts[r["license"]] = counts.get(r["license"], 0) + 1
+    d.p("当前是单维护者的新项目，维护者为TingxuanHan。项目自有代码采用MIT；不能将地图数据、模型权重、系统字体或依赖软件重新声明为本项目MIT资产。")
+    d.table(["治理项", "已提供的内容"], [
+        ["协议与依赖", "LICENSE；THIRD_PARTY_NOTICES.md；机器可读依赖清单与生成脚本。"],
+        ["贡献机制", "Issue最小复现、PR验证清单、算法先固定协议、真实调用预算；CONTRIBUTING.md。"],
+        ["决策与版本", "GOVERNANCE.md；小目标提交；固定参赛标签、发布附件和校验和；上一版本可回退。"],
+        ["安全与隐私", "SECURITY.md；密钥和私人数据排除Git；授权、撤销、过期与错误脱敏检查。"],
+        ["持续验证", "GitHub Actions：安装、格式、构建、业务测试、浏览器流程；失败留测试附件。"],
+    ], [1.2, 4.3])
+    d.h("依赖盘点（包含平台可选包）")
+    d.p("锁文件共105个包条目，均有许可证声明：" + "、".join(f"{k} {v}项" for k,v in sorted(counts.items())) + "。MPL项主要是构建工具链；项目不打包node_modules，也不以MIT覆盖上游许可。分发依赖时保留版权、NOTICE及相应源码获取说明。", size=9.7, leading=16)
+    d.note("这是声明盘点与分发边界说明，不是独立法律审计。当前仓库按开发要求保持私有，评审访问及正式公开方式仍需落实；不能把私有开发状态描述为已公开运营的开源社区。")
+    d.p("项目未虚构社区规模、贡献人数或治理委员会。普通提交不包含密钥、家庭数据或完整地图原始结果；本轮本机配置值、构建物与Git历史匹配检查无命中。", size=9.7, leading=16)
+
+    d.page("先补证据，再扩大服务", "长期发展 20% · 计划而非既成结果")
+    d.table(["阶段", "可交付目标", "进入下一阶段的门槛"], [
+        ["0—30天", "补充微信新增流程真机；选社区入口与实际路线，记录步速和过街等待；简易模式小规模自愿试用。", "保留原始观察时间、同一协议下的误判／漏判和失败流程，不只收集成功截图。"],
+        ["31—60天", "扩展至少两个社区；每社区预先固定24点；接入有授权的第二来源核查资料；完善设备撤销与恢复。", "改进必须在未用于调参的点验证；报告调用成本、缺失数据和已知偏差。"],
+        ["61—90天", "受控HTTPS试点、持久化备份和恢复演练；补齐邻里审核／申诉；评估支付宝适配。", "权限、撤销、数据导出、额度与恢复验收通过后，再扩大到公开服务。"],
+    ], [.9, 2.3, 2.3], size=9.5)
+    d.h("维护责任与资源约束")
+    d.p("维护者负责版本、依赖与安全问题；新增模块维护者需经本人同意并记录职责。计划每月检查供应商接口和依赖，每季度复核误差与使用流程。社区、志愿者和商户合作目前是拓展方向，没有已签约组织或承诺用户规模。")
+    d.p("成本优先花在新的证据上：缓存社区结果、按需读路段、录制复用回放、普通CI不调用外部服务。免费模型条件每次核查，无法确认就停止并退回手工表单；未来公开服务需设置分空间预算，不依靠无限补贴承诺。")
+    d.h("长期衡量指标")
+    d.p("路线：留出点误判／漏判、实际到达时间误差。<br/>使用：首次完成出门安排的成功率、所需操作数、家人建议确认率。<br/>数据：过期反馈占比、分歧处理与撤回完成率。<br/>工程：每次有效分析的路线条数、缓存复用、测试回归与恢复演练结果。")
+    d.note("具体阈值将在现场基线采集后确定，不预先宣称节省比例、用户增长或安全保障。若停止维护，保留最后可复现标签并公开交接说明，不转交私人数据库和密钥。")
+
+    d.page("从材料，到可运行的作品", "交付与参考")
+    d.p(f"<b>源码仓库</b><br/><link href='{REPO}' color='#176c60'>{REPO}</link><br/><b>固定提交版本</b>：{TAG}；功能基线{BASE}。", size=10, leading=17)
+    d.p(f"<b>作品文档、配音视频与校验和</b><br/><link href='{RELEASE}' color='#176c60'>{RELEASE}</link><br/>发布附件含本PDF、中文有声字幕视频、字幕与源码归档。仓库仍私有时，链接仅对获授权者可见，需在正式提交前落实评审访问。", size=9.4, leading=16)
+    d.table(["材料", "评审怎么使用"], [
+        ["作品介绍PDF", "先看第2页评分索引，再看第9页完整实验结论。"],
+        ["演示视频MP4", "实际Web操作、历史API回放和明确标注的原生静帧；中文字幕与中文配音。"],
+        ["源码与README", "按Node.js快速运行；无AK即可复现合成案例。真实调用需评审自己的配置。"],
+        ["验证与治理文件", "docs/validation.md、docs/experiments、依赖清单、CONTRIBUTING与GOVERNANCE。"],
+    ], [1.25, 4.25], size=9.2)
+    d.h("参考与证据来源")
+    refs = [
+        ("1. 大赛官网与用户提供的评分／提交说明", "https://www.oschina.net/os2026/"),
+        ("2. 百度企业命题任务书", "https://apiv1.oschina.net/api/files/fhhc7e8z6no3gyt/tnm1g74nkqey4eu/ai_15_nIsJ99EN3y.pdf"),
+        ("3. 百度步行批量算路官方文档", "https://lbsyun.baidu.com/docs/webapi?title=routematrix/routchtout-walk"),
+        ("4. 百度步行路线规划官方文档", "https://lbsyun.baidu.com/docs/webapi?title=directionlite/guide/webservice-lwrouteplanapi/walk"),
+        ("5. Mapbox Isochrone API官方文档", "https://docs.mapbox.com/api/navigation/isochrone/"),
+        ("6. MIT许可原文与MPL说明", "https://opensource.org/license/mit"),
+        ("7. Mozilla MPL 2.0 FAQ", "https://www.mozilla.org/en-US/MPL/2.0/FAQ/"),
+        ("8. 功能基线对应GitHub构建记录", REPO + "/actions/runs/38765916736"),
+    ]
+    for label, url in refs:
+        d.p(f"<link href='{escape(url, {'"': '&quot;'})}' color='#176c60'>{label}</link>", size=9, leading=14, gap=5)
+        d.md.append(url)
+    d.note("所有演示分别标记仿真、API回放与现场状态。尚未完成的云部署、公开发布、行人信号实测、独立社区试用和现场核验均保留为后续工作。")
+    d.save()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--font-regular", default="C:/Windows/Fonts/msyh.ttc")
+    parser.add_argument("--font-bold", default="C:/Windows/Fonts/msyhbd.ttc")
+    args = parser.parse_args()
+    pdfmetrics.registerFont(TTFont("Body", args.font_regular, subfontIndex=0))
+    pdfmetrics.registerFont(TTFont("BodyBold", args.font_bold, subfontIndex=0))
+    pdfmetrics.registerFontFamily("Body", normal="Body", bold="BodyBold", italic="Body", boldItalic="BodyBold")
+    out = ROOT / "materials/yike-yanhuo-submission.pdf"
+    build(out)
+    print(json.dumps({"pdf": str(out), "pages": 14}, ensure_ascii=False))

@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-15T18:26:22.265Z",
+  "duration": 330.52,
+  "sizeBytes": 14995559,
+  "video": {
+    "codec": "h264",
+    "width": 1600,
+    "height": 900,
+    "frameRate": "25/1",
+    "frames": "8263"
+  },
+  "audio": {
+    "codec": "aac",
+    "sampleRate": "48000",
+    "channels": 2,
+    "duration": 330.491
+  },
+  "scenes": 20,
+  "spokenCaptions": 40,
+  "fullDecode": true,
+  "playback": [
+    {
+      "currentTime": 2.405557,
+      "readyState": 4,
+      "width": 1600,
+      "height": 900,
+      "decodedAudioBytes": 48989,
+      "decodedVideoFrames": 100,
+      "error": null
+    },
+    {
+      "currentTime": 165.41721,
+      "readyState": 4,
+      "width": 1600,
+      "height": 900,
+      "decodedAudioBytes": 135646,
+      "decodedVideoFrames": 252,
+      "error": null
+    },
+    {
+      "currentTime": 325.405499,
+      "readyState": 4,
+      "width": 1600,
+      "height": 900,
+      "decodedAudioBytes": 206507,
+      "decodedVideoFrames": 366,
+      "error": null
+    }
+  ]
+}

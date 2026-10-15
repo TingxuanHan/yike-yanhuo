@@ -1,0 +1,130 @@
+{
+  "createdAt": "2026-10-15T18:25:47.684Z",
+  "functionalBaseline": "09b3027",
+  "source": "Headless actual UI recording with explicitly labelled editorial cards",
+  "blockedRequests": 0,
+  "browserErrors": 0,
+  "video": ".cache/submission-raw.webm",
+  "scenes": [
+    {
+      "id": "title",
+      "title": "一刻烟火｜15分钟生活圈智能体检与规划助手",
+      "start": 53,
+      "end": 13031
+    },
+    {
+      "id": "home",
+      "title": "01｜从一个简单的首页开始",
+      "start": 13101,
+      "end": 27386
+    },
+    {
+      "id": "community",
+      "title": "02｜社区体检：道路决定生活圈",
+      "start": 27432,
+      "end": 42943
+    },
+    {
+      "id": "duration",
+      "title": "5、10、15分钟｜复用同一批测时",
+      "start": 42999,
+      "end": 57742
+    },
+    {
+      "id": "coverage",
+      "title": "03｜看见缺口，也看见判断依据",
+      "start": 57789,
+      "end": 75572
+    },
+    {
+      "id": "report",
+      "title": "从地图到报告｜保存来源与限制",
+      "start": 75619,
+      "end": 92650
+    },
+    {
+      "id": "algorithm",
+      "title": "技术路线｜有预算的共享边加密",
+      "start": 92702,
+      "end": 108303
+    },
+    {
+      "id": "comparison",
+      "title": "04｜每个人的十五分钟不同",
+      "start": 108351,
+      "end": 124089
+    },
+    {
+      "id": "trip",
+      "title": "05｜买菜、取药和返程，一起核算",
+      "start": 124124,
+      "end": 140640
+    },
+    {
+      "id": "ai",
+      "title": "语音与AI｜先核对，再应用",
+      "start": 140685,
+      "end": 159690
+    },
+    {
+      "id": "notice",
+      "title": "06｜具体到入口的邻里提醒",
+      "start": 159732,
+      "end": 176454
+    },
+    {
+      "id": "conflict",
+      "title": "有分歧，就把分歧说清楚",
+      "start": 176502,
+      "end": 192875
+    },
+    {
+      "id": "alternative",
+      "title": "07｜下一站不好走，先比较备选",
+      "start": 192918,
+      "end": 209693
+    },
+    {
+      "id": "entrance",
+      "title": "也可选择本人记录的另一入口",
+      "start": 209745,
+      "end": 225614
+    },
+    {
+      "id": "card",
+      "title": "08｜更新一张可离线查看的出门卡",
+      "start": 225665,
+      "end": 241199
+    },
+    {
+      "id": "family",
+      "title": "09｜家人可以帮忙，决定留给本人",
+      "start": 241251,
+      "end": 257357
+    },
+    {
+      "id": "wechat",
+      "title": "双端共用规则｜微信原生开发版",
+      "start": 257395,
+      "end": 274432
+    },
+    {
+      "id": "real",
+      "title": "10｜上海真实API结果回放",
+      "start": 274498,
+      "end": 291846
+    },
+    {
+      "id": "validation",
+      "title": "验证结果｜提升与不足都留下",
+      "start": 291899,
+      "end": 311210
+    },
+    {
+      "id": "closing",
+      "title": "可运行、可复核、可持续完善",
+      "start": 311245,
+      "end": 329991
+    }
+  ]
+}
