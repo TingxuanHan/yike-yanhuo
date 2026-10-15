@@ -35,5 +35,6 @@ for (const name of [
   "departure",
   "walking-guide",
   "mobility",
+  "walk-calibration",
 ])
   await copyFile(`src/shared/${name}.ts`, `${stage}/${name}.ts`);

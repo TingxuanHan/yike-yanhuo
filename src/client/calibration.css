@@ -1,0 +1,101 @@
+.walk-calibration {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px;
+  overflow-wrap: anywhere;
+}
+.walk-calibration header {
+  margin: 24px 0;
+}
+.walk-calibration h2 {
+  margin: 8px 0;
+}
+.walk-calibration h3 {
+  margin: 0 0 12px;
+}
+.walk-calibration p {
+  line-height: 1.65;
+}
+.walk-calibration button,
+.walk-calibration summary {
+  min-height: 44px;
+  padding: 12px 16px;
+  white-space: normal;
+}
+.walk-calibration input,
+.walk-calibration select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+}
+.walk-calibration label {
+  display: block;
+  margin: 12px 0;
+}
+.walk-summary {
+  border-left: 4px solid #146c5d;
+  background: #eaf3ef;
+  padding: 20px;
+  margin: 20px 0;
+}
+.walk-form {
+  border-top: 1px solid #cfdfd8;
+  padding: 24px 0;
+}
+.walk-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.walk-calibration .walk-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.5;
+}
+.walk-calibration .walk-check input {
+  width: 22px;
+  min-height: 22px;
+  flex-shrink: 0;
+}
+.walk-error {
+  background: #fff1e9;
+  border-left: 4px solid #c46136;
+  color: #8c291d;
+  padding: 16px;
+}
+.walk-status {
+  background: #eaf3ef;
+  padding: 16px;
+}
+.walk-evidence {
+  border-top: 1px solid #cfdfd8;
+}
+.walk-evidence summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.walk-records {
+  list-style: none;
+  padding: 0;
+}
+.walk-records li {
+  border-top: 1px solid #dce6e2;
+  padding: 16px 0;
+}
+.walk-records h4 {
+  margin: 4px 0;
+  font-size: 18px;
+}
+@media (max-width: 520px) {
+  .walk-calibration {
+    padding: 12px;
+  }
+  .walk-fields {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .walk-calibration button {
+    width: 100%;
+  }
+}

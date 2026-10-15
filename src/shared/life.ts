@@ -15,6 +15,11 @@ import { cleanTripFeedback, type TripFeedback } from "./trip-feedback.js";
 import { cleanEntrance, cleanPhoto, type EntranceGuide } from "./entrance.js";
 import { cleanRoutine, type TripRoutine } from "./departure.js";
 import { cleanMobility, type MobilityNeeds } from "./mobility.js";
+import {
+  cleanWalkTrial,
+  mergeWalks,
+  type WalkTrial,
+} from "./walk-calibration.js";
 export { cleanPhoto, MAX_PHOTO_LENGTH } from "./entrance.js";
 export type PlacePosition =
   | { system: "demo"; x: number; y: number }
@@ -47,6 +52,7 @@ export interface LifeBook {
   entrances?: EntranceGuide[];
   routines?: TripRoutine[];
   mobility?: MobilityNeeds;
+  walks?: WalkTrial[];
 }
 export interface LifeSnapshot {
   revision: number;
@@ -137,6 +143,9 @@ export function cleanBook(value: unknown): LifeBook {
     ...(b.mobility !== undefined
       ? { mobility: cleanMobility(b.mobility) }
       : {}),
+    ...(b.walks !== undefined
+      ? { walks: cleanItems(b.walks, cleanWalkTrial, 30) }
+      : {}),
     ...(b.familiarRoutes !== undefined
       ? { familiarRoutes: cleanItems(b.familiarRoutes, cleanFamiliarRoute, 12) }
       : {}),
@@ -182,6 +191,9 @@ export function mergeBooks(local: LifeBook, incoming: LifeBook): LifeBook {
   return cleanBook({
     ...local,
     places: merge(local.places, incoming.places),
+    ...(local.walks || incoming.walks
+      ? { walks: mergeWalks(local.walks ?? [], incoming.walks ?? []) }
+      : {}),
     ...(local.mobility || incoming.mobility
       ? { mobility: local.mobility ?? incoming.mobility }
       : {}),

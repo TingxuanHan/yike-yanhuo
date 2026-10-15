@@ -10,6 +10,7 @@ for (const [entry, name] of [
   ["assistance", "assistance-ui"],
   ["family", "family-ui"],
   ["neighborhood", "neighborhood-ui"],
+  ["calibration", "calibration-ui"],
 ])
   await build({
     entryPoints: [`src/mini/${entry}.ts`],

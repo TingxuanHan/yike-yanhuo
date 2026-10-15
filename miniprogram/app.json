@@ -8,7 +8,8 @@
     "pages/planning/index",
     "pages/trip/index",
     "pages/assistance/index",
-    "pages/family/index"
+    "pages/family/index",
+    "pages/calibration/index"
   ],
   "window": {
     "navigationBarTitleText": "一刻烟火",

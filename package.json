@@ -21,7 +21,8 @@
     "format": "prettier --write src tests scripts miniprogram *.json *.ts .github/workflows/*.yml",
     "format:check": "prettier --check src tests scripts miniprogram *.json *.ts .github/workflows/*.yml",
     "demo:report": "node --import tsx scripts/demo-report.ts",
-    "benchmark:demo": "node --import tsx scripts/benchmark.ts --demo"
+    "benchmark:demo": "node --import tsx scripts/benchmark.ts --demo",
+    "benchmark:walk": "node --import tsx scripts/benchmark-walk-calibration.ts"
   },
   "dependencies": {
     "react": "19.3.0",

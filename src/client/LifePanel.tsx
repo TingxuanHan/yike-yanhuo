@@ -19,6 +19,7 @@ import { OutingsPanel } from "./OutingsPanel.js";
 import { PlanningPanel } from "./PlanningPanel.js";
 import { ShoppingPanel } from "./ShoppingPanel.js";
 import { TripPanel } from "./TripPanel.js";
+import { WalkCalibration } from "./WalkCalibration.js";
 import { planningBook, type PlanningDraft } from "../shared/planning.js";
 
 const KEY = "yike-life-v1";
@@ -58,6 +59,7 @@ export function LifePanel({
   const [showOutings, setShowOutings] = useState(false);
   const [planning, setPlanning] = useState(false);
   const [trip, setTrip] = useState(false);
+  const [calibration, setCalibration] = useState(false);
   const [planningSeed, setPlanningSeed] = useState<{
     draft: PlanningDraft;
     target: "errands" | "shopping" | "trip";
@@ -276,6 +278,19 @@ export function LifePanel({
         )}
       </div>
     );
+  if (calibration)
+    return (
+      <WalkCalibration
+        book={book}
+        save={(next) => {
+          const keepDraft =
+            next.preferences.speedMps === book.preferences.speedMps;
+          save(next);
+          if (keepDraft) setPrefs(prefs);
+        }}
+        back={() => setCalibration(false)}
+      />
+    );
   return (
     <div className="life-panel">
       <div className="life-heading no-print">
@@ -317,6 +332,9 @@ export function LifePanel({
       </div>
       <div className="life-layout no-print" hidden={section === "sync"}>
         <section className="life-section" hidden={section !== "preferences"}>
+          <button className="secondary" onClick={() => setCalibration(true)}>
+            实走记录与步速校准
+          </button>
           <h3>这次想走多远</h3>
           <p className="muted">
             先完成体检或打开已保存结果，再按个人习惯试算。
@@ -970,6 +988,7 @@ export function LifePanel({
               {incoming.book.entrances?.length ?? 0} 张入口卡、
               {incoming.book.shopping?.prices.length ?? 0} 条价格记录、
               {incoming.book.trips?.length ?? 0} 条行后记录、
+              {incoming.book.walks?.length ?? 0} 条实走校准记录、
               {incoming.book.routines?.length ?? 0} 份常用方案，版本{" "}
               {incoming.revision}。选择后仍需手动同步，才会修改服务器。
             </p>
