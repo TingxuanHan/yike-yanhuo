@@ -1,0 +1,845 @@
+{
+  "lockfileVersion": 3,
+  "packages": [
+    {
+      "name": "@esbuild/aix-ppc64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/aix-ppc64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/android-arm",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/android-arm/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/android-arm64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/android-arm64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/android-x64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/android-x64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/darwin-arm64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/darwin-arm64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/darwin-x64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/darwin-x64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/freebsd-arm64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/freebsd-arm64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/freebsd-x64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/freebsd-x64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-arm",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-arm/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-arm64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-arm64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-ia32",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-ia32/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-loong64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-loong64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-mips64el",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-mips64el/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-ppc64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-ppc64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-riscv64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-riscv64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-s390x",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-s390x/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/linux-x64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/linux-x64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/netbsd-arm64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/netbsd-arm64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/netbsd-x64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/netbsd-x64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/openbsd-arm64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/openbsd-arm64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/openbsd-x64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/openbsd-x64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/openharmony-arm64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/openharmony-arm64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/sunos-x64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/sunos-x64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/win32-arm64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/win32-arm64/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/win32-ia32",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/win32-ia32/v/0.28.2"
+    },
+    {
+      "name": "@esbuild/win32-x64",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@esbuild/win32-x64/v/0.28.2"
+    },
+    {
+      "name": "@oxc-project/types",
+      "version": "0.152.0",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/@oxc-project/types/v/0.152.0"
+    },
+    {
+      "name": "@playwright/test",
+      "version": "1.63.0",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/@playwright/test/v/1.63.0"
+    },
+    {
+      "name": "@rolldown/binding-android-arm-eabi",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-android-arm-eabi/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-android-arm64",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-android-arm64/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-darwin-arm64",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-darwin-arm64/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-darwin-x64",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-darwin-x64/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-freebsd-x64",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-freebsd-x64/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-linux-arm-gnueabihf",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-linux-arm-gnueabihf/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-linux-arm64-gnu",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-linux-arm64-gnu/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-linux-arm64-musl",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-linux-arm64-musl/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-linux-ppc64-gnu",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-linux-ppc64-gnu/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-linux-s390x-gnu",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-linux-s390x-gnu/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-linux-x64-gnu",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-linux-x64-gnu/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-linux-x64-musl",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-linux-x64-musl/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-openharmony-arm64",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-openharmony-arm64/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-win32-arm64-msvc",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-win32-arm64-msvc/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/binding-win32-x64-msvc",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@rolldown/binding-win32-x64-msvc/v/1.2.12"
+    },
+    {
+      "name": "@rolldown/pluginutils",
+      "version": "1.0.1",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/@rolldown/pluginutils/v/1.0.1"
+    },
+    {
+      "name": "@types/node",
+      "version": "26.6.4",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/@types/node/v/26.6.4"
+    },
+    {
+      "name": "@types/react",
+      "version": "19.3.0",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/@types/react/v/19.3.0"
+    },
+    {
+      "name": "@types/react-dom",
+      "version": "19.3.0",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/@types/react-dom/v/19.3.0"
+    },
+    {
+      "name": "@typescript/typescript-aix-ppc64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-aix-ppc64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-darwin-arm64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-darwin-arm64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-darwin-x64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-darwin-x64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-freebsd-arm64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-freebsd-arm64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-freebsd-x64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-freebsd-x64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-linux-arm",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-linux-arm/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-linux-arm64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-linux-arm64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-linux-loong64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-linux-loong64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-linux-mips64el",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-linux-mips64el/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-linux-ppc64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-linux-ppc64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-linux-riscv64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-linux-riscv64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-linux-s390x",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-linux-s390x/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-linux-x64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-linux-x64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-netbsd-arm64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-netbsd-arm64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-netbsd-x64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-netbsd-x64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-openbsd-arm64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-openbsd-arm64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-openbsd-x64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-openbsd-x64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-sunos-x64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-sunos-x64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-win32-arm64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-win32-arm64/v/7.0.2"
+    },
+    {
+      "name": "@typescript/typescript-win32-x64",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/@typescript/typescript-win32-x64/v/7.0.2"
+    },
+    {
+      "name": "@vitejs/plugin-react",
+      "version": "6.1.1",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/@vitejs/plugin-react/v/6.1.1"
+    },
+    {
+      "name": "csstype",
+      "version": "3.2.3",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/csstype/v/3.2.3"
+    },
+    {
+      "name": "detect-libc",
+      "version": "2.1.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/detect-libc/v/2.1.2"
+    },
+    {
+      "name": "esbuild",
+      "version": "0.28.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/esbuild/v/0.28.2"
+    },
+    {
+      "name": "fdir",
+      "version": "6.5.0",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/fdir/v/6.5.0"
+    },
+    {
+      "name": "fsevents",
+      "version": "2.3.3",
+      "license": "MIT",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/fsevents/v/2.3.3"
+    },
+    {
+      "name": "lightningcss",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/lightningcss/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-android-arm64",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-android-arm64/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-darwin-arm64",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-darwin-arm64/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-darwin-x64",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-darwin-x64/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-freebsd-x64",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-freebsd-x64/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-linux-arm-gnueabihf",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-linux-arm-gnueabihf/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-linux-arm64-gnu",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-linux-arm64-gnu/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-linux-arm64-musl",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-linux-arm64-musl/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-linux-x64-gnu",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-linux-x64-gnu/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-linux-x64-musl",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-linux-x64-musl/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-win32-arm64-msvc",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-win32-arm64-msvc/v/1.33.0"
+    },
+    {
+      "name": "lightningcss-win32-x64-msvc",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "use": "development",
+      "optional": true,
+      "source": "https://www.npmjs.com/package/lightningcss-win32-x64-msvc/v/1.33.0"
+    },
+    {
+      "name": "nanoid",
+      "version": "3.3.19",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/nanoid/v/3.3.19"
+    },
+    {
+      "name": "picocolors",
+      "version": "1.1.1",
+      "license": "ISC",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/picocolors/v/1.1.1"
+    },
+    {
+      "name": "picomatch",
+      "version": "4.0.7",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/picomatch/v/4.0.7"
+    },
+    {
+      "name": "playwright",
+      "version": "1.63.0",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/playwright/v/1.63.0"
+    },
+    {
+      "name": "playwright-core",
+      "version": "1.63.0",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/playwright-core/v/1.63.0"
+    },
+    {
+      "name": "polygon-clipping",
+      "version": "0.15.7",
+      "license": "MIT",
+      "use": "runtime",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/polygon-clipping/v/0.15.7"
+    },
+    {
+      "name": "postcss",
+      "version": "8.5.28",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/postcss/v/8.5.28"
+    },
+    {
+      "name": "prettier",
+      "version": "3.9.9",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/prettier/v/3.9.9"
+    },
+    {
+      "name": "react",
+      "version": "19.3.0",
+      "license": "MIT",
+      "use": "runtime",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/react/v/19.3.0"
+    },
+    {
+      "name": "react-dom",
+      "version": "19.3.0",
+      "license": "MIT",
+      "use": "runtime",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/react-dom/v/19.3.0"
+    },
+    {
+      "name": "robust-predicates",
+      "version": "3.0.3",
+      "license": "Unlicense",
+      "use": "runtime",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/robust-predicates/v/3.0.3"
+    },
+    {
+      "name": "rolldown",
+      "version": "1.2.12",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/rolldown/v/1.2.12"
+    },
+    {
+      "name": "scheduler",
+      "version": "0.28.0",
+      "license": "MIT",
+      "use": "runtime",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/scheduler/v/0.28.0"
+    },
+    {
+      "name": "source-map-js",
+      "version": "1.2.2",
+      "license": "BSD-3-Clause",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/source-map-js/v/1.2.2"
+    },
+    {
+      "name": "splaytree",
+      "version": "3.2.3",
+      "license": "MIT",
+      "use": "runtime",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/splaytree/v/3.2.3"
+    },
+    {
+      "name": "tinyglobby",
+      "version": "0.2.17",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/tinyglobby/v/0.2.17"
+    },
+    {
+      "name": "tsx",
+      "version": "4.23.15",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/tsx/v/4.23.15"
+    },
+    {
+      "name": "typescript",
+      "version": "7.0.2",
+      "license": "Apache-2.0",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/typescript/v/7.0.2"
+    },
+    {
+      "name": "undici-types",
+      "version": "8.9.0",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/undici-types/v/8.9.0"
+    },
+    {
+      "name": "vite",
+      "version": "8.3.2",
+      "license": "MIT",
+      "use": "development",
+      "optional": false,
+      "source": "https://www.npmjs.com/package/vite/v/8.3.2"
+    }
+  ]
+}
