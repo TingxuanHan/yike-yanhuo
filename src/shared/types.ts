@@ -52,6 +52,7 @@ export interface FacilityEvidence {
   source: string;
   recordId: string;
   checkedAt: string;
+  nextReviewAt?: string;
   status: "confirmed" | "closed" | "uncertain";
   basis: string;
 }

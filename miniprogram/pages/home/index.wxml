@@ -175,6 +175,14 @@
         {{showCoverage?'收起':'查看'}}设施覆盖核查
       </button>
       <view wx:if="{{showCoverage}}" class="coverage-detail">
+        <view wx:if="{{reminders}}" class="review-reminders">
+          <text class="heading">资料该再确认了吗</text>
+          <text>{{reminders.due}}处已到复核日期 · {{reminders.soon}}处7天内需复核</text>
+          <text class="muted">按本机时间 {{reminders.asOf}} 检查。到期不代表停业，也不证明现在仍可用；历史结论保持不变。</text>
+          <view wx:for="{{reminders.items}}" wx:key="facilityId" class="comparison-place"><text>{{item.name}} · {{item.label}}</text><text class="muted">{{item.reviewLabel}} · 复核日期 {{item.dueLabel}}</text><text class="muted">{{item.entry.source}} / {{item.entry.recordId}} · 上次核查 {{item.checkedLabel}}</text></view>
+          <text class="muted">{{reminders.unscheduled}}处有记录但未设日期，{{reminders.unreviewed}}处尚未核查。可在Web报告更新依据，再打开更新后的报告。</text>
+          <button class="quiet" bindtap="refreshReminders">刷新提醒</button>
+        </view>
         <text class="muted"
           >{{minutes}}分钟可达采样点 ·
           周边{{result.parameters.gapDistanceMeters}}米直线距离</text

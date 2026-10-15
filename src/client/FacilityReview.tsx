@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { AnalysisResult, FacilityEvidence } from "../shared/types.js";
 import { REVIEW_LABELS, reviewState } from "../shared/facility-review.js";
 import {
@@ -9,6 +9,7 @@ import {
   type EvidenceFile,
 } from "../core/poi-evidence.js";
 import { downloadJson } from "./api.js";
+import { ReviewReminders } from "./ReviewReminders.js";
 
 export function FacilityReview({
   result,
@@ -24,6 +25,9 @@ export function FacilityReview({
   const [source, setSource] = useState("");
   const [recordId, setRecordId] = useState("");
   const [checkedAt, setCheckedAt] = useState("");
+  const [reviewDays, setReviewDays] = useState("30");
+  const editor = useRef<HTMLDetailsElement>(null);
+  const sourceInput = useRef<HTMLInputElement>(null);
   const [basis, setBasis] = useState("");
   const [pending, setPending] = useState<EvidenceFile | null>(null);
   const [undo, setUndo] = useState<AnalysisResult | null>(null);
@@ -57,7 +61,25 @@ export function FacilityReview({
       <p className="caption">
         补充社区台账、公告或现场观察的来源与依据。停用、待核查或冲突的设施暂不计入数量和覆盖；未核查的地图条目仍按原检索结果展示。核查不重新测时。
       </p>
-      <details>
+      <ReviewReminders
+        facilities={result.facilities}
+        onReview={(id, entry) => {
+          setFacilityId(id);
+          setSource(entry.source);
+          setRecordId(entry.recordId);
+          setStatus("uncertain");
+          setCheckedAt("");
+          setBasis("");
+          setPending(null);
+          setError("");
+          setMessage(
+            "已带入来源和编号，请填写本次实际核查的时间、结论与依据。",
+          );
+          if (editor.current) editor.current.open = true;
+          requestAnimationFrame(() => sourceInput.current?.focus());
+        }}
+      />
+      <details ref={editor}>
         <summary>记录或导入核查</summary>
         <fieldset disabled={disabled} className="review-fields">
           <legend className="sr-only">核查内容</legend>
@@ -78,6 +100,14 @@ export function FacilityReview({
                         recordId,
                         status,
                         checkedAt: new Date(checkedAt).toISOString(),
+                        ...(reviewDays === "none"
+                          ? {}
+                          : {
+                              nextReviewAt: new Date(
+                                Date.parse(checkedAt) +
+                                  Number(reviewDays) * 86_400_000,
+                              ).toISOString(),
+                            }),
                         basis,
                       },
                     },
@@ -121,6 +151,7 @@ export function FacilityReview({
                 <input
                   required
                   maxLength={120}
+                  ref={sourceInput}
                   value={source}
                   onChange={(e) => setSource(e.target.value)}
                   placeholder="如：社区设施台账"
@@ -144,6 +175,18 @@ export function FacilityReview({
                   value={checkedAt}
                   onChange={(e) => setCheckedAt(e.target.value)}
                 />
+              </label>
+              <label>
+                下次复核提醒
+                <select
+                  value={reviewDays}
+                  onChange={(e) => setReviewDays(e.target.value)}
+                >
+                  <option value="7">本次核查后7天</option>
+                  <option value="30">本次核查后30天</option>
+                  <option value="90">本次核查后90天</option>
+                  <option value="none">暂不设置</option>
+                </select>
               </label>
               <label className="review-basis">
                 核查依据

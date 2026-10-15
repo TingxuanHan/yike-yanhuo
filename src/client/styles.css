@@ -2240,3 +2240,47 @@ dd {
     font-size: 30px;
   }
 }
+.review-reminders {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid #dce7e1;
+  border-radius: 12px;
+  background: #f4f8f7;
+}
+.review-reminders h3 {
+  margin: 0;
+}
+.review-reminders ul {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.review-reminders li {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid #dce7e1;
+}
+.review-reminders li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.review-reminders li p {
+  margin: 8px 0;
+}
+.review-deadline {
+  display: inline-block;
+  font-size: 12px;
+  padding: 3px 8px;
+  margin-left: 8px;
+  background: #e5efea;
+  color: #146c5d;
+  border-radius: 5px;
+}
+.review-deadline.due {
+  background: #fff0dc;
+  color: #8c4b14;
+}

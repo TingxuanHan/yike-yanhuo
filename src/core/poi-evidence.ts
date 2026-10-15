@@ -1,6 +1,7 @@
 import { findGaps } from "./facilities.js";
 import { cleanEvidence, usableFacility } from "../shared/facility-review.js";
 import type { AnalysisResult, FacilityEvidence } from "../shared/types.js";
+import { utf8Bytes } from "../shared/life.js";
 
 export const MAX_EVIDENCE_BYTES = 500_000;
 export interface EvidenceEntry {
@@ -17,7 +18,7 @@ export function parseEvidenceFile(
   raw: string,
   result: AnalysisResult,
 ): EvidenceFile {
-  if (new TextEncoder().encode(raw).length > MAX_EVIDENCE_BYTES)
+  if (utf8Bytes(raw) > MAX_EVIDENCE_BYTES)
     throw new Error("核查文件超过500KB。");
   let value: any;
   try {

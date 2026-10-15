@@ -17,6 +17,7 @@ import {
 import type { PersonalPlace, PlacePosition } from "../shared/life.js";
 export { parseResultFile } from "../shared/result-file.js";
 export { shanghaiStudy } from "../presentation/case-study.js";
+export { reviewReminders } from "../shared/facility-review.js";
 export {
   compareJourneys,
   comparisonDefaults,

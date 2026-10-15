@@ -7,6 +7,7 @@ import {
 import { cleanEvidence } from "./facility-review.js";
 import { reconcileEvidence } from "../core/poi-evidence.js";
 import { cleanJourney, journeyBands } from "./journey.js";
+import { utf8Bytes } from "./life.js";
 
 export const MAX_RESULT_BYTES = 2_000_000;
 const categories = new Set(CATEGORIES.map((c) => c.id));
@@ -42,7 +43,7 @@ const fail = (): never => {
 
 // Validate every field used for rendering, cap geometry, and discard foreign fields.
 export function parseResultFile(raw: string): AnalysisResult {
-  if (new TextEncoder().encode(raw).length > MAX_RESULT_BYTES)
+  if (utf8Bytes(raw) > MAX_RESULT_BYTES)
     throw new Error("结果文件超过2MB，请选择单份体检结果。");
   let r: any;
   try {

@@ -55,6 +55,7 @@ Page({
     },
     comparison: null,
     comparisonError: "",
+    reminders: null,
     coverageCategory: "school",
     coverageCategories: experience.coverageCategories,
     coverageCategoryIndex: 2,
@@ -134,6 +135,7 @@ Page({
     this.drawMap();
   },
   onShow() {
+    this.refreshReminders();
     try {
       this.setData({
         familyPhone: platform.get("yike-help-phone") || "",
@@ -450,6 +452,12 @@ Page({
   comparisonToggle() {
     this.setData({ showComparison: !this.data.showComparison });
     this.drawComparison();
+  },
+  refreshReminders() {
+    if (this.data.result)
+      this.setData({
+        reminders: experience.reviewReminders(this.data.result.facilities),
+      });
   },
   comparisonField(e) {
     const key = e.currentTarget.dataset.key;
@@ -1023,6 +1031,7 @@ Page({
       () => {
         this.drawMap();
         this.updateCoverage();
+        this.refreshReminders();
       },
     );
     if (cache && !this.data.reviewMode) {

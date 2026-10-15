@@ -74,3 +74,12 @@
 .comparison-place text {
   display: block;
 }
+.review-reminders {
+  padding: 24rpx 0;
+  border-bottom: 1px solid #dbe6e0;
+  margin-bottom: 24rpx;
+}
+.review-reminders > text {
+  display: block;
+  margin-bottom: 16rpx;
+}

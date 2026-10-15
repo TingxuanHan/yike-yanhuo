@@ -211,6 +211,15 @@ export function Report({
                                 · {e.recordId}
                               </span>
                               <p>{e.basis}</p>
+                              {e.nextReviewAt && (
+                                <p className="caption">
+                                  计划复核：
+                                  {new Date(e.nextReviewAt).toLocaleString(
+                                    "zh-CN",
+                                    { hour12: false },
+                                  )}
+                                </p>
+                              )}
                             </li>
                           ))}
                         </ul>
@@ -243,6 +252,14 @@ export function Report({
                       · {REVIEW_LABELS[e.status]}
                       <br />
                       {e.basis}
+                      {e.nextReviewAt && (
+                        <p>
+                          计划复核：
+                          {new Date(e.nextReviewAt).toLocaleString("zh-CN", {
+                            hour12: false,
+                          })}
+                        </p>
+                      )}
                     </li>
                   ))}
                 </ul>
