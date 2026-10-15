@@ -31,12 +31,14 @@ DATE = "2026.10.16"
 
 
 class Book:
-    def __init__(self, output):
+    def __init__(self, output, total_pages=14, md_output="docs/submission-brief.md"):
         self.c = canvas.Canvas(str(output), pagesize=A4)
         self.c.setTitle("一刻烟火｜作品介绍与技术验证")
         self.c.setAuthor("TingxuanHan")
         self.c.setSubject("2026上海开源软件应用创新大赛：百度15分钟生活圈")
         self.n = 0
+        self.total_pages = total_pages
+        self.md_output = md_output
         self.y = 0
         self.md = ["# 一刻烟火：作品介绍与技术验证", "", f"提交版 {DATE}；功能基线 {BASE}；固定版本 {TAG}。", ""]
 
@@ -58,7 +60,7 @@ class Book:
         if eyebrow:
             self.txt(eyebrow, M, 67, 9.5, True, ORANGE)
         self.txt(title, M, 88, 24, True)
-        self.txt(f"{self.n:02d} / 14", W - 87, H - 29, 8, color=MUTED)
+        self.txt(f"{self.n:02d} / {self.total_pages:02d}", W - 87, H - 29, 8, color=MUTED)
         self.txt("一刻烟火 · 开源AI工具赛道 · 百度地图企业赛题", M, H - 29, 8, color=MUTED)
         self.y = 131
         self.md.extend([f"## {self.n:02d} {title}", ""])
@@ -159,10 +161,10 @@ class Book:
         self.md.append("")
 
     def save(self):
-        if self.n != 14:
-            raise ValueError("Expected fourteen pages")
+        if self.n != self.total_pages:
+            raise ValueError(f"Expected {self.total_pages} pages")
         self.c.save()
-        (ROOT / "docs/submission-brief.md").write_text("\n".join(self.md), encoding="utf8")
+        (ROOT / self.md_output).write_text("\n".join(self.md), encoding="utf8")
 
 
 def build(output):

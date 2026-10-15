@@ -51,6 +51,7 @@ npm run dev
 - “我的日常”：5—30分钟个人试算、步速、当地出发时间、可选峰谷等灯假设，复用已有路线、不新增路线调用。
 - 私人地点簿、入口地标、到访日期、大字指引、Web朗读与打印；不会把个人小店自动算成已核验公共设施。
 - 入口照片、营业时间、收藏搜索和拒绝定位后地址草稿；100米实走步速换算。
+- [实走记录与前瞻校准](docs/walk-calibration.md)：先固定预计用时，后补记总用时与停留；至少3次有效记录再建议步速，后续记录检验建议，用户确认后应用。Web/微信共用，包含排除恢复、私人同步、备份与重积累。
 - 家人只读地点卡：七天有效、可提前撤销，接收者无需配对，不开放整个地点簿。
 - Web与微信开发版共用私人空间、出行偏好及共享报告；一次性设备配对、SQLite持久化、版本冲突保护。
 - 出门办事：多任务往返规划、照片熟路卡、分段歇脚路线和假设补点对比。示例可离线运行，私人熟路及休息点随地点簿同步。
@@ -70,6 +71,7 @@ npm run dev
 “一句话安排”支持基础AI、自用API和离线手工条件确认；已接入两端办事、购物及步行目标表单。模型接口由后端统一鉴权并保管密钥；开发环境已完成Qwen3-8B真实接口联调，新部署仍需独立配置服务。本机免费模式每次调用前核对指定模型零元价格，不能据此保证其他模型或未来价格。配置步骤、免费测试渠道与数据边界见[规划助手接入](docs/planning-assistant.md)。
 
 - [提交版作品介绍 PDF · 14页](materials/yike-yanhuo-submission.pdf)
+- [实走校准补充说明 PDF · 2页](materials/yike-yanhuo-calibration-addendum.pdf) · [固定构造对照](docs/experiments/walk-calibration-simulation.md)（功能基线541d9cf的增强；v1视频保持原版本内容）
 - [带中文配音与字幕的演示视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-submission-v1/yike-yanhuo-submission.mp4)
 - [固定版本与完整交付包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-submission-v1)
 - [评审运行与材料索引](docs/submission-guide.md) · [可编辑文稿](docs/submission-brief.md) · [视频逐字稿](docs/submission-transcript.md)

@@ -2,6 +2,8 @@
 
 作品：一刻烟火：15分钟生活圈智能体检与规划助手。提交版日期：2026-10-16。
 
+开发增强补充：功能基线`541d9cf`加入[实走校准](walk-calibration.md)与[2页补充PDF](../materials/yike-yanhuo-calibration-addendum.pdf)。[四组构造对照](experiments/walk-calibration-simulation.md)保留建议改善和失效情况；193项业务测试、36项浏览器流程通过。下方v1固定源码、14页文档与视频仍对应原版本，不包含新功能；需要展示新功能时应使用main的新提交与补充说明，不能把原视频说成已演示该功能。补充PDF可用`scripts/build-calibration-addendum.py`重建。
+
 ## 三项提交物
 
 | 材料 | 固定入口 | 说明 |
