@@ -107,6 +107,28 @@ Page({
       ),
       guideDemo:
         s.guide.legs[s.guide.selected]?.from.position.system === "demo",
+      noticeContext: s.guide.legs[s.guide.selected]
+        ? {
+            target: s.guide.legs[s.guide.selected].to,
+            ...(s.guide.guide?.path ? { path: s.guide.guide.path } : {}),
+          }
+        : null,
+      noticeChoices: s.guide.legs[s.guide.selected]
+        ? [
+            { ...s.guide.legs[s.guide.selected].to, label: "目的地附近" },
+            ...(s.guide.guide?.steps || []).flatMap((step, i) =>
+              step.position
+                ? [
+                    {
+                      name: `路段${i + 1}附近`,
+                      position: step.position,
+                      label: `第${i + 1}段起点：${step.instruction}`,
+                    },
+                  ]
+                : [],
+            ),
+          ]
+        : [],
       guideMeters: Math.round(s.guide.guide?.meters || 0),
       guideMinutes: Math.round((s.guide.guide?.seconds || 0) / 60),
       packGuides:

@@ -411,6 +411,40 @@ export function createApp(
         const body = await readJson(req);
         return session(req, res, life.redeem(body.code), body.client);
       }
+      if (url.pathname.startsWith("/api/neighborhood/")) {
+        const owner = life.authenticate(tokenOf(req));
+        rate("neighbor-read:" + owner, 120);
+        try {
+          if (method === "POST" && url.pathname === "/api/neighborhood/query")
+            return json(
+              res,
+              200,
+              life.neighborhood.query(owner, await readJson(req, 160000)),
+            );
+          const event = url.pathname.match(
+            /^\/api\/neighborhood\/events(?:\/([a-f0-9-]{36}))?$/,
+          );
+          if (method === "POST" && event) {
+            rate("neighbor-write:" + owner, 12);
+            return json(
+              res,
+              200,
+              life.neighborhood.write(
+                owner,
+                event[1] ?? null,
+                await readJson(req, 6000),
+              ),
+            );
+          }
+          throw new ServiceError("提醒操作不存在。", 404);
+        } catch (e) {
+          if (e instanceof ServiceError) throw e;
+          throw new ServiceError(
+            e instanceof Error ? e.message : "提醒内容无效。",
+            400,
+          );
+        }
+      }
       if (url.pathname.startsWith("/api/ai/")) {
         const token = tokenOf(req),
           space = life.authenticate(token);

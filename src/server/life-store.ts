@@ -13,12 +13,14 @@ import { ServiceError } from "./baidu.js";
 import { parseResultFile } from "../shared/result-file.js";
 import { AssistanceStore } from "./assistance-store.js";
 import { FamilyStore } from "./family-store.js";
+import { NeighborhoodStore } from "./neighborhood-store.js";
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 const DAY = 86400_000;
 export class LifeStore {
   private db: DatabaseSync;
   readonly assistance: AssistanceStore;
   readonly family: FamilyStore;
+  readonly neighborhood: NeighborhoodStore;
   constructor(
     path = ":memory:",
     private now = () => Date.now(),
@@ -33,6 +35,7 @@ export class LifeStore {
       CREATE TABLE IF NOT EXISTS cards(id TEXT PRIMARY KEY, space TEXT NOT NULL, token_hash TEXT UNIQUE NOT NULL, body TEXT NOT NULL, created TEXT NOT NULL, expires INTEGER NOT NULL);`);
     this.assistance = new AssistanceStore(this.db, this.now);
     this.family = new FamilyStore(this.db, this.now);
+    this.neighborhood = new NeighborhoodStore(this.db, this.now);
   }
   close() {
     this.db.close();

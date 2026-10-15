@@ -1,4 +1,5 @@
 import type { WalkingGuideSession, GuideView } from "../mini/walking-guide.js";
+import { NeighborhoodPanel } from "./NeighborhoodPanel.js";
 export function WalkingGuidePanel({
   session,
   s,
@@ -18,6 +19,25 @@ export function WalkingGuidePanel({
       aria-busy={s.busy}
     >
       <h3>这一段怎么走</h3>
+      {leg && (
+        <NeighborhoodPanel
+          query={{ target: leg.to, ...(g?.path ? { path: g.path } : {}) }}
+          choices={[
+            { ...leg.to, label: "目的地附近" },
+            ...(g?.steps ?? []).flatMap((step, i) =>
+              step.position
+                ? [
+                    {
+                      name: `路段${i + 1}附近`,
+                      position: step.position,
+                      label: `第${i + 1}段起点：${step.instruction}`,
+                    },
+                  ]
+                : [],
+            ),
+          ]}
+        />
+      )}
       <p>先核对自己所在位置；这里从选定起点说明走法，不读取实时定位。</p>
       <label>
         选择路段

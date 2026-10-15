@@ -183,13 +183,17 @@ export function demoWalkingGuide(raw: WalkingLeg, now: number): WalkingGuide {
   if (!previous.has(end)) throw new Error("此模拟路段没有连通道路。");
   const path = [end];
   while (path[0] !== start) path.unshift(previous.get(path[0])!);
-  const runs: { dir: string; meters: number }[] = [];
+  const runs: {
+    dir: string;
+    meters: number;
+    position: { system: "demo"; x: number; y: number };
+  }[] = [];
   for (let i = 1; i < path.length; i++) {
     const [x, y] = path[i - 1].split(",").map(Number),
       [u, v] = path[i].split(",").map(Number);
     const dir = u > x ? "东" : u < x ? "西" : v > y ? "北" : "南";
     if (runs.at(-1)?.dir === dir) runs[runs.length - 1].meters += 200;
-    else runs.push({ dir, meters: 200 });
+    else runs.push({ dir, meters: 200, position: { system: "demo", x, y } });
   }
   const meters = (path.length - 1) * 200;
   return cleanWalkingGuide({
@@ -199,9 +203,14 @@ export function demoWalkingGuide(raw: WalkingLeg, now: number): WalkingGuide {
     obtainedAt: now,
     meters,
     seconds: meters / 1.2,
+    path: path.map((p) => {
+      const [x, y] = p.split(",").map(Number);
+      return { system: "demo", x, y };
+    }),
     steps: runs.map((r) => ({
       instruction: `沿模拟道路向${r.dir}走${r.meters}米。`,
       meters: r.meters,
+      position: r.position,
     })),
   });
 }

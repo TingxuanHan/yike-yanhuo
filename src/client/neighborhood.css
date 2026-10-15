@@ -1,0 +1,123 @@
+.neighbor-panel {
+  margin-top: 16px;
+  min-width: 0;
+  text-align: left;
+}
+.neighbor-toggle {
+  width: 100%;
+  text-align: left;
+}
+.neighbor-content {
+  margin-top: 12px;
+  padding: 16px;
+  background: #f4f8f7;
+  border: 1px solid #cdded8;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+.neighbor-title {
+  font-weight: 700;
+  color: #243f48;
+}
+.neighbor-warning {
+  color: #86420d;
+  background: #fff0d9;
+  padding: 10px;
+  border-radius: 6px;
+}
+.neighbor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.neighbor-panel button {
+  min-height: 44px;
+  white-space: normal;
+  color: #146c5d;
+  background: #fff;
+  border: 1px solid #b8cfca;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+}
+.neighbor-event {
+  background: #fff;
+  padding: 14px;
+  border-left: 4px solid #64777c;
+  margin: 14px 0;
+}
+.neighbor-event h4 {
+  margin: 8px 0;
+  font-size: 1.05em;
+}
+.neighbor-event p {
+  margin: 8px 0;
+}
+.neighbor-supported {
+  border-color: #b36523;
+}
+.neighbor-conflict {
+  border-color: #a43e51;
+}
+.neighbor-clear {
+  border-color: #146c5d;
+}
+.neighbor-label {
+  font-weight: 700;
+}
+.neighbor-editor {
+  border-top: 1px solid #cdded8;
+  margin-top: 14px;
+  padding-top: 12px;
+}
+.neighbor-editor label {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+.neighbor-editor input,
+.neighbor-editor select,
+.neighbor-editor textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  font: inherit;
+}
+.neighbor-editor textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+.neighbor-panel label.neighbor-check {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0;
+  line-height: 1.65;
+}
+.neighbor-check input {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  flex: 0 0 22px;
+  margin-top: 3px;
+}
+.neighbor-panel details summary {
+  min-height: 44px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.neighbor-panel :focus-visible {
+  outline: 3px solid #c46136;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .neighbor-content {
+    padding: 12px;
+  }
+  .neighbor-actions > button {
+    flex: 1 1 140px;
+  }
+}

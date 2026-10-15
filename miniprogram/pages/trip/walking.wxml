@@ -1,5 +1,6 @@
 <view wx:if="{{guide.open}}" id="walking-guide" class="card">
   <text class="h3">这一段怎么走</text><text class="note">先核对自己所在位置；这里从选定起点说明走法，不读取实时定位。</text>
+  <neighborhood-notices context="{{noticeContext}}" choices="{{noticeChoices}}" large="{{careMode}}"/>
   <picker range="{{guideLegLabels}}" value="{{guide.selected}}" bindchange="guideSelect" disabled="{{guide.busy}}"><view class="guide-picker">路段：{{guideLegLabels[guide.selected]}} ▾</view></picker>
   <text wx:if="{{guideDemo}}" class="error">模拟道路步骤 · 不可据此出行</text>
   <text wx:if="{{guide.error}}" class="error">{{guide.error}}</text><text wx:if="{{guide.status}}" class="status">{{guide.status}}</text>

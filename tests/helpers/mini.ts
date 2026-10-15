@@ -33,8 +33,13 @@ export function miniRuntime(
         Page: (p: any) => {
           page = p;
         },
+        Component: (p: any) => {
+          page = p;
+        },
         setTimeout,
         clearTimeout,
+        setInterval,
+        clearInterval,
       },
     );
     wrapper(
@@ -48,6 +53,20 @@ export function miniRuntime(
   return {
     storage,
     load: (name: string) => load(resolve(root, name)),
+    component(name: string, properties: Record<string, unknown>) {
+      load(resolve(root, `components/${name}/index.js`));
+      const component = {
+        ...page,
+        ...page.methods,
+        data: structuredClone(page.data),
+        properties,
+        setData(patch: Record<string, unknown>) {
+          Object.assign(this.data, patch);
+        },
+      };
+      component.lifetimes.attached.call(component);
+      return component;
+    },
     page(name = "home") {
       load(resolve(root, `pages/${name}/index.js`));
       page.setData = function (

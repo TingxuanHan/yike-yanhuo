@@ -618,6 +618,9 @@ Page({
     this.setData(
       {
         selectedFacility: place,
+        noticeContext: place
+          ? { target: experience.facilityPlace(this.data.result, place.id) }
+          : null,
         mapMarkers: (this.data.mapMarkers || []).map((marker) => ({
           ...marker,
           callout: {

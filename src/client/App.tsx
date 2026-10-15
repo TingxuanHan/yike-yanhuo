@@ -32,6 +32,8 @@ import { JourneyComparison } from "./JourneyComparison.js";
 import { ReviewReminders } from "./ReviewReminders.js";
 import { walkingTimeBands } from "../core/time-bands.js";
 import { SIMPLE_KEY } from "../shared/family.js";
+import { NeighborhoodPanel } from "./NeighborhoodPanel.js";
+import { facilityPlace } from "../mini/experience.js";
 
 export function App() {
   const [guided, setGuided] = useState(
@@ -978,6 +980,11 @@ export function App() {
                   >
                     记到私人地点簿 / 生成指引
                   </button>
+                  {result && (
+                    <NeighborhoodPanel
+                      query={{ target: facilityPlace(result, selected.id) }}
+                    />
+                  )}
                 </div>
               )}
               {result && (

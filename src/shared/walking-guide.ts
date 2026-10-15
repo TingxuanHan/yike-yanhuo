@@ -1,4 +1,5 @@
 import { cleanNode, type OutingNode } from "./outings.js";
+import type { PlacePosition } from "./life.js";
 
 export interface WalkingLeg {
   from: OutingNode;
@@ -10,7 +11,8 @@ export interface WalkingGuide extends WalkingLeg {
   obtainedAt: number;
   meters: number;
   seconds: number;
-  steps: { instruction: string; meters: number }[];
+  steps: { instruction: string; meters: number; position?: PlacePosition }[];
+  path?: PlacePosition[];
 }
 export const WALKING_GUIDES_KEY = "yike-walking-guides";
 export const GUIDE_DAY = 24 * 60 * 60 * 1000;
@@ -49,6 +51,16 @@ export function cleanWalkingGuide(raw: unknown): WalkingGuide {
     g.steps.length > 80
   )
     throw new Error("未获得完整可用的步行步骤，原有行程保留。");
+  const position = (p: unknown) =>
+    cleanNode({ id: "path", name: "路线点", position: p }).position;
+  const validSystem = (p: PlacePosition) =>
+    (p.system === "demo") === (g.source === "demo");
+  const path = g.path?.map(position);
+  if (
+    path &&
+    (path.length < 2 || path.length > 2000 || path.some((p) => !validSystem(p)))
+  )
+    throw new Error("步行路线坐标不完整。");
   return {
     ...leg,
     version: 1,
@@ -56,6 +68,7 @@ export function cleanWalkingGuide(raw: unknown): WalkingGuide {
     obtainedAt: g.obtainedAt,
     meters: g.meters,
     seconds: g.seconds,
+    ...(path ? { path } : {}),
     steps: g.steps.map((s) => {
       if (
         !s ||
@@ -68,7 +81,13 @@ export function cleanWalkingGuide(raw: unknown): WalkingGuide {
         s.meters > 30000
       )
         throw new Error("步行步骤内容不完整，请稍后重新获取。");
-      return { instruction: s.instruction.trim(), meters: s.meters };
+      const p = s.position === undefined ? undefined : position(s.position);
+      if (p && !validSystem(p)) throw new Error("步行路线坐标与场景不一致。");
+      return {
+        instruction: s.instruction.trim(),
+        meters: s.meters,
+        ...(p ? { position: p } : {}),
+      };
     }),
   };
 }

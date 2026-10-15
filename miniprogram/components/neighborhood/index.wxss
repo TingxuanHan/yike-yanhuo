@@ -1,0 +1,117 @@
+.neighbor {
+  margin-top: 24rpx;
+  text-align: left;
+}
+.neighbor-content {
+  padding: 24rpx;
+  margin-top: 16rpx;
+  background: #f4f8f7;
+  border: 1rpx solid #cdded8;
+  border-radius: 16rpx;
+}
+.neighbor-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  margin: 12rpx 0;
+  color: #243f48;
+}
+.neighbor-note {
+  display: block;
+  color: #526b70;
+  font-size: 28rpx;
+  line-height: 1.6;
+  margin: 14rpx 0;
+  word-break: break-all;
+}
+.neighbor-warning,
+.neighbor-error {
+  display: block;
+  color: #86420d;
+  padding: 16rpx;
+  margin: 16rpx 0;
+  background: #fff0d9;
+  line-height: 1.6;
+}
+.neighbor-event {
+  background: #fff;
+  border-left: 6rpx solid #64777c;
+  padding: 20rpx;
+  margin: 24rpx 0;
+}
+.neighbor-supported {
+  border-color: #b36523;
+}
+.neighbor-conflict {
+  border-color: #a43e51;
+}
+.neighbor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin: 20rpx 0;
+}
+.neighbor button {
+  min-height: 88rpx;
+  white-space: normal;
+  font-size: 30rpx;
+  line-height: 1.5;
+  padding: 18rpx;
+}
+.neighbor-actions button {
+  flex: 1 1 220rpx;
+  margin: 0;
+}
+.neighbor-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin: 20rpx 0;
+  line-height: 1.6;
+}
+.neighbor-check text {
+  flex: 1;
+  min-width: 0;
+}
+.neighbor-editor {
+  border-top: 1rpx solid #cdded8;
+  padding-top: 20rpx;
+  margin-top: 20rpx;
+}
+.neighbor-editor label {
+  display: block;
+  margin: 20rpx 0;
+}
+.neighbor-editor label.neighbor-check {
+  display: flex;
+}
+.neighbor-editor input,
+.neighbor-editor textarea,
+.neighbor-picker {
+  box-sizing: border-box;
+  width: 100%;
+  background: #fff;
+  border: 1rpx solid #b8cfca;
+  border-radius: 10rpx;
+  padding: 18rpx;
+  min-height: 88rpx;
+  font-size: 30rpx;
+  line-height: 1.6;
+}
+.neighbor-editor textarea {
+  min-height: 176rpx;
+}
+.neighbor-large .neighbor-note,
+.neighbor-large .neighbor-check {
+  font-size: 34rpx;
+}
+.neighbor-large .neighbor-title {
+  font-size: 38rpx;
+}
+.neighbor-large button,
+.neighbor-large input,
+.neighbor-large textarea,
+.neighbor-large .neighbor-picker {
+  font-size: 36rpx;
+  min-height: 104rpx;
+}

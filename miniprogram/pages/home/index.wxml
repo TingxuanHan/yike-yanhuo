@@ -301,7 +301,7 @@
         ><button class="secondary" bindtap="directions" disabled="{{busy}}">
           打开地图
         </button></view
-      ></view
+      ><neighborhood-notices context="{{noticeContext}}" large="{{careMode}}"/></view
     >
     <view class="section"
       ><view class="section-top"

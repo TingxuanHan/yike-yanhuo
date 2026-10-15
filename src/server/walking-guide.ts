@@ -68,11 +68,40 @@ export async function readWalkingGuide(
       routes?: {
         distance: number;
         duration: number;
-        steps?: { instruction: string; distance: number }[];
+        steps?: {
+          instruction: string;
+          distance: number;
+          path?: string;
+          start_location?: { lng: number; lat: number };
+        }[];
       }[];
     };
     const route = result?.routes?.[0];
     if (!route || !Array.isArray(route.steps)) throw new Error();
+    const path = route.steps.flatMap((s) =>
+      typeof s.path === "string"
+        ? s.path
+            .split(";")
+            .filter(Boolean)
+            .map((value) => {
+              const [lng, lat] = value.split(",").map(Number);
+              return { system: "gcj02", lng, lat };
+            })
+        : [],
+    );
+    // Older responses without geometry remain readable. Never invent a straight-line route.
+    const usable =
+      path.length >= 2 &&
+      path.length <= 2000 &&
+      path.every(
+        (p) =>
+          Number.isFinite(p.lng) &&
+          Number.isFinite(p.lat) &&
+          p.lng >= 73 &&
+          p.lng <= 136 &&
+          p.lat >= 3 &&
+          p.lat <= 54,
+      );
     return cleanWalkingGuide({
       ...leg,
       version: 1,
@@ -80,9 +109,15 @@ export async function readWalkingGuide(
       obtainedAt: Date.now(),
       meters: route.distance,
       seconds: route.duration,
+      ...(usable ? { path } : {}),
       steps: route.steps.map((s) => ({
         meters: s.distance,
         instruction: plainInstruction(s.instruction),
+        ...(s.start_location &&
+        Number.isFinite(s.start_location.lng) &&
+        Number.isFinite(s.start_location.lat)
+          ? { position: { system: "gcj02", ...s.start_location } }
+          : {}),
       })),
     });
   } catch {

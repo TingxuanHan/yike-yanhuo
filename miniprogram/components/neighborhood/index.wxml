@@ -1,0 +1,38 @@
+<view wx:if="{{ready}}" class="neighbor {{large ? 'neighbor-large' : ''}}">
+  <button bindtap="toggle">邻里提醒 · {{open ? '收起' : '查看或补充'}}</button>
+  <view wx:if="{{open}}" class="neighbor-content">
+    <text class="neighbor-title">{{targetLabel}}{{hasPath ? '及沿途' : '附近'}}</text>
+    <text wx:if="{{demo}}" class="neighbor-warning">模拟社区提醒 · 不代表真实地点</text>
+    <text class="neighbor-note">{{hasPath ? '按已保存路线附近的位置匹配，请核对路口和道路两侧。' : '仅查看地点附近100米；缺少路线坐标时不判断途中是否受影响。'}}不会自动改动行程。</text>
+    <view class="neighbor-actions"><button bindtap="refresh" disabled="{{busy}}">{{busy ? '正在处理…' : '刷新提醒'}}</button><button bindtap="begin" disabled="{{busy}}">报告遇到的情况</button></view>
+    <checkbox-group bindchange="filter"><label class="neighbor-check"><checkbox value="steps" checked="{{stepsOnly}}" disabled="{{busy}}"/><text>只看台阶或门槛</text></label></checkbox-group>
+    <text wx:if="{{error}}" class="neighbor-error">{{error}}</text><text wx:if="{{error}}" class="neighbor-note">可在“我的”中连接设备；草稿可先存本机。其他人需连接同一个服务。</text>
+    <text wx:if="{{status}}" class="neighbor-note">{{status}}</text><text wx:if="{{asOf}}" class="neighbor-note">上次读取：{{asOf}}</text>
+    <text wx:if="{{stale &amp;&amp; feed}}" class="neighbor-warning">上次记录已过刷新时间或连接中断，请刷新后确认现状。</text>
+    <text wx:if="{{feed &amp;&amp; !activeCount}}" class="neighbor-note">没有收到仍需关注的问题报告；不代表门店一定营业或道路畅通。</text>
+    <text wx:if="{{feed.truncated}}" class="neighbor-warning">仅显示前50条相关记录，请缩小查看范围。</text>
+    <view wx:for="{{visible}}" wx:key="id" class="neighbor-event neighbor-{{item.state}}">
+      <text class="neighbor-title">{{stale ? '历史快照 · ' : ''}}{{item.label}}</text><text class="neighbor-title">{{item.target.name}} · {{item.kindLabel}}</text>
+      <text class="neighbor-note">{{item.relation}}</text><text class="neighbor-note">最近观察：{{item.observedLabel}}</text><text class="neighbor-note">{{item.reason}}</text>
+      <text wx:for="{{item.notesLabel}}" wx:for-item="note" wx:key="index" class="neighbor-note">{{note}}</text>
+      <view class="neighbor-actions"><button data-id="{{item.id}}" data-state="present" bindtap="begin" disabled="{{busy || stale}}">我看到仍有问题</button><button data-id="{{item.id}}" data-state="clear" bindtap="begin" disabled="{{busy || stale}}">我看到已经恢复</button><button data-id="{{item.id}}" data-state="unsure" bindtap="begin" disabled="{{busy || stale}}">我不能确定</button><button wx:if="{{item.mine &amp;&amp; !item.mine.withdrawn}}" data-id="{{item.id}}" bindtap="withdraw" disabled="{{busy}}">撤回我的反馈</button></view>
+    </view>
+    <button wx:if="{{oldCount}}" bindtap="historyToggle">{{history ? '收起较早记录' : '查看恢复、过期或撤回记录（' + oldCount + '）'}}</button>
+    <button wx:if="{{draft &amp;&amp; !editor}}" bindtap="restore">继续本机草稿</button>
+    <view wx:if="{{editor}}" class="neighbor-editor">
+      <text class="neighbor-title">{{editing ? '补充这条提醒' : '报告遇到的情况'}}</text>
+      <block wx:if="{{!editing}}"><text class="neighbor-note">报告位置</text><picker range="{{choiceLabels}}" value="{{choice}}" bindchange="choiceChange" disabled="{{busy}}"><view class="neighbor-picker">{{choiceLabels[choice]}} ▾</view></picker>
+        <text class="neighbor-note">这是所选地点或路线参考点，不是当前位置。请核对入口；不确定位置时可暂存草稿。</text>
+        <label><text>公开地点名称</text><input value="{{name}}" maxlength="80" data-key="name" bindinput="field" disabled="{{busy}}"/></label>
+        <text class="neighbor-note">发生了什么</text><picker range="{{kindLabels}}" value="{{kindIndex}}" bindchange="kind" disabled="{{busy}}"><view class="neighbor-picker">{{kindLabels[kindIndex]}} ▾</view></picker>
+      </block>
+      <text wx:if="{{editing}}" class="neighbor-note">{{name}} · {{kindLabels[kindIndex]}} · {{observationLabel}}</text>
+      <text class="neighbor-note">信息来源</text><picker range="{{sources}}" value="{{sourceIndex}}" bindchange="source" disabled="{{busy}}"><view class="neighbor-picker">{{sources[sourceIndex]}} ▾</view></picker>
+      <text class="neighbor-note">发生时间</text><picker range="{{ages}}" value="{{ageIndex}}" bindchange="ageChange" disabled="{{busy}}"><view class="neighbor-picker">{{ages[ageIndex]}} ▾</view></picker><text class="neighbor-note">记录时间：{{atLabel}}</text>
+      <label><text>具体情况</text><textarea value="{{note}}" maxlength="240" data-key="note" bindinput="field" disabled="{{busy}}" auto-height placeholder="例如：东侧入口围挡，西侧未确认。请勿填写姓名、电话或住址。"/></label>
+      <checkbox-group bindchange="share"><label class="neighbor-check"><checkbox value="share" checked="{{share}}" disabled="{{busy}}"/><text>我已核对位置，同意把这次观察、地点和时间共享给同一服务的其他用户</text></label></checkbox-group>
+      <text class="neighbor-note">只发送本次反馈，不上传私人地点簿、家庭位置或完整行程。“未开门”只描述本次观察。</text>
+      <view class="neighbor-actions"><button bindtap="submit" disabled="{{busy || !share}}">确认共享反馈</button><button bindtap="saveDraft" disabled="{{busy}}">仅存本机草稿</button><button bindtap="cancel" disabled="{{busy}}">收起表单</button></view>
+    </view>
+  </view>
+</view>
