@@ -397,6 +397,58 @@ test("helper polling resumes after a slow send and stops with hidden content on 
   }
 });
 
+test("editing during a delayed helper refresh preserves a stale draft until explicit reset", async () => {
+  const { active } = await outing(),
+    db = new LifeStore(),
+    owner = db.authenticate(db.create().token);
+  const { view } = db.assistance.create(owner, makeAssistSnapshot(active, ""));
+  let current = structuredClone(view),
+    delay: Promise<void> | undefined,
+    release!: () => void,
+    sent = 0,
+    sentVersion = 0;
+  const helper = new HelperSession(
+    async <T>(method = "GET", body?: unknown): Promise<T> => {
+      if (method === "POST") {
+        sent++;
+        sentVersion = (body as { proposal: { snapshotVersion: number } })
+          .proposal.snapshotVersion;
+      } else if (delay) await delay;
+      return structuredClone(current) as T;
+    },
+    () => {},
+  );
+  try {
+    helper.reopen();
+    await Promise.resolve();
+    assert.equal(helper.state.view?.snapshotVersion, 1);
+    current = { ...current, snapshotVersion: 2, revision: 2 };
+    delay = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const refresh = helper.refresh();
+    assert.equal(helper.state.busy, true);
+    helper.field("note", "按刚才的入口进去");
+    release();
+    await refresh;
+    assert.equal(helper.state.stale, true);
+    assert.equal(helper.state.note, "按刚才的入口进去");
+    assert.equal(helper.state.view?.snapshotVersion, 2);
+    await helper.send();
+    assert.equal(sent, 0);
+    helper.reset();
+    assert.equal(helper.state.stale, false);
+    assert.equal(helper.state.note, "");
+    helper.field("note", "已核对新进度，请在原地等我");
+    await helper.send();
+    assert.equal(sent, 1);
+    assert.equal(sentVersion, 2);
+  } finally {
+    helper.close();
+    db.close();
+  }
+});
+
 test("HTTP assistance needs owner authentication, helper requests omit owner access, rejects stale changes and hostile origins", async (t) => {
   const server = createApp({
     PERSONAL_DATA_PATH: ":memory:",

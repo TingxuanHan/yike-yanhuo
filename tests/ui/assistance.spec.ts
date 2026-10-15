@@ -1,4 +1,13 @@
 import { test, expect } from "./fixtures.js";
+import type { Page } from "@playwright/test";
+
+async function refresh(target: Page, name: string) {
+  const button = target.getByRole("button", { name, exact: true });
+  await button.click();
+  // Editing before the response arrives correctly makes a draft stale when
+  // the other device has advanced. Wait for the completed refresh here.
+  await expect(button).toBeEnabled();
+}
 
 test("two independent browsers exchange scoped help, mark an entrance and confirm a changed trip", async ({
   page,
@@ -51,9 +60,8 @@ test("two independent browsers exchange scoped help, mark an entrance and confir
     await helper
       .getByRole("button", { name: "发送建议，等待本人确认" })
       .click();
-    await page
-      .getByRole("button", { name: "刷新家人的建议", exact: true })
-      .click();
+    await expect(helper.locator(".assist-waiting")).toContainText("先在原地");
+    await refresh(page, "刷新家人的建议");
     await expect(page.locator(".assist-proposal")).toContainText("先在原地");
     await page
       .getByRole("button", { name: "保留我的安排", exact: true })
@@ -88,7 +96,11 @@ test("two independent browsers exchange scoped help, mark an entrance and confir
     await page
       .getByRole("button", { name: "把这张入口卡分享给家人", exact: true })
       .click();
-    await helper.getByRole("button", { name: "刷新协助", exact: true }).click();
+    await expect(page.getByRole("status")).toContainText([
+      "入口卡已保存",
+      "照片已分享",
+    ]);
+    await refresh(helper, "刷新协助");
     await expect(helper.locator(".entrance-mark")).toBeVisible();
     await helper.getByLabel("建议类型").selectOption("entrance");
     await helper
@@ -100,9 +112,8 @@ test("two independent browsers exchange scoped help, mark an entrance and confir
     await helper
       .getByRole("button", { name: "发送建议，等待本人确认" })
       .click();
-    await page
-      .getByRole("button", { name: "刷新家人的建议", exact: true })
-      .click();
+    await expect(helper.locator(".assist-waiting")).toContainText("绿色门框");
+    await refresh(page, "刷新家人的建议");
     await expect(page.locator(".assist-proposal")).toContainText("绿色门框");
     await page
       .locator(".assist-proposal")
@@ -123,15 +134,17 @@ test("two independent browsers exchange scoped help, mark an entrance and confir
         ),
       )
       .toBe("helper");
+    await expect(page.locator(".assist-proposal")).toHaveCount(0);
 
     await page.getByRole("button", { name: "前往下一站", exact: true }).click();
     await page
       .getByRole("button", { name: "我到了，确认位置", exact: true })
       .click();
-    await page
-      .getByRole("button", { name: "刷新家人的建议", exact: true })
-      .click();
-    await helper.getByRole("button", { name: "刷新协助", exact: true }).click();
+    await refresh(page, "刷新家人的建议");
+    await refresh(helper, "刷新协助");
+    await expect(
+      helper.getByText("最后确认地点：巷口菜场", { exact: true }),
+    ).toBeVisible();
     await helper.getByLabel("建议类型").selectOption("plan");
     await helper.getByLabel("建议舒适步速（米/秒）").fill("0.8");
     await helper
@@ -143,9 +156,8 @@ test("two independent browsers exchange scoped help, mark an entrance and confir
     await helper
       .getByRole("button", { name: "发送建议，等待本人确认" })
       .click();
-    await page
-      .getByRole("button", { name: "刷新家人的建议", exact: true })
-      .click();
+    await expect(helper.locator(".assist-waiting")).toContainText("慢一点走");
+    await refresh(page, "刷新家人的建议");
     await expect(page.locator(".assist-proposal")).toContainText("0.8米/秒");
     expect(
       await page.evaluate(
@@ -186,6 +198,9 @@ test("two independent browsers exchange scoped help, mark an entrance and confir
       ),
     ).toBe(true);
     await page.getByRole("button", { name: "结束协助", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "发起这趟的远程协助", exact: true }),
+    ).toBeVisible();
     await helper.getByRole("button", { name: "刷新协助", exact: true }).click();
     await expect(helper.getByRole("alert")).toContainText("已结束或到期");
     await expect(helper.locator(".entrance-mark")).toHaveCount(0);
