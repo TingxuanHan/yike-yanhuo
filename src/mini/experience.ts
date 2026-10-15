@@ -17,6 +17,10 @@ import {
 import type { PersonalPlace, PlacePosition } from "../shared/life.js";
 export { parseResultFile } from "../shared/result-file.js";
 export { shanghaiStudy } from "../presentation/case-study.js";
+export {
+  compareJourneys,
+  comparisonDefaults,
+} from "../core/journey-comparison.js";
 
 // Display conversion only. Canonical coordinates and Baidu analysis inputs stay unchanged.
 export function bd09ToGcj02(p: LngLat): LngLat {

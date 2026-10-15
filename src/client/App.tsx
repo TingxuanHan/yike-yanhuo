@@ -28,6 +28,7 @@ import type { PersonalPlace } from "../shared/life.js";
 import { SimpleHome } from "./SimpleHome.js";
 import { CoverageInspector } from "./CoverageInspector.js";
 import { CommunityGuide } from "./CommunityGuide.js";
+import { JourneyComparison } from "./JourneyComparison.js";
 import { walkingTimeBands } from "../core/time-bands.js";
 import { SIMPLE_KEY } from "../shared/family.js";
 
@@ -974,6 +975,10 @@ export function App() {
                     阅读体检报告 <span aria-hidden="true">→</span>
                   </button>
                 </section>
+                <details className="comparison-disclosure">
+                  <summary>个人条件对比 · 换个步速或等灯时间</summary>
+                  <JourneyComparison result={result} minutes={minutes} />
+                </details>
                 <section className="facility-section">
                   <div className="section-line">
                     <h2>步行范围内的设施</h2>

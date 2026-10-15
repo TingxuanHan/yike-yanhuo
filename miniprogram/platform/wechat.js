@@ -293,22 +293,22 @@ module.exports = {
   revealSelected() {
     wx.pageScrollTo?.({ selector: ".selected-place", duration: 200 });
   },
-  drawSketch(sketch, owner) {
+  drawSketch(sketch, owner, canvasId = "neighborhood-sketch") {
     if (typeof wx.createCanvasContext !== "function") return;
     const render = (width = 320) => {
-      const ctx = wx.createCanvasContext("neighborhood-sketch", owner);
+      const ctx = wx.createCanvasContext(canvasId, owner);
       ctx.scale(width / 320, width / 320);
       ctx.setFillStyle("#edf3e9");
       ctx.fillRect(0, 0, 320, 240);
       ctx.setStrokeStyle("#ffffff");
       ctx.setLineWidth(7);
-      for (let x = 30; x < 320; x += 52) {
+      for (let x = 30; !sketch.plain && x < 320; x += 52) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, 240);
         ctx.stroke();
       }
-      for (let y = 22; y < 240; y += 48) {
+      for (let y = 22; !sketch.plain && y < 240; y += 48) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(320, y);
@@ -367,7 +367,7 @@ module.exports = {
     if (typeof wx.createSelectorQuery === "function")
       wx.createSelectorQuery()
         .in(owner)
-        .select("#neighborhood-sketch")
+        .select(`#${canvasId}`)
         .boundingClientRect((r) => render(r?.width || 320))
         .exec();
     else render();

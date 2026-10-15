@@ -46,6 +46,15 @@ Page({
     showConnection: false,
     showReportDetails: false,
     showCoverage: false,
+    showComparison: false,
+    comparisonInput: {
+      speedMps: "0.9",
+      waiting: "same",
+      waitSeconds: "30",
+      crossingsPerKm: "2",
+    },
+    comparison: null,
+    comparisonError: "",
     coverageCategory: "school",
     coverageCategories: experience.coverageCategories,
     coverageCategoryIndex: 2,
@@ -217,6 +226,7 @@ Page({
       timePresets: previous.timePresets,
       showCoverage: false,
       showReportDetails: false,
+      showComparison: false,
       status: "已回到原来的日常页面。",
     });
     this.reviewSnapshot = null;
@@ -314,6 +324,7 @@ Page({
   drawMap() {
     if (this.data.tab === "nearby" && this.data.sketch && !this.data.mapNative)
       platform.drawSketch?.(this.data.sketch, this);
+    if (this.data.tab === "nearby") this.drawComparison();
   },
   toggle(e) {
     const key = e.currentTarget.dataset.key;
@@ -435,6 +446,98 @@ Page({
   coverageToggle() {
     this.setData({ showCoverage: !this.data.showCoverage });
     this.updateCoverage();
+  },
+  comparisonToggle() {
+    this.setData({ showComparison: !this.data.showComparison });
+    this.drawComparison();
+  },
+  comparisonField(e) {
+    const key = e.currentTarget.dataset.key;
+    if (!["speedMps", "waitSeconds", "crossingsPerKm"].includes(key)) return;
+    this.setData({
+      [`comparisonInput.${key}`]: e.detail.value,
+      comparison: null,
+      comparisonError: "",
+    });
+  },
+  comparisonWaiting(e) {
+    this.setData({
+      "comparisonInput.waiting": e.detail.value ? "fixed" : "same",
+      comparison: null,
+      comparisonError: "",
+    });
+  },
+  compareJourney() {
+    try {
+      const input = this.data.comparisonInput;
+      if (
+        [input.speedMps, input.waitSeconds, input.crossingsPerKm].some(
+          (v) => String(v).trim() === "",
+        )
+      )
+        throw new Error("请完整填写对比条件。");
+      const raw = experience.compareJourneys(this.data.result, {
+        minutes: this.data.minutes,
+        speedMps: Number(input.speedMps),
+        waiting: input.waiting,
+        waitSeconds: Number(input.waitSeconds),
+        crossingsPerKm: Number(input.crossingsPerKm),
+      });
+      // Keep only display data in setData; full geometry stays in the shared calculation.
+      const comparison = {
+        counts: raw.counts,
+        baselineCount: raw.baseline.count,
+        candidateCount: raw.candidate.count,
+        baselineArea: raw.baseline.areaKm2.toFixed(2),
+        candidateArea: raw.candidate.areaKm2.toFixed(2),
+        baselineSpeed: raw.baselinePrefs.speedMps,
+        candidateSpeed: raw.candidatePrefs.speedMps,
+        clipped: raw.baseline.clipped || raw.candidate.clipped,
+        incompleteSearch: raw.incompleteSearch,
+        unknownSamples: raw.unknownSamples,
+        sketch: raw.sketch,
+        legend: raw.layers.map((l) => ({ color: l.color, label: l.label })),
+        changes: raw.facilities
+          .filter((f) => ["lost", "gained", "unknown"].includes(f.change))
+          .map((f) => ({
+            id: f.id,
+            name: f.name,
+            label:
+              f.change === "lost"
+                ? "超出时长"
+                : f.change === "gained"
+                  ? "新增可达"
+                  : "缺少可用路线",
+            before:
+              f.beforeSeconds === null
+                ? "未知"
+                : `${Math.ceil(f.beforeSeconds / 60)}分`,
+            after:
+              f.afterSeconds === null
+                ? "未知"
+                : `${Math.ceil(f.afterSeconds / 60)}分`,
+          })),
+      };
+      if (utf8Bytes(JSON.stringify(comparison)) > 900_000)
+        throw new Error("对比图过大，请在Web查看。原结果仍保留。");
+      this.setData({ comparison, comparisonError: "" }, () =>
+        this.drawComparison(),
+      );
+    } catch (e) {
+      this.setData({
+        comparison: null,
+        comparisonError:
+          e.message || "这份报告暂不能对比，请换用完整体检结果。",
+      });
+    }
+  },
+  drawComparison() {
+    if (this.data.showComparison && this.data.comparison)
+      platform.drawSketch(
+        this.data.comparison.sketch,
+        this,
+        "comparison-sketch",
+      );
   },
   coverageCategoryChange(e) {
     const index = Number(e.detail.value);
@@ -906,6 +1009,16 @@ Page({
         ...view,
         tab: "nearby",
         selectedFacility: null,
+        comparison: null,
+        comparisonError: "",
+        comparisonInput: {
+          ...experience.comparisonDefaults(result, view.minutes),
+          speedMps: String(
+            experience.comparisonDefaults(result, view.minutes).speedMps,
+          ),
+          waitSeconds: "30",
+          crossingsPerKm: "2",
+        },
       },
       () => {
         this.drawMap();

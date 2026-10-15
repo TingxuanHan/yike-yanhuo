@@ -225,6 +225,36 @@
         >
       </view>
     </view>
+    <view wx:if="{{result}}" class="section comparison-section">
+      <button bindtap="comparisonToggle">{{showComparison?'收起':'打开'}}个人条件对比</button>
+      <view wx:if="{{showComparison}}" class="comparison-detail">
+        <text class="heading">换个步速，看看范围变化</text>
+        <text class="muted">两种条件均按{{minutes}}分钟、同一批路线距离试算，不改原报告与个人偏好。</text>
+        <label>对比步速（米/秒）<input type="digit" value="{{comparisonInput.speedMps}}" data-key="speedMps" bindinput="comparisonField" /></label>
+        <label class="check-line"><switch checked="{{comparisonInput.waiting==='fixed'}}" bindchange="comparisonWaiting" />手动设定等灯时间</label>
+        <text wx:if="{{comparisonInput.waiting==='same'}}" class="muted">等灯沿用原条件；未设置时不计入。</text>
+        <view wx:else>
+          <label>每公里假设路口数<input type="digit" value="{{comparisonInput.crossingsPerKm}}" data-key="crossingsPerKm" bindinput="comparisonField" /></label>
+          <label>每次等待（秒）<input type="number" value="{{comparisonInput.waitSeconds}}" data-key="waitSeconds" bindinput="comparisonField" /></label>
+          <text class="muted">手动假设，并非附近真实路口或实时信号灯。</text>
+        </view>
+        <button class="primary" bindtap="compareJourney">比较这两种条件</button>
+        <text wx:if="{{comparisonError}}" class="error" role="alert">{{comparisonError}}</text>
+        <view wx:if="{{comparison}}">
+          <view class="comparison-score"><view><text>原条件 · {{comparison.baselineSpeed}}米/秒</text><text class="heading">{{comparison.baselineCount}}处设施</text><text>约{{comparison.baselineArea}} km²</text></view><view><text>对比 · {{comparison.candidateSpeed}}米/秒</text><text class="heading">{{comparison.candidateCount}}处设施</text><text>约{{comparison.candidateArea}} km²</text></view></view>
+          <canvas id="comparison-sketch" canvas-id="comparison-sketch" class="sketch" disable-scroll="{{true}}" />
+          <text class="muted">范围差异示意，不含道路底图；带空洞的区域仅画边线。</text>
+          <view class="time-legend"><text wx:for="{{comparison.legend}}" wx:key="label"><text class="legend-square" style="background-color:{{item.color}};"></text>{{item.label}}</text></view>
+          <text class="coverage-line">{{comparison.counts.kept}}处仍可达，{{comparison.counts.lost}}处超出时长，{{comparison.counts.gained}}处新增可达。</text>
+          <text wx:if="{{comparison.clipped}}" class="warning">范围触及采样边界，更远区域未参与比较。</text>
+          <text class="muted">{{comparison.counts.unknown}}处设施缺少可用路线，{{comparison.counts.excluded}}处停用／待核查／冲突记录未参与，{{comparison.unknownSamples}}个采样点缺少有效路线。数量仅为已发现设施。</text>
+          <text wx:if="{{comparison.incompleteSearch}}" class="warning">部分分类检索不完整，不能据此断言设施缺失。</text>
+          <view wx:for="{{comparison.changes}}" wx:key="id" class="comparison-place"><text>{{item.name}} · {{item.label}}</text><text class="muted">{{item.before}} → {{item.after}}</text></view>
+          <text wx:if="{{!comparison.changes.length}}" class="muted">本次已知设施的可达名单没有变化。</text>
+        </view>
+        <text class="muted">使用已有路线距离重新估算，两种条件均非原接口耗时；不是重新导航或保证到达，不额外调用地图。</text>
+      </view>
+    </view>
     <view wx:if="{{!reviewMode}}" class="start-actions"
       ><button class="primary" bindtap="chooseStart" disabled="{{busy}}">
         选择真实起点</button

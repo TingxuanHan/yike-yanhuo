@@ -51,3 +51,26 @@
   margin-right: 8rpx;
   border: 1px solid #7d9088;
 }
+.comparison-detail {
+  margin-top: 24rpx;
+}
+.comparison-score {
+  display: flex;
+  gap: 20rpx;
+  padding: 24rpx 0;
+}
+.comparison-score > view {
+  flex: 1;
+  min-width: 0;
+}
+.comparison-score text {
+  display: block;
+  margin: 8rpx 0;
+}
+.comparison-place {
+  border-top: 1px solid #dbe6e0;
+  padding: 20rpx 0;
+}
+.comparison-place text {
+  display: block;
+}
