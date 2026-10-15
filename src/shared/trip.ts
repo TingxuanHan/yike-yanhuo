@@ -304,6 +304,12 @@ export interface ActiveTrip {
   skipped: string[];
   phase: "walking" | "at" | "resting" | "finished";
   events: TripEvent[];
+  replacements?: {
+    from: string;
+    to: string;
+    kind: "place" | "entrance";
+    at: number;
+  }[];
 }
 export function startTrip(
   input: TripInput,
@@ -346,6 +352,22 @@ export function cleanActiveTrip(value: unknown): ActiveTrip {
     throw new Error("进行中的行程记录无效，请清除本机行程后重新选择。");
   solveTrip(a.input);
   const ids = [a.input.origin.id, ...a.input.stops.map((n) => n.id)];
+  if (
+    a.replacements !== undefined &&
+    (!Array.isArray(a.replacements) ||
+      a.replacements.length > 5 ||
+      a.replacements.some(
+        (r) =>
+          !r ||
+          !ids.includes(r.from) ||
+          !ids.includes(r.to) ||
+          !["place", "entrance"].includes(r.kind) ||
+          !Number.isFinite(r.at) ||
+          r.at < a.startedAt ||
+          r.at > a.lastAt,
+      ))
+  )
+    throw new Error("行程的替换记录无效。");
   if (
     ![a.currentId, ...a.remaining, ...a.completed, ...a.skipped].every((id) =>
       ids.includes(id),

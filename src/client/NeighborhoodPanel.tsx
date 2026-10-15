@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   NeighborhoodSession,
   NOTICE_KINDS,
+  NOTICE_SIDES,
   type NeighborhoodView,
   type NoticeChoice,
 } from "../mini/neighborhood.js";
@@ -9,6 +10,7 @@ import { cleanNoticeQuery, type NoticeQuery } from "../shared/neighborhood.js";
 import { request } from "./api.js";
 import { localValue } from "./FamilyPanel.js";
 import "./neighborhood.css";
+import { cleanMobility, type MobilityNeeds } from "../shared/mobility.js";
 const ages = [
   [0, "刚刚"],
   [15, "约15分钟前"],
@@ -20,9 +22,13 @@ const ages = [
 export function NeighborhoodPanel({
   query,
   choices = [],
+  mobility,
+  onAlternative,
 }: {
   query: NoticeQuery;
   choices?: NoticeChoice[];
+  mobility?: MobilityNeeds;
+  onAlternative?: () => void;
 }) {
   const clean = cleanNoticeQuery(query);
   return (
@@ -30,15 +36,21 @@ export function NeighborhoodPanel({
       key={JSON.stringify([clean, choices])}
       query={clean}
       choices={choices}
+      mobility={mobility}
+      onAlternative={onAlternative}
     />
   );
 }
 function Panel({
   query,
   choices,
+  mobility,
+  onAlternative,
 }: {
   query: NoticeQuery;
   choices: NoticeChoice[];
+  mobility?: MobilityNeeds;
+  onAlternative?: () => void;
 }) {
   const [view, setView] = useState<NeighborhoodView | null>(null);
   const [session] = useState(
@@ -64,6 +76,10 @@ function Panel({
       session.dispose();
     };
   }, [session]);
+  const mobilityKey = JSON.stringify(mobility);
+  useEffect(() => {
+    session.setMobility(cleanMobility(mobility));
+  }, [session, mobilityKey]);
   const s = view ?? session.state;
   const [history, setHistory] = useState(false);
   const active = s.notices.filter(
@@ -153,6 +169,10 @@ function Panel({
                 {n.target.name} · {n.kindLabel}
               </h4>
               <p className="muted">{n.relation}</p>
+              <p className="muted">{n.locationLabel}</p>
+              {n.personalReason && (
+                <p className="neighbor-warning">{n.personalReason}</p>
+              )}
               <p>最近观察：{n.observedLabel}</p>
               <details>
                 <summary>查看反馈依据</summary>
@@ -201,6 +221,11 @@ function Panel({
                 : `查看恢复、过期或撤回记录（${s.notices.length - active.length}）`}
             </button>
           )}
+          {onAlternative && active.length > 0 && (
+            <button className="secondary" onClick={onAlternative}>
+              为下一站看看备选安排
+            </button>
+          )}
           {s.draft && !s.editor && (
             <button onClick={() => session.restore()}>继续本机草稿</button>
           )}
@@ -244,6 +269,57 @@ function Panel({
                       required
                     />
                   </label>
+                  <label>
+                    范围说明
+                    <select
+                      aria-label="范围说明"
+                      value={s.scope}
+                      disabled={s.busy}
+                      onChange={(e) => session.field("scope", e.target.value)}
+                    >
+                      <option value="nearby">尚未区分具体入口</option>
+                      <option value="entrance">具体入口</option>
+                      <option value="segment">具体路段</option>
+                    </select>
+                  </label>
+                  {s.scope !== "nearby" && (
+                    <>
+                      <label>
+                        入口或路段名称
+                        <input
+                          aria-label="入口或路段名称"
+                          value={s.detail}
+                          maxLength={80}
+                          disabled={s.busy}
+                          required
+                          placeholder="如：菜场东门、桥北侧人行道"
+                          onChange={(e) =>
+                            session.field("detail", e.target.value)
+                          }
+                        />
+                      </label>
+                      <label>
+                        方位
+                        <select
+                          aria-label="方位"
+                          value={s.side}
+                          disabled={s.busy}
+                          onChange={(e) =>
+                            session.field("side", e.target.value)
+                          }
+                        >
+                          {NOTICE_SIDES.map((o) => (
+                            <option value={o.id} key={o.id}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <p className="muted">
+                        仅说明这一个入口或路段，其他入口情况未知；坐标仍是所选参考点。
+                      </p>
+                    </>
+                  )}
                   <label>
                     发生了什么
                     <select

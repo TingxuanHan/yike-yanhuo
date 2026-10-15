@@ -197,3 +197,19 @@
 .walking-guide li {
   margin-bottom: 12px;
 }
+.trip-alternatives {
+  margin-block: 1.25rem;
+  padding-block: 1rem;
+  border-block: 1px solid #d4e2dc;
+}
+.trip-alternative-preview {
+  margin-block: 1rem;
+  padding: 1rem;
+  background: #eef5ef;
+  border-left: 4px solid #176c60;
+  overflow-wrap: anywhere;
+}
+.trip-alternatives select {
+  width: 100%;
+  min-width: 0;
+}

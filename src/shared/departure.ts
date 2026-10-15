@@ -242,6 +242,11 @@ export function prepareDeparture(
             `${l.arrival} ${l.name} · 走${l.walking.toFixed(1)}分钟，停留${l.stay}分钟`,
         ),
     checks: [
+      ...(active?.replacements?.length
+        ? [
+            "本趟已更换地点；下面保留出发时的价格记录，新地点商品、价格与通行情况需重新确认。",
+          ]
+        : []),
       estimate
         ? `保存时的返程估计：${estimate.finish}。${estimate.note}`
         : `按${input.draft.departure ?? input.preferences.departure}出发估算：整趟约${plan.minutes.toFixed(1)}分钟，预计${plan.finish}返回；含办事、等候与返程。`,

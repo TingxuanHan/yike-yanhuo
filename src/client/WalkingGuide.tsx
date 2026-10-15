@@ -1,12 +1,17 @@
 import type { WalkingGuideSession, GuideView } from "../mini/walking-guide.js";
 import { NeighborhoodPanel } from "./NeighborhoodPanel.js";
 import { guideNotices } from "../mini/neighborhood.js";
+import type { MobilityNeeds } from "../shared/mobility.js";
 export function WalkingGuidePanel({
   session,
   s,
+  mobility,
+  onAlternative,
 }: {
   session: WalkingGuideSession;
   s: GuideView;
+  mobility?: MobilityNeeds;
+  onAlternative?: () => void;
 }) {
   if (!s.open) return null;
   const leg = s.legs[s.selected],
@@ -25,6 +30,8 @@ export function WalkingGuidePanel({
         <NeighborhoodPanel
           query={neighborhood.query}
           choices={neighborhood.choices}
+          mobility={mobility}
+          onAlternative={onAlternative}
         />
       )}
       <p>先核对自己所在位置；这里从选定起点说明走法，不读取实时定位。</p>

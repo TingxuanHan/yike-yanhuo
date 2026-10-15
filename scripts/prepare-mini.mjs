@@ -5,13 +5,16 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 if (resolve(process.cwd()) !== resolve(root))
   throw new Error("请从项目根目录构建小程序。");
 const stage = ".cache/mini-source";
-for (const relative of [stage, "miniprogram/shared"]) {
+// Keep the live generated directory present while Developer Tools watches it.
+// Removing it mid-build can leave its module index missing newly added files.
+for (const relative of [stage]) {
   const target = resolve(root, relative);
   if (!target.startsWith(resolve(root) + sep))
     throw new Error("生成目录超出项目范围。");
   await rm(target, { recursive: true, force: true });
 }
 await mkdir(stage, { recursive: true });
+await mkdir("miniprogram/shared", { recursive: true });
 await writeFile(`${stage}/package.json`, JSON.stringify({ type: "commonjs" }));
 for (const name of [
   "types",
@@ -31,5 +34,6 @@ for (const name of [
   "family",
   "departure",
   "walking-guide",
+  "mobility",
 ])
   await copyFile(`src/shared/${name}.ts`, `${stage}/${name}.ts`);

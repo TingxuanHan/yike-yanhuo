@@ -13,6 +13,7 @@ export const tripBasis = (a: ActiveTrip) =>
     here: a.currentId,
     remaining: a.remaining,
     speed: a.input.draft.speedMps,
+    replacements: a.replacements ?? [],
   });
 export function adjustTrip(
   value: ActiveTrip,

@@ -14,6 +14,7 @@ import { TripAssistance } from "./TripAssistance.js";
 import { FamilyPanel, localValue } from "./FamilyPanel.js";
 import { RoutinePanel, TripPreparation } from "./TripPreparation.js";
 import { WalkingGuidePanel } from "./WalkingGuide.js";
+import { MobilityPreferences, TripAlternatives } from "./TripAlternatives.js";
 import "./planning.css";
 import "./trip.css";
 export function TripPanel({
@@ -107,6 +108,7 @@ export function TripPanel({
         </p>
       )}
       <RoutinePanel session={session} s={s} />
+      <MobilityPreferences session={session} s={s} />
       {!a && (
         <>
           {simple && !expanded && (
@@ -545,6 +547,7 @@ export function TripPanel({
               更新预计返程
             </button>
           </div>
+          <TripAlternatives session={session} s={s} />
           <TripAssistance session={session} s={s} />
           <div className="planning-actions">
             <button className="secondary" onClick={() => session.prepare()}>
@@ -626,7 +629,23 @@ export function TripPanel({
           </button>
         </div>
       )}
-      <WalkingGuidePanel session={session.walking} s={s.guide} />
+      <WalkingGuidePanel
+        session={session.walking}
+        s={s.guide}
+        mobility={s.mobility}
+        onAlternative={
+          a?.phase === "at" && a.remaining.length > 1
+            ? () => {
+                session.openAlternatives();
+                requestAnimationFrame(() =>
+                  document
+                    .getElementById("trip-alternatives")
+                    ?.scrollIntoView({ block: "start" }),
+                );
+              }
+            : undefined
+        }
+      />
       <TripPreparation session={session} s={s} />
       {!!s.recent.length && (
         <details className="planning-card">

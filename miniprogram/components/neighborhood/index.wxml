@@ -15,10 +15,12 @@
     <view wx:for="{{visible}}" wx:key="id" class="neighbor-event neighbor-{{item.state}}">
       <text class="neighbor-title">{{stale ? '历史快照 · ' : ''}}{{item.label}}</text><text class="neighbor-title">{{item.target.name}} · {{item.kindLabel}}</text>
       <text class="neighbor-note">{{item.relation}}</text><text class="neighbor-note">最近观察：{{item.observedLabel}}</text>
+      <text class="neighbor-note">{{item.locationLabel}}</text><text wx:if="{{item.personalReason}}" class="neighbor-warning">{{item.personalReason}}</text>
       <button data-id="{{item.id}}" bindtap="evidence">{{item.showEvidence ? '收起反馈依据' : '查看反馈依据'}}</button>
       <block wx:if="{{item.showEvidence}}"><text class="neighbor-note">{{item.reason}}</text><text wx:for="{{item.notesLabel}}" wx:for-item="note" wx:key="index" class="neighbor-note">{{note}}</text></block>
       <view class="neighbor-actions"><button data-id="{{item.id}}" data-state="present" bindtap="begin" disabled="{{busy || stale}}">我看到仍有问题</button><button data-id="{{item.id}}" data-state="clear" bindtap="begin" disabled="{{busy || stale}}">我看到已经恢复</button><button data-id="{{item.id}}" data-state="unsure" bindtap="begin" disabled="{{busy || stale}}">我不能确定</button><button wx:if="{{item.mine && !item.mine.withdrawn}}" data-id="{{item.id}}" bindtap="withdraw" disabled="{{busy}}">撤回我的反馈</button></view>
     </view>
+    <button wx:if="{{alternatives && activeCount}}" bindtap="alternative">为下一站看看备选安排</button>
     <button wx:if="{{oldCount}}" bindtap="historyToggle">{{history ? '收起较早记录' : '查看恢复、过期或撤回记录（' + oldCount + '）'}}</button>
     <button wx:if="{{draft && !editor}}" bindtap="restore">继续本机草稿</button>
     <view wx:if="{{editor}}" class="neighbor-editor">
@@ -26,6 +28,8 @@
       <block wx:if="{{!editing}}"><text class="neighbor-note">报告位置</text><picker range="{{choiceLabels}}" value="{{choice}}" bindchange="choiceChange" disabled="{{busy}}"><view class="neighbor-picker">{{choiceLabels[choice]}} ▾</view></picker>
         <text class="neighbor-note">这是所选地点或路线参考点，不是当前位置。请核对入口；不确定位置时可暂存草稿。</text>
         <label><text>公开地点名称</text><input value="{{name}}" maxlength="80" data-key="name" bindinput="field" disabled="{{busy}}"/></label>
+        <text class="neighbor-note">范围说明</text><picker range="{{scopes}}" value="{{scopeIndex}}" bindchange="scopeChange" disabled="{{busy}}"><view class="neighbor-picker">{{scopes[scopeIndex]}} ▾</view></picker>
+        <block wx:if="{{scope !== 'nearby'}}"><label><text>入口或路段名称</text><input value="{{detail}}" maxlength="80" data-key="detail" bindinput="field" disabled="{{busy}}" placeholder="如菜场东门、桥北侧人行道"/></label><text class="neighbor-note">方位</text><picker range="{{sides}}" value="{{sideIndex}}" bindchange="sideChange" disabled="{{busy}}"><view class="neighbor-picker">{{sides[sideIndex]}} ▾</view></picker><text class="neighbor-note">仅说明这个入口或路段，其他入口情况未知；坐标仍是所选参考点。</text></block>
         <text class="neighbor-note">发生了什么</text><picker range="{{kindLabels}}" value="{{kindIndex}}" bindchange="kind" disabled="{{busy}}"><view class="neighbor-picker">{{kindLabels[kindIndex]}} ▾</view></picker>
       </block>
       <text wx:if="{{editing}}" class="neighbor-note">{{name}} · {{kindLabels[kindIndex]}} · {{observationLabel}}</text>

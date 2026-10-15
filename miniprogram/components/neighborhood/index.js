@@ -1,6 +1,7 @@
 const {
   NeighborhoodSession,
   NOTICE_KINDS,
+  NOTICE_SIDES,
 } = require("../../shared/neighborhood-ui.js");
 const api = require("../../services/api.js");
 const platform = require("../../platform/index.js");
@@ -9,6 +10,8 @@ Component({
     large: { type: Boolean, value: false },
     context: { type: Object, value: null },
     choices: { type: Array, value: [] },
+    mobility: { type: Object, value: null },
+    alternatives: { type: Boolean, value: false },
   },
   data: {
     ready: false,
@@ -25,10 +28,15 @@ Component({
       "约1天前",
     ],
     sources: ["我亲眼看到", "听说或转述"],
+    scopes: ["尚未区分具体入口", "具体入口", "具体路段"],
+    sides: NOTICE_SIDES.map((o) => o.label),
   },
   observers: {
     "context, choices"() {
       this.setup();
+    },
+    mobility(value) {
+      if (value) this.session?.setMobility(value);
     },
   },
   lifetimes: {
@@ -71,6 +79,8 @@ Component({
             notify: (s) => this.render(s),
           },
         );
+        if (this.properties.mobility)
+          this.session.setMobility(this.properties.mobility);
         this.render(this.session.state);
       } catch {
         this.setData({
@@ -101,6 +111,8 @@ Component({
         kindIndex: NOTICE_KINDS.findIndex((k) => k.id === s.kind),
         sourceIndex: s.basis === "seen" ? 0 : 1,
         ageIndex: [0, 15, 60, 180, 720, 1440].indexOf(s.age),
+        scopeIndex: ["nearby", "entrance", "segment"].indexOf(s.scope),
+        sideIndex: NOTICE_SIDES.findIndex((o) => o.id === s.side),
         observationLabel:
           s.observation === "present"
             ? "仍有问题"
@@ -123,6 +135,18 @@ Component({
     },
     field(e) {
       this.session?.field(e.currentTarget.dataset.key, e.detail.value);
+    },
+    scopeChange(e) {
+      this.session?.field(
+        "scope",
+        ["nearby", "entrance", "segment"][Number(e.detail.value)],
+      );
+    },
+    sideChange(e) {
+      this.session?.field("side", NOTICE_SIDES[Number(e.detail.value)].id);
+    },
+    alternative() {
+      this.triggerEvent("alternative");
     },
     share(e) {
       this.session?.field("share", e.detail.value.includes("share"));

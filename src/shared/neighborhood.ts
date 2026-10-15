@@ -15,6 +15,24 @@ export type NoticeState =
 export interface NoticeTarget {
   name: string;
   position: PlacePosition;
+  detail?: {
+    kind: "entrance" | "segment";
+    label: string;
+    side: "unknown" | "east" | "west" | "south" | "north";
+  };
+}
+export const NOTICE_SIDES = [
+  { id: "unknown", label: "方向未确认" },
+  { id: "east", label: "东侧" },
+  { id: "west", label: "西侧" },
+  { id: "south", label: "南侧" },
+  { id: "north", label: "北侧" },
+] as const;
+export function targetDetail(t: NoticeTarget) {
+  const d = t.detail;
+  return d
+    ? `${d.kind === "entrance" ? "入口" : "路段"}：${d.label} · ${NOTICE_SIDES.find((s) => s.id === d.side)!.label}（参考点，未实测边界）`
+    : "地点附近的参考点，具体入口尚未区分";
 }
 export interface Observation {
   state: ObservationState;
@@ -75,7 +93,25 @@ export function noticeTarget(v: unknown): NoticeTarget {
   });
   if (/[<>\u0000-\u001f]/.test(node.name))
     throw new Error("地点名称含有无效字符。");
-  return { name: node.name, position: node.position };
+  const d = t.detail;
+  if (
+    d !== undefined &&
+    (!d ||
+      !["entrance", "segment"].includes(d.kind) ||
+      typeof d.label !== "string" ||
+      !d.label.trim() ||
+      d.label.length > 80 ||
+      /[<>\u0000-\u001f]/.test(d.label) ||
+      !NOTICE_SIDES.some((s) => s.id === d.side))
+  )
+    throw new Error("请填写具体入口或路段说明，并核对方向。");
+  return {
+    name: node.name,
+    position: node.position,
+    ...(d
+      ? { detail: { kind: d.kind, label: d.label.trim(), side: d.side } }
+      : {}),
+  };
 }
 export function cleanObservation(v: unknown, now: number): Observation {
   const o = v as Observation;
@@ -124,6 +160,7 @@ export function targetKey(t: NoticeTarget): string {
     p.system === "demo"
       ? [p.x, p.y]
       : [Number(p.lng.toFixed(5)), Number(p.lat.toFixed(5))],
+    ...(t.detail ? [t.detail.kind, t.detail.label, t.detail.side] : []),
   ]);
 }
 function offset(

@@ -59,6 +59,9 @@ test("neighbors share evidence, see conflicting recovery and withdraw only their
   await panel
     .getByLabel("具体情况", { exact: true })
     .fill("模拟东入口施工，另一侧入口尚未确认。");
+  await panel.getByLabel("范围说明", { exact: true }).selectOption("entrance");
+  await panel.getByLabel("入口或路段名称", { exact: true }).fill("东门");
+  await panel.getByLabel("方位", { exact: true }).selectOption("east");
   await expect(
     panel.getByRole("button", { name: "确认共享反馈", exact: true }),
   ).toBeDisabled();
@@ -70,6 +73,9 @@ test("neighbors share evidence, see conflicting recovery and withdraw only their
   await panel.getByRole("button", { name: "刷新提醒", exact: true }).click();
   await expect(panel.locator(".neighbor-event")).toContainText(
     "有人反馈，待核实",
+  );
+  await expect(panel.locator(".neighbor-event")).toContainText(
+    "入口：东门 · 东侧",
   );
   const second = await browser.newContext({
     viewport: { width: 320, height: 740 },

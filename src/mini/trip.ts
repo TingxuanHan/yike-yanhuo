@@ -62,6 +62,17 @@ import {
   tripBasis,
   type TripAdjustment,
 } from "../shared/trip-adjust.js";
+import {
+  cleanMobility,
+  MOBILITY_OPTIONS,
+  type MobilityNeeds,
+} from "../shared/mobility.js";
+import {
+  alternativeInput,
+  replaceNextStop,
+  type AlternativeKind,
+} from "../shared/trip-alternative.js";
+export { MOBILITY_OPTIONS };
 export { planningFields, planningTasks };
 export * from "../shared/trip.js";
 interface Deps {
@@ -117,6 +128,14 @@ export interface TripView {
   packAge: string;
   packOutdated: boolean;
   guide: GuideView;
+  mobility: MobilityNeeds;
+  alternative: {
+    kind: AlternativeKind;
+    candidates: TripStop[];
+    selected: string;
+    changes: string[];
+    note: string;
+  } | null;
 }
 export class TripSession {
   state: TripView;
@@ -131,6 +150,13 @@ export class TripSession {
   private alive = true;
   private generation = 0;
   private now: () => number;
+  private alternativePreview: {
+    candidate: TripStop;
+    kind: AlternativeKind;
+    routes: RouteBundle;
+    basis: string;
+    at: number;
+  } | null = null;
   constructor(
     book: LifeBook,
     report: AnalysisResult | null,
@@ -243,6 +269,8 @@ export class TripSession {
       packAge: "",
       packOutdated: false,
       guide: this.walking.state,
+      mobility: cleanMobility(this.book.mobility),
+      alternative: null,
     };
     this.cache = new OutingRouteCache(deps.get("yike-outing-routes"));
     try {
@@ -617,6 +645,10 @@ export class TripSession {
     try {
       if (this.state.busy) return;
       const a = this.state.active;
+      if (a?.replacements?.length)
+        throw new Error(
+          "这趟已经换过地点，请结束后重新核算，再保存新的常用方案。",
+        );
       const plan = id ? this.state.plans.find((p) => p.id === id) : null;
       this.state.routineDraft = a
         ? routineFrom(a.input, a.plan, this.now())
@@ -789,6 +821,8 @@ export class TripSession {
     }
     this.state.adjust = null;
     this.state.adjustPreview = [];
+    this.state.alternative = null;
+    this.alternativePreview = null;
     this.refreshProgress();
     this.emit();
   }
@@ -886,8 +920,14 @@ export class TripSession {
       this.deps.save(next);
       this.book = next;
       this.state.recent = next.trips!;
+      this.state.routineSuggestion = null;
       try {
-        this.state.routineSuggestion = routineFrom(a.input, a.plan, this.now());
+        if (!a.replacements?.length)
+          this.state.routineSuggestion = routineFrom(
+            a.input,
+            a.plan,
+            this.now(),
+          );
         this.deps.set("yike-last-routine", this.state.routineSuggestion);
       } catch {
         /* The saved feedback is independent of this optional shortcut. */
@@ -903,6 +943,198 @@ export class TripSession {
   helpRequest(value: string) {
     this.state.helpRequest = value.slice(0, 240);
     this.emit();
+  }
+  mobilityNeed(key: keyof MobilityNeeds) {
+    if (this.state.busy || !MOBILITY_OPTIONS.some((o) => o.key === key)) return;
+    try {
+      const mobility = cleanMobility({
+        ...this.state.mobility,
+        [key]: !this.state.mobility[key],
+      });
+      const next = cleanBook({ ...this.book, mobility });
+      this.deps.save(next);
+      this.book = next;
+      this.state.mobility = mobility;
+      this.state.status =
+        "已保存通行偏好，用于突出相关提醒；不代表路线已核验无障碍。";
+      this.emit();
+    } catch (e) {
+      this.message((e as Error).message);
+    }
+  }
+  openAlternatives(kind: AlternativeKind = "place") {
+    if (this.state.busy) return;
+    const a = this.state.active;
+    if (!a || a.phase !== "at" || a.remaining.length < 2)
+      return this.message(
+        "请在已确认地点结束歇脚后，再为尚未前往的下一站选择备选。路上位置未确认时不会假定你已到达。",
+      );
+    const old = a.input.stops.find((n) => n.id === a.remaining[0])!;
+    const pool: TripStop[] =
+      kind === "place"
+        ? [
+            ...a.input.stops,
+            ...this.state.candidates.filter((n) => n.category === old.category),
+          ]
+        : a.input.bundle.mode === "demo" && old.position.system === "demo"
+          ? [
+              {
+                id: `${old.id}-entrance-demo`,
+                name: `${old.name}·示例另一入口`,
+                category: old.category,
+                stay: old.stay,
+                position: {
+                  system: "demo",
+                  x: old.position.x - 200,
+                  y: old.position.y,
+                },
+              },
+            ]
+          : this.book.places
+              .filter((p) => p.position.system !== "demo")
+              .map((p) => ({
+                id: `p-${p.id}`,
+                name: p.name,
+                position: p.position,
+                category: old.category,
+                stay: old.stay,
+              }));
+    const seen = new Set<string>();
+    const candidates = pool
+      .filter((n) => {
+        if (seen.has(n.id)) return false;
+        seen.add(n.id);
+        try {
+          alternativeInput(a, n, kind);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+      .slice(0, 8);
+    this.alternativePreview = null;
+    this.state.alternative = {
+      kind,
+      candidates,
+      selected: candidates[0]?.id ?? "",
+      changes: [],
+      note:
+        kind === "entrance"
+          ? "从已记录地点中选择你确认属于这家店的另一入口；照片上的圈点不等于地图坐标。通行和营业仍待确认。"
+          : "比较原地点2公里内、未安排的同类候选地点；只读取去程和接续路线。",
+    };
+    this.state.error = "";
+    this.emit();
+  }
+  selectAlternative(id: string) {
+    const v = this.state.alternative;
+    if (!this.state.busy && v?.candidates.some((n) => n.id === id)) {
+      v.selected = id;
+      v.changes = [];
+      this.alternativePreview = null;
+      this.emit();
+    }
+  }
+  closeAlternatives() {
+    if (this.state.busy) return;
+    this.state.alternative = null;
+    this.alternativePreview = null;
+    this.emit();
+  }
+  async previewAlternative() {
+    if (this.state.busy) return;
+    await this.action(async () => {
+      const v = this.state.alternative,
+        a = this.state.active;
+      const candidate = v?.candidates.find((n) => n.id === v.selected);
+      if (!a || !v || !candidate)
+        throw new Error(
+          "当前没有可用备选，请先记录明确的入口或选择其他已核算地点。",
+        );
+      this.alternativePreview = null;
+      v.changes = [];
+      const basis = tripBasis(a),
+        generation = this.generation;
+      const { nodes, pairs } = alternativeInput(a, candidate, v.kind);
+      const pending = this.cache.pending(nodes, pairs).length;
+      if (
+        a.input.bundle.mode !== "demo" &&
+        pending &&
+        !(await this.deps.confirm(
+          `串行读取${pending}段百度步行路线来比较备选？仍受原有额度保护。`,
+        ))
+      )
+        return;
+      const routes = await this.cache.obtain(
+        nodes,
+        pairs,
+        (b) => this.deps.request<RouteBundle>("/api/outings/routes", "POST", b),
+        (n, total) => {
+          this.state.status = `比较备选道路 ${n}/${total}`;
+          this.emit();
+        },
+        () => !this.alive || generation !== this.generation,
+      );
+      this.deps.set("yike-outing-routes", this.cache.snapshot());
+      if (
+        !this.alive ||
+        !this.state.active ||
+        tripBasis(this.state.active) !== basis
+      )
+        throw new Error("行程已变化，请重新比较。原行程保留。");
+      const preview = replaceNextStop(a, candidate, v.kind, routes, this.now());
+      v.changes = preview.changes;
+      this.alternativePreview = {
+        candidate,
+        kind: v.kind,
+        routes,
+        basis,
+        at: this.now(),
+      };
+      this.state.status =
+        "已完成备选比较，尚未替换。请核对时间、价格和通行情况。";
+    });
+  }
+  async applyAlternative() {
+    if (this.state.busy) return;
+    await this.action(async () => {
+      const p = this.alternativePreview,
+        a = this.state.active;
+      if (
+        !p ||
+        !a ||
+        tripBasis(a) !== p.basis ||
+        this.now() < p.at ||
+        this.now() - p.at > 300000
+      )
+        throw new Error("比较结果已过期或行程变化，请先重新核算备选。");
+      const r = replaceNextStop(a, p.candidate, p.kind, p.routes, this.now());
+      if (
+        !(await this.deps.confirm(
+          r.changes.join("\n") + "\n确认只替换尚未前往的下一站？",
+        ))
+      )
+        return;
+      if (
+        !this.alive ||
+        !this.state.active ||
+        tripBasis(this.state.active) !== p.basis ||
+        this.now() < p.at ||
+        this.now() - p.at > 300000
+      )
+        throw new Error("确认期间行程有变化或比较已过期，未替换，请重新比较。");
+      this.storeActive(
+        replaceNextStop(
+          this.state.active,
+          p.candidate,
+          p.kind,
+          p.routes,
+          this.now(),
+        ).active,
+      );
+      this.state.status =
+        "已替换下一站，原到达记录与购物依据保留。请查看新路段指引、刷新邻里提醒，并重新准备出门卡。";
+    });
   }
   async startHelp() {
     await this.assistance.start(this.state.helpRequest, null);

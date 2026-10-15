@@ -8,6 +8,7 @@ const {
   TripSession,
   planningFields,
   planningTasks,
+  MOBILITY_OPTIONS,
 } = require("../../shared/trip-ui.js");
 Page({
   data: {
@@ -103,6 +104,15 @@ Page({
     this.setData({ pack });
     this.setData({
       ...smallState,
+      mobilityOptions: MOBILITY_OPTIONS.map((o) => ({
+        ...o,
+        checked: s.mobility[o.key],
+      })),
+      alternativeLabels: s.alternative?.candidates.map((n) => n.name) || [],
+      alternativeIndex:
+        s.alternative?.candidates.findIndex(
+          (n) => n.id === s.alternative.selected,
+        ) ?? 0,
       guideLegLabels: s.guide.legs.map(
         (l, i) => `${i + 1}. ${l.from.name} → ${l.to.name}`,
       ),
@@ -425,6 +435,33 @@ Page({
   },
   adjustStop(e) {
     this.session.adjustStop(e.currentTarget.dataset.id);
+  },
+  mobilityMore() {
+    this.setData({ showMobility: !this.data.showMobility });
+  },
+  mobilityNeed(e) {
+    this.session.mobilityNeed(e.currentTarget.dataset.key);
+  },
+  alternatives(e) {
+    this.session.openAlternatives(e?.currentTarget?.dataset?.kind || "place");
+    platform.reveal("#trip-alternatives");
+  },
+  alternativeChoose(e) {
+    this.session.selectAlternative(
+      this.session.state.alternative?.candidates[Number(e.detail.value)]?.id,
+    );
+  },
+  alternativePreview() {
+    return this.session.previewAlternative();
+  },
+  alternativeApply() {
+    return this.session.applyAlternative();
+  },
+  alternativeClose() {
+    this.session.closeAlternatives();
+  },
+  alternativeDetails() {
+    this.setData({ showAlternativeDetails: !this.data.showAlternativeDetails });
   },
   moveStop(e) {
     this.session.moveStop(e.currentTarget.dataset.id);

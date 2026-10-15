@@ -1,6 +1,8 @@
 import {
   NOTICE_DRAFT_KEY,
   NOTICE_KINDS,
+  NOTICE_SIDES,
+  targetDetail,
   cleanNoticeQuery,
   cleanObservation,
   noticeTarget,
@@ -11,7 +13,12 @@ import {
   type NoticeView,
   type ObservationState,
 } from "../shared/neighborhood.js";
-export { NOTICE_KINDS };
+export { NOTICE_KINDS, NOTICE_SIDES };
+import {
+  cleanMobility,
+  mobilityReason,
+  type MobilityNeeds,
+} from "../shared/mobility.js";
 import type { WalkingGuide, WalkingLeg } from "../shared/walking-guide.js";
 export function guideNotices(leg: WalkingLeg, guide: WalkingGuide | null) {
   let path = guide?.path;
@@ -32,6 +39,11 @@ export function guideNotices(leg: WalkingLeg, guide: WalkingGuide | null) {
               {
                 name: `路段${i + 1}附近`,
                 position: step.position,
+                detail: {
+                  kind: "segment" as const,
+                  label: step.instruction.slice(0, 80),
+                  side: "unknown" as const,
+                },
                 label: `第${i + 1}段起点：${step.instruction}`,
               },
             ]
@@ -77,7 +89,15 @@ export interface NeighborhoodView {
   stepsOnly: boolean;
   hasPath: boolean;
   draft: boolean;
-  notices: (NoticeView & { observedLabel: string; notesLabel: string[] })[];
+  scope: "nearby" | "entrance" | "segment";
+  detail: string;
+  side: "unknown" | "east" | "west" | "south" | "north";
+  notices: (NoticeView & {
+    observedLabel: string;
+    notesLabel: string[];
+    locationLabel: string;
+    personalReason: string;
+  })[];
 }
 export class NeighborhoodSession {
   state: NeighborhoodView;
@@ -91,6 +111,7 @@ export class NeighborhoodSession {
     query: NoticeQuery,
     choices: NoticeChoice[],
     private deps: Deps,
+    private mobility: MobilityNeeds = cleanMobility(),
   ) {
     this.query = cleanNoticeQuery(query);
     this.now = deps.now ?? Date.now;
@@ -122,6 +143,9 @@ export class NeighborhoodSession {
       stepsOnly: false,
       hasPath: !!query.path,
       draft: false,
+      scope: "nearby",
+      detail: "",
+      side: "unknown",
       notices: [],
     };
     this.checkDraft();
@@ -152,19 +176,27 @@ export class NeighborhoodSession {
         ))
     )
       s.stale = true;
-    s.notices = (s.feed?.notices ?? []).map((n) => ({
-      ...n,
-      observedLabel: n.lastObserved
-        ? new Date(n.lastObserved).toLocaleString("zh-CN")
-        : "无保留的观察",
-      notesLabel: n.notes.map(
-        (o) =>
-          `${o.basis === "seen" ? "亲见" : "转述"} · ${o.state === "present" ? "问题仍在" : o.state === "clear" ? "已可通行或营业" : "不能确认"} · ${new Date(o.at).toLocaleString("zh-CN")}：${o.note}`,
-      ),
-    }));
+    s.notices = (s.feed?.notices ?? [])
+      .map((n) => ({
+        ...n,
+        locationLabel: targetDetail(n.target),
+        personalReason: mobilityReason(n.kind, this.mobility),
+        observedLabel: n.lastObserved
+          ? new Date(n.lastObserved).toLocaleString("zh-CN")
+          : "无保留的观察",
+        notesLabel: n.notes.map(
+          (o) =>
+            `${o.basis === "seen" ? "亲见" : "转述"} · ${o.state === "present" ? "问题仍在" : o.state === "clear" ? "已可通行或营业" : "不能确认"} · ${new Date(o.at).toLocaleString("zh-CN")}：${o.note}`,
+        ),
+      }))
+      .sort((a, b) => Number(!!b.personalReason) - Number(!!a.personalReason));
     this.deps.notify({ ...s });
   }
   tick() {
+    this.emit();
+  }
+  setMobility(value: MobilityNeeds) {
+    this.mobility = cleanMobility(value);
     this.emit();
   }
   reopen() {
@@ -233,6 +265,9 @@ export class NeighborhoodSession {
       name: item?.target.name ?? this.query.target.name,
       share: false,
       choice: 0,
+      scope: item?.target.detail?.kind ?? "nearby",
+      detail: item?.target.detail?.label ?? "",
+      side: item?.target.detail?.side ?? "unknown",
       error: "",
       status: "",
     });
@@ -240,7 +275,16 @@ export class NeighborhoodSession {
     this.emit();
   }
   field(
-    key: "note" | "name" | "kind" | "basis" | "share" | "observation",
+    key:
+      | "note"
+      | "name"
+      | "kind"
+      | "basis"
+      | "share"
+      | "observation"
+      | "scope"
+      | "detail"
+      | "side",
     value: string | boolean,
   ) {
     if (this.state.busy) return;
@@ -252,6 +296,9 @@ export class NeighborhoodSession {
       return;
     this.state.choice = index;
     this.state.name = this.state.choices[index].name;
+    this.state.scope = this.state.choices[index].detail?.kind ?? "nearby";
+    this.state.detail = this.state.choices[index].detail?.label ?? "";
+    this.state.side = this.state.choices[index].detail?.side ?? "unknown";
     this.emit();
   }
   age(minutes: number) {
@@ -275,6 +322,9 @@ export class NeighborhoodSession {
         note: s.note,
         name: s.name,
         choice: s.choice,
+        scope: s.scope,
+        detail: s.detail,
+        side: s.side,
       },
       version: this.mineVersion,
       pending: this.pending,
@@ -346,6 +396,9 @@ export class NeighborhoodSession {
       const target = noticeTarget({
         name: s.name,
         position: s.choices[s.choice].position,
+        ...(s.scope !== "nearby"
+          ? { detail: { kind: s.scope, label: s.detail, side: s.side } }
+          : {}),
       });
       const body = {
         share: true,

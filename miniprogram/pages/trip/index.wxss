@@ -232,3 +232,15 @@ textarea {
 .care .walking-step .instruction {
   font-size: 52rpx;
 }
+.alternative-box {
+  margin: 24rpx 0;
+  padding: 24rpx 0;
+  border-top: 1px solid #d4e2dc;
+  border-bottom: 1px solid #d4e2dc;
+}
+.alternative-preview {
+  padding: 24rpx;
+  margin: 24rpx 0;
+  background: #eef5ef;
+  border-left: 6rpx solid #176c60;
+}

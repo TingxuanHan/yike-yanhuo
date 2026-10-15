@@ -14,6 +14,7 @@ import { cleanMovement, type MovementSettings } from "./movement.js";
 import { cleanTripFeedback, type TripFeedback } from "./trip-feedback.js";
 import { cleanEntrance, cleanPhoto, type EntranceGuide } from "./entrance.js";
 import { cleanRoutine, type TripRoutine } from "./departure.js";
+import { cleanMobility, type MobilityNeeds } from "./mobility.js";
 export { cleanPhoto, MAX_PHOTO_LENGTH } from "./entrance.js";
 export type PlacePosition =
   | { system: "demo"; x: number; y: number }
@@ -45,6 +46,7 @@ export interface LifeBook {
   trips?: TripFeedback[];
   entrances?: EntranceGuide[];
   routines?: TripRoutine[];
+  mobility?: MobilityNeeds;
 }
 export interface LifeSnapshot {
   revision: number;
@@ -132,6 +134,9 @@ export function cleanBook(value: unknown): LifeBook {
     format: "yike-life-v1",
     preferences: cleanJourney(b.preferences),
     places,
+    ...(b.mobility !== undefined
+      ? { mobility: cleanMobility(b.mobility) }
+      : {}),
     ...(b.familiarRoutes !== undefined
       ? { familiarRoutes: cleanItems(b.familiarRoutes, cleanFamiliarRoute, 12) }
       : {}),
@@ -177,6 +182,9 @@ export function mergeBooks(local: LifeBook, incoming: LifeBook): LifeBook {
   return cleanBook({
     ...local,
     places: merge(local.places, incoming.places),
+    ...(local.mobility || incoming.mobility
+      ? { mobility: local.mobility ?? incoming.mobility }
+      : {}),
     familiarRoutes: merge(
       local.familiarRoutes ?? [],
       incoming.familiarRoutes ?? [],
