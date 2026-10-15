@@ -1,0 +1,408 @@
+{
+  "preview": {
+    "active": {
+      "version": 1,
+      "id": "trip-mv9pepz2-w7mkd1",
+      "input": {
+        "origin": {
+          "id": "home",
+          "name": "抚顺路社区睦邻中心（待核验入口）",
+          "position": {
+            "system": "bd09",
+            "lng": 121.51649820940204,
+            "lat": 31.283733525621674
+          }
+        },
+        "stops": [
+          {
+            "id": "f-market:93df0dc3624c5f32882fb55b",
+            "name": "阳普鞍山菜市场(鞍山四村店)",
+            "position": {
+              "system": "bd09",
+              "lng": 121.51783219308436,
+              "lat": 31.282418385871313
+            },
+            "category": "market",
+            "stay": 5
+          },
+          {
+            "id": "f-market:d19a60d0d5042c11593ac89c",
+            "name": "美城菜市场(鞍山支路供应点)",
+            "position": {
+              "system": "bd09",
+              "lng": 121.51597871932562,
+              "lat": 31.28547690977069
+            },
+            "category": "market",
+            "stay": 5
+          }
+        ],
+        "bundle": {
+          "nodes": [
+            {
+              "id": "home",
+              "name": "抚顺路社区睦邻中心（待核验入口）",
+              "position": {
+                "system": "bd09",
+                "lng": 121.51649820940204,
+                "lat": 31.283733525621674
+              }
+            },
+            {
+              "id": "f-market:93df0dc3624c5f32882fb55b",
+              "name": "阳普鞍山菜市场(鞍山四村店)",
+              "position": {
+                "system": "bd09",
+                "lng": 121.51783219308436,
+                "lat": 31.282418385871313
+              },
+              "category": "market",
+              "stay": 5
+            },
+            {
+              "id": "f-market:d19a60d0d5042c11593ac89c",
+              "name": "美城菜市场(鞍山支路供应点)",
+              "position": {
+                "system": "bd09",
+                "lng": 121.51597871932562,
+                "lat": 31.28547690977069
+              },
+              "category": "market",
+              "stay": 5
+            }
+          ],
+          "edges": [
+            {
+              "from": "home",
+              "to": "f-market:93df0dc3624c5f32882fb55b",
+              "travel": {
+                "status": "ok",
+                "seconds": 174,
+                "meters": 205
+              }
+            },
+            {
+              "from": "f-market:93df0dc3624c5f32882fb55b",
+              "to": "home",
+              "travel": {
+                "status": "ok",
+                "seconds": 174,
+                "meters": 205
+              }
+            },
+            {
+              "from": "home",
+              "to": "f-market:d19a60d0d5042c11593ac89c",
+              "travel": {
+                "status": "ok",
+                "seconds": 212,
+                "meters": 248
+              }
+            },
+            {
+              "from": "f-market:d19a60d0d5042c11593ac89c",
+              "to": "home",
+              "travel": {
+                "status": "ok",
+                "seconds": 212,
+                "meters": 248
+              }
+            }
+          ],
+          "usage": {
+            "requests": 2,
+            "routePairs": 2,
+            "searchRequests": 0,
+            "cacheHits": 0,
+            "retries": 0
+          },
+          "mode": "baidu",
+          "generatedAt": "2026-10-15T15:38:57.560Z"
+        },
+        "preferences": {
+          "minutes": 15,
+          "speedMps": 1.2,
+          "departure": "09:00",
+          "signals": {
+            "enabled": false,
+            "crossingsPerKm": 2,
+            "offPeakSeconds": 20,
+            "peakSeconds": 50,
+            "morningStart": "07:00",
+            "morningEnd": "09:00",
+            "eveningStart": "17:00",
+            "eveningEnd": "19:00"
+          }
+        },
+        "movement": {
+          "mode": "easy",
+          "easyMps": 1.2,
+          "briskMps": 1.4,
+          "targetMinutes": 20,
+          "maxExtraMinutes": 10,
+          "warmMinutes": 2,
+          "briskMinutes": 2,
+          "recoverMinutes": 2,
+          "returnEasy": true,
+          "continuousMinutes": 0
+        },
+        "shopping": {
+          "items": [],
+          "prices": [],
+          "blocked": [],
+          "options": {
+            "money": 50,
+            "minutes": 45,
+            "maxShops": 2,
+            "detour": 8,
+            "stay": 5,
+            "continuous": 0,
+            "rest": 2
+          }
+        },
+        "draft": {
+          "tripMinutes": 60,
+          "shoppingBudget": null,
+          "departure": null,
+          "speedMps": 1.2,
+          "walkingMinutes": null,
+          "returnEasy": null,
+          "tasks": ["market"],
+          "items": []
+        }
+      },
+      "plan": {
+        "id": "f-market:93df0dc3624c5f32882fb55b",
+        "labels": ["早点回来"],
+        "stopIds": ["f-market:93df0dc3624c5f32882fb55b"],
+        "legs": [
+          {
+            "name": "阳普鞍山菜市场(鞍山四村店)",
+            "arrival": "09:03",
+            "departure": "09:08",
+            "phases": [
+              {
+                "kind": "easy",
+                "label": "轻松走",
+                "seconds": 170.83333333333334,
+                "meters": 205,
+                "speed": 1.2
+              }
+            ],
+            "walking": 2.8472222222222223,
+            "signalWait": 0,
+            "openingWait": 0,
+            "stay": 5,
+            "rests": false,
+            "meters": 205
+          },
+          {
+            "name": "回到抚顺路社区睦邻中心（待核验入口）",
+            "arrival": "09:11",
+            "departure": "09:11",
+            "phases": [
+              {
+                "kind": "easy",
+                "label": "轻松返程",
+                "seconds": 170.83333333333334,
+                "meters": 205,
+                "speed": 1.2
+              }
+            ],
+            "walking": 2.8472222222222223,
+            "signalWait": 0,
+            "openingWait": 0,
+            "stay": 0,
+            "rests": false,
+            "meters": 205
+          }
+        ],
+        "minutes": 10.694444444444446,
+        "walking": 5.694444444444445,
+        "meters": 410,
+        "finish": "09:11",
+        "gap": 0,
+        "purchases": [],
+        "low": 0,
+        "high": 0,
+        "priceComplete": true,
+        "budget": "unset",
+        "missed": [],
+        "notes": ["阳普鞍山菜市场(鞍山四村店)的营业时间尚未确认。"]
+      },
+      "startedAt": 1792078735358,
+      "lastAt": 1792078737596,
+      "currentId": "home",
+      "remaining": ["f-market:d19a60d0d5042c11593ac89c", "home"],
+      "completed": [],
+      "skipped": ["f-market:93df0dc3624c5f32882fb55b"],
+      "phase": "at",
+      "events": [
+        {
+          "kind": "start",
+          "at": 1792078735358,
+          "placeId": "home"
+        },
+        {
+          "kind": "replan",
+          "at": 1792078737596,
+          "placeId": "home"
+        }
+      ],
+      "replacements": [
+        {
+          "from": "f-market:93df0dc3624c5f32882fb55b",
+          "to": "f-market:d19a60d0d5042c11593ac89c",
+          "kind": "place",
+          "at": 1792078737596
+        }
+      ]
+    }
+  },
+  "guide": {
+    "from": {
+      "id": "home",
+      "name": "抚顺路社区睦邻中心（待核验入口）",
+      "position": {
+        "system": "bd09",
+        "lng": 121.51649820940204,
+        "lat": 31.283733525621674
+      }
+    },
+    "to": {
+      "id": "f-market:d19a60d0d5042c11593ac89c",
+      "name": "美城菜市场(鞍山支路供应点)",
+      "position": {
+        "system": "bd09",
+        "lng": 121.51597871932562,
+        "lat": 31.28547690977069
+      }
+    },
+    "version": 1,
+    "source": "baidu",
+    "obtainedAt": 1792078738699,
+    "meters": 248,
+    "seconds": 232,
+    "path": [
+      {
+        "system": "gcj02",
+        "lng": 121.51,
+        "lat": 31.27795
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.51019,
+        "lat": 31.27804
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.51019,
+        "lat": 31.27804
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.51019,
+        "lat": 31.27804
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50999,
+        "lat": 31.27826
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50998,
+        "lat": 31.27827
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50987,
+        "lat": 31.27839
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50975,
+        "lat": 31.27852
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50968,
+        "lat": 31.27859
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50967,
+        "lat": 31.27861
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.5096,
+        "lat": 31.27869
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50948,
+        "lat": 31.27881
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50934,
+        "lat": 31.27897
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50919,
+        "lat": 31.2791
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50919,
+        "lat": 31.2791
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50919,
+        "lat": 31.2791
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50933,
+        "lat": 31.27936
+      },
+      {
+        "system": "gcj02",
+        "lng": 121.50951,
+        "lat": 31.27974
+      }
+    ],
+    "steps": [
+      {
+        "instruction": "向西北方向出发,沿抚顺路走20米,过马路左转进入鞍山路",
+        "meters": 20,
+        "position": {
+          "system": "gcj02",
+          "lng": 121.51,
+          "lat": 31.27795
+        }
+      },
+      {
+        "instruction": "走150米,过马路右转进入鞍山支路",
+        "meters": 151,
+        "position": {
+          "system": "gcj02",
+          "lng": 121.51019,
+          "lat": 31.27804
+        }
+      },
+      {
+        "instruction": "走80米,到达终点",
+        "meters": 77,
+        "position": {
+          "system": "gcj02",
+          "lng": 121.50919,
+          "lat": 31.2791
+        }
+      }
+    ]
+  }
+}

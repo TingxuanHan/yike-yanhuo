@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-10-15T15:38:58.743Z",
+  "passed": true,
+  "source": "Baidu walking API",
+  "origin": "抚顺路社区睦邻中心（待核验入口）",
+  "original": "阳普鞍山菜市场(鞍山四村店)",
+  "alternative": "美城菜市场(鞍山支路供应点)",
+  "originalRoundTripMeters": 410,
+  "alternativeRoundTripMeters": 496,
+  "guide": {
+    "meters": 248,
+    "seconds": 232,
+    "steps": 3,
+    "pathPoints": 18
+  },
+  "usage": {
+    "route": 5,
+    "search": 0,
+    "other": 0,
+    "map": 0
+  },
+  "routeCacheReused": true,
+  "guideCacheReused": true,
+  "originalPreserved": true,
+  "fieldVerified": false,
+  "limitations": [
+    "地点来自已保存的上海公开POI，未核验实际入口、营业、无障碍或路况。",
+    "备选可行性仅验证API路线与本地计算，不代表实地通行。",
+    "价格、邻里用户反馈和家庭数据未发送到百度。"
+  ]
+}
