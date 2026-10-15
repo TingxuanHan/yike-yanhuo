@@ -21,6 +21,27 @@ import { miniRuntime } from "./helpers/mini.js";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
+test("native coverage inspector works offline and replaces stale selection when time or category changes", () => {
+  const page = miniRuntime().page();
+  page.onLoad();
+  page.coverageToggle();
+  assert.equal(page.data.showCoverage, true);
+  assert.ok(page.data.coveragePoints.length > 0);
+  assert.ok(page.data.coverageSelected.reasons.length > 0);
+  page.coveragePointChange({
+    detail: { value: page.data.coveragePoints.length - 1 },
+  });
+  page.coverageCategoryChange({ detail: { value: 1 } });
+  assert.equal(page.data.coverageCategory, "pharmacy");
+  assert.match(page.data.coverageSelected.id, /^pharmacy:/);
+  const result = structuredClone(page.data.result);
+  result.samples = [];
+  page.setResult(result, false);
+  assert.equal(page.data.coverageSelected, null);
+  assert.equal(page.data.coverageOptions.length, 0);
+  page.onUnload();
+});
+
 const place: PersonalPlace = {
   id: "shop",
   name: "巷口小店",

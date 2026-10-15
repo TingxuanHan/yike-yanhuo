@@ -12,6 +12,53 @@
   --surface: #fff;
   font-size: 14px;
 }
+.coverage-inspector {
+  font-size: 14px;
+  width: 100%;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  margin-top: 12px;
+  scroll-margin-top: 20px;
+}
+.coverage-inspector select {
+  width: 100%;
+  margin: 8px 0 14px;
+}
+.coverage-inspector .coverage-verdict {
+  display: block;
+  font-size: 16px;
+}
+.coverage-inspector .missing,
+.coverage-inspector .unknown {
+  color: #80511e;
+}
+.coverage-inspector .covered {
+  color: var(--green);
+}
+.coverage-inspector ul {
+  padding-left: 22px;
+  line-height: 1.7;
+}
+.coverage-inspector dl {
+  margin: 12px 0;
+}
+.coverage-inspector dl > div {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr);
+  gap: 8px;
+  margin: 7px 0;
+}
+.coverage-inspector dt {
+  color: var(--muted);
+}
+.coverage-inspector dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.coverage-inspector:focus {
+  outline: 2px solid var(--green);
+  outline-offset: 6px;
+}
 * {
   box-sizing: border-box;
 }
@@ -1506,7 +1553,7 @@ dd {
   padding-top: 12px;
   font-size: 12px;
 }
-.gap-explanation select {
+.gap-explanation > select {
   width: 100px;
 }
 .gap-explanation p {

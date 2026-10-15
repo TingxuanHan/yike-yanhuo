@@ -7,7 +7,17 @@ export const GAP_CATEGORIES = ["market", "pharmacy", "school"] as const;
 export type GapCategory = (typeof GAP_CATEGORIES)[number];
 export type CoverageStatus = "covered" | "missing" | "unknown";
 
-export function coveragePoints(result: AnalysisResult, category: GapCategory) {
+export const COVERAGE_LABELS = {
+  covered: "已检索到设施",
+  missing: "候选缺口",
+  unknown: "数据不足，待核查",
+};
+
+export function coveragePoints(
+  result: AnalysisResult,
+  category: GapCategory,
+  minutes = result.scenario?.preferences.minutes ?? 15,
+) {
   const seen = new Set<string>();
   const facilities = result.facilities.filter(usableFacility);
   return result.samples
@@ -16,33 +26,62 @@ export function coveragePoints(result: AnalysisResult, category: GapCategory) {
       if (
         seen.has(key) ||
         sample.travel.status !== "ok" ||
-        sample.travel.seconds >
-          (result.scenario?.preferences.minutes ?? 15) * 60
+        sample.travel.seconds > minutes * 60
       )
         return false;
       seen.add(key);
       return true;
     })
-    .map((sample) => {
-      const near = facilities.some(
-        (p) =>
-          p.category === category &&
-          distance(p.point, sample.point) <=
-            result.parameters.gapDistanceMeters,
-      );
-      const searched =
-        result.complete[category] &&
+    .map((sample, index) => {
+      const nearest =
+        facilities
+          .filter((p) => p.category === category)
+          .map((p) => ({
+            id: p.id,
+            name: p.name,
+            meters: distance(p.point, sample.point),
+          }))
+          .sort((a, b) => a.meters - b.meters || a.id.localeCompare(b.id))[0] ??
+        null;
+      const near =
+        nearest !== null &&
+        nearest.meters <= result.parameters.gapDistanceMeters;
+      const inSearchArea =
         distance(sample.point, result.center.point) +
           result.parameters.gapDistanceMeters <=
-          result.parameters.searchRadiusMeters;
+        result.parameters.searchRadiusMeters;
       const status: CoverageStatus = near
         ? "covered"
-        : searched
+        : result.complete[category] && inSearchArea
           ? "missing"
           : "unknown";
-      return { point: sample.point, status };
+      const reasons: string[] = [];
+      if (near) reasons.push("核查距离内已找到至少一处可用于统计的同类设施。");
+      else {
+        if (!result.complete[category])
+          reasons.push("该类别检索结果未取全或含无效条目，可能仍有遗漏。");
+        if (!inSearchArea)
+          reasons.push("该点周围的完整核查范围超出了本次检索范围。");
+        if (status === "missing")
+          reasons.push(
+            "本次同类检索已取完，且覆盖该点完整核查范围，但未找到同类设施。",
+          );
+      }
+      return {
+        point: sample.point,
+        status,
+        id: `${category}:${pointKey(sample.point)}`,
+        number: index + 1,
+        seconds: sample.travel.status === "ok" ? sample.travel.seconds : 0,
+        nearest,
+        inSearchArea,
+        complete: result.complete[category],
+        label: COVERAGE_LABELS[status],
+        reasons,
+      };
     });
 }
+export type CoveragePoint = ReturnType<typeof coveragePoints>[number];
 export function coverageSummary(result: AnalysisResult) {
   return GAP_CATEGORIES.map((category) => {
     const points = coveragePoints(result, category);
@@ -75,7 +114,7 @@ export function gapCells(
       result.parameters.refinedStepMeters || result.parameters.coarseStepMeters,
     ) / 2;
   for (const status of ["missing", "unknown"] as const) {
-    const squares = coveragePoints(result, category)
+    const squares = coveragePoints(result, category, minutes)
       .filter((p) => p.status === status)
       .map(({ point: [x, y] }): XY[][] => [
         [

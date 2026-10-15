@@ -1,5 +1,10 @@
 import { personalize } from "../core/personalize.js";
 import { toGeo } from "../core/geo.js";
+import {
+  coveragePoints,
+  GAP_CATEGORIES,
+  type GapCategory,
+} from "../core/coverage.js";
 import { usableFacility } from "../shared/facility-review.js";
 import { cleanJourney, type JourneyPreferences } from "../shared/journey.js";
 import {
@@ -51,6 +56,26 @@ export const categories = [
   { id: "all", label: "全部" },
   ...CATEGORIES.map((c) => ({ id: c.id, label: c.label })),
 ];
+export const coverageCategories = GAP_CATEGORIES.map((id) => ({
+  id,
+  label: CATEGORIES.find((c) => c.id === id)!.label,
+}));
+export function coverageView(
+  result: AnalysisResult,
+  category: GapCategory = "school",
+) {
+  const points = coveragePoints(result, category).map((p) => ({
+    ...p,
+    option: `点${p.number} · ${p.label}`,
+    nearestLabel: p.nearest
+      ? `${p.nearest.name} · 直线约${Math.round(p.nearest.meters)}米`
+      : "本次没有可用的同类设施",
+  }));
+  return {
+    coveragePoints: points,
+    coverageOptions: points.map((p) => p.option),
+  };
+}
 export function scenario(
   source: AnalysisResult,
   prefs: JourneyPreferences,

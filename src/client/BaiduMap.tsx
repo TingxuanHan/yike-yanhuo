@@ -7,7 +7,11 @@ import {
   type XY,
 } from "../shared/types.js";
 import { toGeo } from "../core/geo.js";
-import { gapCells, type GapCategory } from "../core/coverage.js";
+import {
+  gapCells,
+  coveragePoints,
+  type GapCategory,
+} from "../core/coverage.js";
 
 interface MapInstance {
   addOverlay(value: unknown): void;
@@ -94,6 +98,7 @@ interface Props {
   disabled: boolean;
   onCenter: (point: LngLat) => void;
   onFacility: (facility: Facility) => void;
+  onCoverage: (id: string) => void;
 }
 export function BaiduMap(props: Props) {
   const element = useRef<HTMLDivElement>(null);
@@ -197,25 +202,20 @@ export function BaiduMap(props: Props) {
       pin.addEventListener("click", () => current.current.onFacility(p));
       instance.addOverlay(pin);
     }
-    if (props.showGaps)
-      for (const gap of props.result?.gaps.filter(
-        (g) =>
-          g.category === props.gapCategory &&
-          props.result?.samples.some(
-            (s) =>
-              s.point[0] === g.point[0] &&
-              s.point[1] === g.point[1] &&
-              s.travel.status === "ok" &&
-              s.travel.seconds <= props.minutes * 60,
-          ),
-      ) ?? [])
-        instance.addOverlay(
-          marker(
-            localPoint(gap.point),
-            "#b87023",
-            gap.status === "unknown" ? "?" : "×",
-          ),
+    if (props.showGaps && props.result)
+      for (const gap of coveragePoints(
+        props.result,
+        props.gapCategory,
+        props.minutes,
+      ).filter((p) => p.status !== "covered")) {
+        const pin = marker(
+          localPoint(gap.point),
+          "#b87023",
+          gap.status === "unknown" ? "?" : "×",
         );
+        pin.addEventListener("click", () => current.current.onCoverage(gap.id));
+        instance.addOverlay(pin);
+      }
     instance.addOverlay(marker(geoPoint(props.center), "#c46136", "起"));
   }, [
     ready,

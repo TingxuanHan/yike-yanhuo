@@ -29,3 +29,11 @@
   white-space: normal;
   padding: 20rpx;
 }
+.coverage-detail {
+  margin-top: 24rpx;
+}
+.coverage-line {
+  display: block;
+  margin: 16rpx 0;
+  line-height: 1.7;
+}

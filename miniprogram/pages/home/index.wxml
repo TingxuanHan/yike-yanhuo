@@ -88,6 +88,23 @@
         >带空洞的范围仅画边线，线内空白不代表全部可达。</text
       >
     </view>
+    <view wx:if="{{result}}" class="section">
+      <button bindtap="coverageToggle">{{showCoverage?'收起':'查看'}}设施覆盖核查</button>
+      <view wx:if="{{showCoverage}}" class="coverage-detail">
+        <text class="muted">{{minutes}}分钟可达采样点 · 周边{{result.parameters.gapDistanceMeters}}米直线距离</text>
+        <picker range="{{coverageCategories}}" range-key="label" value="{{coverageCategoryIndex}}" bindchange="coverageCategoryChange"><view class="picker">核查类别：{{coverageCategories[coverageCategoryIndex].label}} ▾</view></picker>
+        <picker wx:if="{{coveragePoints.length}}" range="{{coverageOptions}}" value="{{coverageIndex}}" bindchange="coveragePointChange"><view class="picker">{{coverageOptions[coverageIndex]}} ▾</view></picker>
+        <view wx:if="{{coverageSelected}}">
+          <text class="heading">{{coverageSelected.label}}</text>
+          <text wx:for="{{coverageSelected.reasons}}" wx:key="*this" class="coverage-line">{{item}}</text>
+          <text class="coverage-line">最近的已检索设施：{{coverageSelected.nearestLabel}}</text>
+          <text class="coverage-line">返回结果：{{coverageSelected.complete?'已取完':'不完整'}}；核查范围：{{coverageSelected.inSearchArea?'全部在检索范围内':'部分超出检索范围'}}</text>
+          <text class="muted">原始记录：{{generatedLabel}} · {{result.mode==='demo'?'模拟街区':'百度检索及已有核查记录'}}</text>
+          <text class="muted">仅比较未停用或冲突的已检索设施，候选缺口仍需社区台账和现场确认。</text>
+        </view>
+        <text wx:else class="muted">当前没有有效核查点，可增加时长或查看报告。</text>
+      </view>
+    </view>
     <view class="start-actions"
       ><button class="primary" bindtap="chooseStart" disabled="{{busy}}"
         >选择真实起点</button

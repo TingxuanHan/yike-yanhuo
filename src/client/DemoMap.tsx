@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { gapCells, type GapCategory } from "../core/coverage.js";
+import {
+  gapCells,
+  coveragePoints,
+  type GapCategory,
+} from "../core/coverage.js";
 import { demoRoads } from "../core/demo.js";
 import {
   CATEGORIES,
@@ -32,6 +36,7 @@ interface Props {
   disabled: boolean;
   onCenter: (point: XY) => void;
   onFacility: (facility: Facility) => void;
+  onCoverage: (id: string) => void;
 }
 export function DemoMap({
   background = "demo",
@@ -44,6 +49,7 @@ export function DemoMap({
   disabled,
   onCenter,
   onFacility,
+  onCoverage,
 }: Props) {
   const [extent, setExtent] = useState(1600);
   const container = useRef<HTMLDivElement>(null);
@@ -245,23 +251,28 @@ export function DemoMap({
             </g>
           ))}
         {showGaps &&
-          result?.gaps
-            .filter(
-              (g) =>
-                g.category === gapCategory &&
-                result.samples.some(
-                  (s) =>
-                    s.point[0] === g.point[0] &&
-                    s.point[1] === g.point[1] &&
-                    s.travel.status === "ok" &&
-                    s.travel.seconds <= minutes * 60,
-                ),
-            )
+          result &&
+          coveragePoints(result, gapCategory, minutes)
+            .filter((g) => g.status !== "covered")
             .map((g, i) => (
               <g
                 key={i}
                 transform={`translate(${g.point[0]},${-g.point[1]})`}
-                pointerEvents="none"
+                role="button"
+                tabIndex={0}
+                className="map-poi"
+                aria-label={`核查点${g.number}：${g.label}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCoverage(g.id);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onCoverage(g.id);
+                  }
+                }}
               >
                 <circle
                   r="25"
@@ -277,7 +288,7 @@ export function DemoMap({
                 />
                 <title>
                   {g.status === "unknown" ? "待核查" : "1公里内未检索到"}
-                  {CATEGORIES.find((c) => c.id === g.category)?.label}
+                  {CATEGORIES.find((c) => c.id === gapCategory)?.label}
                 </title>
               </g>
             ))}

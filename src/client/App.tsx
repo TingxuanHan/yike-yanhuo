@@ -26,6 +26,7 @@ import { LifePanel } from "./LifePanel.js";
 import { personalize } from "../core/personalize.js";
 import type { PersonalPlace } from "../shared/life.js";
 import { SimpleHome } from "./SimpleHome.js";
+import { CoverageInspector } from "./CoverageInspector.js";
 import { SIMPLE_KEY } from "../shared/family.js";
 
 export function App() {
@@ -53,6 +54,14 @@ export function App() {
   );
   const [showGaps, setShowGaps] = useState(false);
   const [gapCategory, setGapCategory] = useState<GapCategory>("school");
+  const [gapPoint, setGapPoint] = useState<string | null>(null);
+  const selectGap = (id: string) => {
+    setGapPoint(id);
+    setSelected(null);
+    requestAnimationFrame(() =>
+      document.getElementById("coverage-inspector")?.focus(),
+    );
+  };
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [replay, setReplay] = useState(false);
   const [liveMap, setLiveMap] = useState(false);
@@ -763,6 +772,7 @@ export function App() {
                   disabled={busy || replay}
                   onCenter={choosePoint}
                   onFacility={setSelected}
+                  onCoverage={selectGap}
                 />
               ) : geo && config?.mapConfigured ? (
                 <BaiduMap
@@ -775,6 +785,7 @@ export function App() {
                   disabled={busy}
                   onCenter={chooseGeo}
                   onFacility={setSelected}
+                  onCoverage={selectGap}
                 />
               ) : (
                 <div className="map-stage map-empty">
@@ -861,6 +872,14 @@ export function App() {
                       灰色实填 / ×：1公里内未检索到；浅灰斜线或虚线 /
                       ?：数据不足。色块仅提示采样点周边，不是连续缺口面积。
                     </p>
+                    <CoverageInspector
+                      key={`${result.id}:${gapCategory}:${minutes}`}
+                      result={result}
+                      category={gapCategory}
+                      minutes={minutes}
+                      selected={gapPoint}
+                      onSelect={setGapPoint}
+                    />
                   </div>
                 )}
                 <section className="result-strip" aria-label="体检摘要">

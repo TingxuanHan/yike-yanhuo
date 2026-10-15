@@ -42,6 +42,14 @@ Page({
     showAdvanced: false,
     showConnection: false,
     showReportDetails: false,
+    showCoverage: false,
+    coverageCategory: "school",
+    coverageCategories: experience.coverageCategories,
+    coverageCategoryIndex: 2,
+    coverageIndex: 0,
+    coveragePoints: [],
+    coverageOptions: [],
+    coverageSelected: null,
     selectedFacility: null,
     nearby: [],
     minutes: 15,
@@ -355,6 +363,41 @@ Page({
       selectedFacility: null,
     });
     this.setResult(this.data.result, false);
+  },
+  coverageToggle() {
+    this.setData({ showCoverage: !this.data.showCoverage });
+    this.updateCoverage();
+  },
+  coverageCategoryChange(e) {
+    const index = Number(e.detail.value);
+    const category = this.data.coverageCategories[index];
+    if (!category) return;
+    this.setData({
+      coverageCategory: category.id,
+      coverageCategoryIndex: index,
+    });
+    this.updateCoverage();
+  },
+  coveragePointChange(e) {
+    const index = Number(e.detail.value);
+    const point = this.data.coveragePoints[index];
+    if (point) this.setData({ coverageIndex: index, coverageSelected: point });
+  },
+  updateCoverage() {
+    if (!this.data.result || !this.data.showCoverage) return;
+    const view = experience.coverageView(
+      this.data.result,
+      this.data.coverageCategory,
+    );
+    const index = Math.max(
+      0,
+      view.coveragePoints.findIndex((p) => p.status !== "covered"),
+    );
+    this.setData({
+      ...view,
+      coverageIndex: index,
+      coverageSelected: view.coveragePoints[index] || null,
+    });
   },
   selectFacility(e) {
     const id = e.currentTarget.dataset.id;
@@ -785,7 +828,10 @@ Page({
         tab: "nearby",
         selectedFacility: null,
       },
-      () => this.drawMap(),
+      () => {
+        this.drawMap();
+        this.updateCoverage();
+      },
     );
     if (cache) {
       try {
