@@ -73,6 +73,17 @@ function union(shapes: MultiPolygon[]): MultiPolygon {
   return joined;
 }
 
+// Positive evidence only: a point inside this footprint is within the distance
+// threshold. Its complement cannot prove absence near the polygon boundary.
+export function positiveCoverageFootprint(
+  centers: XY[],
+  distanceMeters: number,
+): MultiPolygon {
+  if (!Number.isFinite(distanceMeters) || distanceMeters <= PAD)
+    throw new Error("设施核查距离无效。");
+  return union(centers.map((p) => circle(p, distanceMeters - PAD)));
+}
+
 export function coverageArea(
   result: AnalysisResult,
   category: GapCategory,
@@ -146,7 +157,7 @@ export function coverageArea(
     centers.set(`${x},${y}`, p.point);
   }
   output.facilitiesUsed = centers.size;
-  const inner = union([...centers.values()].map((p) => circle(p, innerRadius)));
+  const inner = positiveCoverageFootprint([...centers.values()], d);
   const outer = union([...centers.values()].map((p) => circle(p, outerRadius)));
   const covered = intersect(domain, inner);
   const possible = intersect(domain, outer);

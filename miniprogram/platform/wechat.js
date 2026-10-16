@@ -353,7 +353,7 @@ module.exports = {
         ctx.fill();
         ctx.setFillStyle("#ffffff");
         ctx.setFontSize(9);
-        ctx.fillText(String(i + 1), p.x - 3, p.y + 3);
+        ctx.fillText(p.label || String(i + 1), p.x - 3, p.y + 3);
       });
       ctx.setFillStyle("#d57243");
       ctx.beginPath();

@@ -1,6 +1,7 @@
 import { coveragePoints, type GapCategory } from "../core/coverage.js";
 import { CATEGORIES, type AnalysisResult } from "../shared/types.js";
 import { CoverageAreaPanel } from "./CoverageAreaPanel.js";
+import { FacilitySitingPanel } from "./FacilitySitingPanel.js";
 
 export function CoverageInspector({
   result,
@@ -29,6 +30,11 @@ export function CoverageInspector({
       aria-label="点位判定详情"
     >
       <CoverageAreaPanel
+        result={result}
+        category={category}
+        minutes={minutes}
+      />
+      <FacilitySitingPanel
         result={result}
         category={category}
         minutes={minutes}

@@ -1,0 +1,974 @@
+{
+  "version": "conservative-gap-gain-v1",
+  "evidence": "simulation",
+  "externalApiCalls": 0,
+  "oracle": "Independent Euclidean distance tests on a 37m by 41m offset grid, for each of 7 plans per input.",
+  "comparisonUnit": "point-plan pairs; not unique locations or people",
+  "category": "market",
+  "minutes": 15,
+  "candidates": [
+    {
+      "id": "west",
+      "name": "西侧假设",
+      "point": [
+        -1100,
+        500
+      ]
+    },
+    {
+      "id": "west2",
+      "name": "西南假设",
+      "point": [
+        -1000,
+        -500
+      ]
+    },
+    {
+      "id": "east",
+      "name": "东侧假设",
+      "point": [
+        1100,
+        500
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "schemaVersion": 1,
+      "id": "完整检索与1公里边界",
+      "mode": "demo",
+      "generatedAt": "2026-10-16T00:00:00.000Z",
+      "center": {
+        "label": "完整检索与1公里边界",
+        "point": [
+          0,
+          0
+        ]
+      },
+      "contours": [
+        {
+          "minutes": 15,
+          "polygons": [
+            [
+              [
+                [
+                  -1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  -1500
+                ]
+              ]
+            ]
+          ],
+          "areaKm2": 9,
+          "clipped": false
+        }
+      ],
+      "samples": [],
+      "facilities": [
+        {
+          "id": "constructed-market",
+          "name": "构造菜场",
+          "category": "market",
+          "point": [
+            0,
+            0
+          ],
+          "address": "构造"
+        }
+      ],
+      "complete": {
+        "market": true,
+        "pharmacy": true,
+        "school": true,
+        "medical": true,
+        "park": true,
+        "elder": true
+      },
+      "gaps": [],
+      "warnings": [
+        "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+        "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+        "部分边界仍采用较粗采样，未超过本次加密预算。"
+      ],
+      "usage": {
+        "requests": 0,
+        "routePairs": 0,
+        "searchRequests": 0,
+        "cacheHits": 0,
+        "retries": 0
+      },
+      "elapsedMs": 0,
+      "parameters": {
+        "radiusMeters": 1500,
+        "coarseStepMeters": 400,
+        "refinedStepMeters": 100,
+        "refinementPoints": 96,
+        "meshVersion": "shared-edge-two-pass-v2",
+        "searchRadiusMeters": 4000,
+        "gapDistanceMeters": 1000,
+        "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+      },
+      "quality": {
+        "knownSamples": 177,
+        "totalSamples": 177,
+        "unknownFacilities": 0,
+        "skippedTriangles": 0
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "类别检索未取全",
+      "mode": "demo",
+      "generatedAt": "2026-10-16T00:00:00.000Z",
+      "center": {
+        "label": "类别检索未取全",
+        "point": [
+          0,
+          0
+        ]
+      },
+      "contours": [
+        {
+          "minutes": 15,
+          "polygons": [
+            [
+              [
+                [
+                  -1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  -1500
+                ]
+              ]
+            ]
+          ],
+          "areaKm2": 9,
+          "clipped": false
+        }
+      ],
+      "samples": [],
+      "facilities": [
+        {
+          "id": "constructed-market",
+          "name": "构造菜场",
+          "category": "market",
+          "point": [
+            0,
+            0
+          ],
+          "address": "构造"
+        }
+      ],
+      "complete": {
+        "market": false,
+        "pharmacy": true,
+        "school": true,
+        "medical": true,
+        "park": true,
+        "elder": true
+      },
+      "gaps": [],
+      "warnings": [
+        "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+        "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+        "部分边界仍采用较粗采样，未超过本次加密预算。"
+      ],
+      "usage": {
+        "requests": 0,
+        "routePairs": 0,
+        "searchRequests": 0,
+        "cacheHits": 0,
+        "retries": 0
+      },
+      "elapsedMs": 0,
+      "parameters": {
+        "radiusMeters": 1500,
+        "coarseStepMeters": 400,
+        "refinedStepMeters": 100,
+        "refinementPoints": 96,
+        "meshVersion": "shared-edge-two-pass-v2",
+        "searchRadiusMeters": 4000,
+        "gapDistanceMeters": 1000,
+        "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+      },
+      "quality": {
+        "knownSamples": 177,
+        "totalSamples": 177,
+        "unknownFacilities": 0,
+        "skippedTriangles": 0
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "检索边界截断",
+      "mode": "demo",
+      "generatedAt": "2026-10-16T00:00:00.000Z",
+      "center": {
+        "label": "检索边界截断",
+        "point": [
+          0,
+          0
+        ]
+      },
+      "contours": [
+        {
+          "minutes": 15,
+          "polygons": [
+            [
+              [
+                [
+                  -1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  -1500
+                ]
+              ]
+            ]
+          ],
+          "areaKm2": 9,
+          "clipped": false
+        }
+      ],
+      "samples": [],
+      "facilities": [
+        {
+          "id": "constructed-market",
+          "name": "构造菜场",
+          "category": "market",
+          "point": [
+            0,
+            0
+          ],
+          "address": "构造"
+        }
+      ],
+      "complete": {
+        "market": true,
+        "pharmacy": true,
+        "school": true,
+        "medical": true,
+        "park": true,
+        "elder": true
+      },
+      "gaps": [],
+      "warnings": [
+        "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+        "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+        "部分边界仍采用较粗采样，未超过本次加密预算。"
+      ],
+      "usage": {
+        "requests": 0,
+        "routePairs": 0,
+        "searchRequests": 0,
+        "cacheHits": 0,
+        "retries": 0
+      },
+      "elapsedMs": 0,
+      "parameters": {
+        "radiusMeters": 1500,
+        "coarseStepMeters": 400,
+        "refinedStepMeters": 100,
+        "refinementPoints": 96,
+        "meshVersion": "shared-edge-two-pass-v2",
+        "searchRadiusMeters": 2400,
+        "gapDistanceMeters": 1000,
+        "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+      },
+      "quality": {
+        "knownSamples": 177,
+        "totalSamples": 177,
+        "unknownFacilities": 0,
+        "skippedTriangles": 0
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "空洞与停用设施",
+      "mode": "demo",
+      "generatedAt": "2026-10-16T00:00:00.000Z",
+      "center": {
+        "label": "空洞与停用设施",
+        "point": [
+          0,
+          0
+        ]
+      },
+      "contours": [
+        {
+          "minutes": 15,
+          "polygons": [
+            [
+              [
+                [
+                  -1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  -1500
+                ]
+              ],
+              [
+                [
+                  -300,
+                  -300
+                ],
+                [
+                  300,
+                  -300
+                ],
+                [
+                  300,
+                  300
+                ],
+                [
+                  -300,
+                  300
+                ],
+                [
+                  -300,
+                  -300
+                ]
+              ]
+            ]
+          ],
+          "areaKm2": 9,
+          "clipped": false
+        }
+      ],
+      "samples": [],
+      "facilities": [
+        {
+          "id": "constructed-market",
+          "name": "构造菜场",
+          "category": "market",
+          "point": [
+            0,
+            0
+          ],
+          "address": "构造",
+          "evidence": [
+            {
+              "source": "constructed",
+              "recordId": "closed",
+              "checkedAt": "2026-10-16T00:00:00.000Z",
+              "status": "closed",
+              "basis": "构造停用"
+            }
+          ]
+        }
+      ],
+      "complete": {
+        "market": true,
+        "pharmacy": true,
+        "school": true,
+        "medical": true,
+        "park": true,
+        "elder": true
+      },
+      "gaps": [],
+      "warnings": [
+        "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+        "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+        "部分边界仍采用较粗采样，未超过本次加密预算。"
+      ],
+      "usage": {
+        "requests": 0,
+        "routePairs": 0,
+        "searchRequests": 0,
+        "cacheHits": 0,
+        "retries": 0
+      },
+      "elapsedMs": 0,
+      "parameters": {
+        "radiusMeters": 1500,
+        "coarseStepMeters": 400,
+        "refinedStepMeters": 100,
+        "refinementPoints": 96,
+        "meshVersion": "shared-edge-two-pass-v2",
+        "searchRadiusMeters": 4000,
+        "gapDistanceMeters": 1000,
+        "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+      },
+      "quality": {
+        "knownSamples": 177,
+        "totalSamples": 177,
+        "unknownFacilities": 0,
+        "skippedTriangles": 0
+      }
+    }
+  ],
+  "results": [
+    {
+      "label": "完整检索与1公里边界",
+      "baseline": {
+        "covered": 3140324.87629558,
+        "missing": 5857770.085607141,
+        "unknown": 1905.038097282406
+      },
+      "plans": [
+        {
+          "plan": "B",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 7.450580596923828e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 1498587.5146922064,
+            "unknownAssumption": 592.6517634045231,
+            "remainingGap": 4359182.57091494,
+            "remainingUnknown": 1312.3863338746014
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "C",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 1.862645149230957e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 1466974.8411200028,
+            "unknownAssumption": 559.0331103879726,
+            "remainingGap": 4390795.24448714,
+            "remainingUnknown": 1346.0049868915594
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 1.862645149230957e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 1466974.8411200019,
+            "unknownAssumption": 559.0331103881254,
+            "remainingGap": 4390795.244487137,
+            "remainingUnknown": 1346.0049868914066
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "B + C",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 1.862645149230957e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 2965562.355812209,
+            "unknownAssumption": 1151.6848737924956,
+            "remainingGap": 2892207.7297949335,
+            "remainingUnknown": 753.3532234865925
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + C",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 3.725290298461914e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 2933949.682240005,
+            "unknownAssumption": 1118.0662207760834,
+            "remainingGap": 2923820.403367138,
+            "remainingUnknown": 786.9718765037833
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + B",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 2457511.214666192,
+            "unknownAssumption": 845.8056768083843,
+            "remainingGap": 3400258.870940948,
+            "remainingUnknown": 1059.2324204710603
+          },
+          "duplicateGapSquareMeters": 508051.1411460163
+        },
+        {
+          "plan": "A + B + C",
+          "siteCount": 3,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 1.862645149230957e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 3924486.0557861947,
+            "unknownAssumption": 1404.8387871963423,
+            "remainingGap": 1933284.029820948,
+            "remainingUnknown": 500.1993100831387
+          },
+          "duplicateGapSquareMeters": 508051.1411460168
+        }
+      ]
+    },
+    {
+      "label": "类别检索未取全",
+      "baseline": {
+        "covered": 3140324.87629558,
+        "missing": 0,
+        "unknown": 5859675.123704421
+      },
+      "plans": [
+        {
+          "plan": "A",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 1.862645149230957e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 0,
+            "unknownAssumption": 1467533.87423039,
+            "remainingGap": 0,
+            "remainingUnknown": 4392141.249474028
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "B",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 0,
+            "unknownAssumption": 1499180.1664556107,
+            "remainingGap": 0,
+            "remainingUnknown": 4360494.957248808
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "C",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 0,
+            "unknownAssumption": 1467533.8742303904,
+            "remainingGap": 0,
+            "remainingUnknown": 4392141.24947403
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + B",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 1.862645149230957e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 0,
+            "unknownAssumption": 2458357.020343,
+            "remainingGap": 0,
+            "remainingUnknown": 3401318.1033614185
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + C",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 0,
+            "unknownAssumption": 2935067.748460781,
+            "remainingGap": 0,
+            "remainingUnknown": 2924607.3752436396
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "B + C",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 1.862645149230957e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 0,
+            "unknownAssumption": 2966714.040686001,
+            "remainingGap": 0,
+            "remainingUnknown": 2892961.0830184203
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + B + C",
+          "siteCount": 3,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 0,
+            "unknownAssumption": 3925890.8945733905,
+            "remainingGap": 0,
+            "remainingUnknown": 1933784.2291310304
+          },
+          "duplicateGapSquareMeters": 0
+        }
+      ]
+    },
+    {
+      "label": "检索边界截断",
+      "baseline": {
+        "covered": 3140324.87629558,
+        "missing": 3012810.360314354,
+        "unknown": 2846864.7633900633
+      },
+      "plans": [
+        {
+          "plan": "B",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 5.587935447692871e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 845528.1334340387,
+            "unknownAssumption": 653652.0330215724,
+            "remainingGap": 2167282.2268803213,
+            "remainingUnknown": 2193212.730368493
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "C",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 3.725290298461914e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 814496.4593732189,
+            "unknownAssumption": 653037.4148571718,
+            "remainingGap": 2198313.9009411414,
+            "remainingUnknown": 2193827.3485328904
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A",
+          "siteCount": 1,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 814496.4593732181,
+            "unknownAssumption": 653037.4148571726,
+            "remainingGap": 2198313.900941137,
+            "remainingUnknown": 2193827.3485328928
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "B + C",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 1660024.5928072575,
+            "unknownAssumption": 1306689.4478787442,
+            "remainingGap": 1352785.7675071023,
+            "remainingUnknown": 1540175.3155113165
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + C",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 3.725290298461914e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 1628992.918746437,
+            "unknownAssumption": 1306074.8297143443,
+            "remainingGap": 1383817.4415679232,
+            "remainingUnknown": 1540789.9336757187
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + B",
+          "siteCount": 2,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 3.725290298461914e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 1256902.8344356476,
+            "unknownAssumption": 1201454.185907353,
+            "remainingGap": 1755907.5258787111,
+            "remainingUnknown": 1645410.5774827115
+          },
+          "duplicateGapSquareMeters": 403121.75837160926
+        },
+        {
+          "plan": "A + B + C",
+          "siteCount": 3,
+          "checkedPoints": 5913,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 1.862645149230957e-9,
+          "squareMeters": {
+            "existing": 3140324.87629558,
+            "gapGain": 2071399.2938088665,
+            "unknownAssumption": 1854491.6007645247,
+            "remainingGap": 941411.0665054929,
+            "remainingUnknown": 992373.1626255375
+          },
+          "duplicateGapSquareMeters": 403121.75837160903
+        }
+      ]
+    },
+    {
+      "label": "空洞与停用设施",
+      "baseline": {
+        "covered": 0,
+        "missing": 8640000,
+        "unknown": 0
+      },
+      "plans": [
+        {
+          "plan": "B",
+          "siteCount": 1,
+          "checkedPoints": 5689,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 3.725290298461914e-9,
+          "squareMeters": {
+            "existing": 0,
+            "gapGain": 2437589.861134309,
+            "unknownAssumption": 0,
+            "remainingGap": 6202410.138865688,
+            "remainingUnknown": 0
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "C",
+          "siteCount": 1,
+          "checkedPoints": 5689,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 0,
+            "gapGain": 2305117.491775808,
+            "unknownAssumption": 0,
+            "remainingGap": 6334882.508224193,
+            "remainingUnknown": 0
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A",
+          "siteCount": 1,
+          "checkedPoints": 5689,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 7.450580596923828e-9,
+          "squareMeters": {
+            "existing": 0,
+            "gapGain": 2305117.491775807,
+            "unknownAssumption": 0,
+            "remainingGap": 6334882.5082241865,
+            "remainingUnknown": 0
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "B + C",
+          "siteCount": 2,
+          "checkedPoints": 5689,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 0,
+            "gapGain": 4742707.352910116,
+            "unknownAssumption": 0,
+            "remainingGap": 3897292.6470898837,
+            "remainingUnknown": 0
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + C",
+          "siteCount": 2,
+          "checkedPoints": 5689,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 0,
+            "gapGain": 4610234.983551615,
+            "unknownAssumption": 0,
+            "remainingGap": 4029765.016448385,
+            "remainingUnknown": 0
+          },
+          "duplicateGapSquareMeters": 0
+        },
+        {
+          "plan": "A + B",
+          "siteCount": 2,
+          "checkedPoints": 5689,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 7.450580596923828e-9,
+          "squareMeters": {
+            "existing": 0,
+            "gapGain": 3734577.9992667236,
+            "unknownAssumption": 0,
+            "remainingGap": 4905422.000733268,
+            "remainingUnknown": 0
+          },
+          "duplicateGapSquareMeters": 1008129.3536433927
+        },
+        {
+          "plan": "A + B + C",
+          "siteCount": 3,
+          "checkedPoints": 5689,
+          "falseGapGain": 0,
+          "falseAssumedCoverage": 0,
+          "partitionErrors": 0,
+          "conservationErrorSquareMeters": 0,
+          "squareMeters": {
+            "existing": 0,
+            "gapGain": 6039695.491042532,
+            "unknownAssumption": 0,
+            "remainingGap": 2600304.5089574684,
+            "remainingUnknown": 0
+          },
+          "duplicateGapSquareMeters": 1008129.3536433922
+        }
+      ]
+    }
+  ]
+}

@@ -69,6 +69,12 @@ Page({
     coverageArea: null,
     coverageAreaError: "",
     showCoverageBasis: false,
+    showSiting: false,
+    sitingOptions: [],
+    sitingSelections: [0, 0, 0],
+    sitingView: null,
+    sitingError: "",
+    sitingNotice: "",
     selectedFacility: null,
     nearby: [],
     minutes: 15,
@@ -480,6 +486,147 @@ Page({
   coverageBasisToggle() {
     this.setData({ showCoverageBasis: !this.data.showCoverageBasis });
   },
+  sitingToggle() {
+    this.setData({ showSiting: !this.data.showSiting });
+    this.updateSitingOptions();
+    this.drawSiting();
+  },
+  updateSitingOptions() {
+    const context = `${this.data.coverageCategory}:${this.data.minutes}`;
+    if (
+      this.sitingReport === this.data.result &&
+      this.sitingContext === context
+    )
+      return;
+    this.sitingReport = this.data.result;
+    this.sitingContext = context;
+    this.sitingComparison = null;
+    try {
+      const options = experience.sitingOptions(
+        this.data.result,
+        this.data.coverageCategory,
+        this.data.minutes,
+      );
+      this.setData({
+        sitingOptions: [{ id: "", label: "暂不选择" }, ...options],
+        sitingSelections: [0, 0, 0],
+        sitingView: null,
+        sitingError: "",
+        sitingNotice: "",
+      });
+    } catch (e) {
+      this.setData({
+        sitingOptions: [],
+        sitingSelections: [0, 0, 0],
+        sitingView: null,
+        sitingError: e.message,
+        sitingNotice: "",
+      });
+    }
+  },
+  sitingSelect(e) {
+    const slot = Number(e.currentTarget.dataset.slot);
+    const index = Number(e.detail.value);
+    if (
+      !Number.isInteger(slot) ||
+      slot < 0 ||
+      slot > 2 ||
+      !this.data.sitingOptions[index]
+    )
+      return;
+    this.sitingComparison = null;
+    this.setData({
+      sitingSelections: this.data.sitingSelections.map((value, i) =>
+        i === slot ? index : value,
+      ),
+      sitingView: null,
+      sitingError: "",
+      sitingNotice: "",
+    });
+  },
+  compareSites() {
+    try {
+      this.updateSitingOptions();
+      const ids = this.data.sitingSelections.map(
+        (i) => this.data.sitingOptions[i]?.id || "",
+      );
+      this.sitingComparison = experience.compareSelectedSites(
+        this.data.result,
+        this.data.coverageCategory,
+        this.data.minutes,
+        ids,
+      );
+      this.renderSiting(
+        this.sitingComparison.scenarios[0].id,
+        false,
+        ".siting-result",
+      );
+    } catch (e) {
+      this.sitingComparison = null;
+      this.setData({
+        sitingView: null,
+        sitingError: e.message || "比较未完成，请重新选择位置。",
+      });
+    }
+  },
+  renderSiting(selected, before, reveal) {
+    try {
+      if (!this.sitingComparison || this.sitingReport !== this.data.result)
+        throw new Error("报告已变化，请重新比较。");
+      const view = experience.sitingView(
+        this.data.result,
+        this.sitingComparison,
+        selected,
+        before,
+      );
+      if (utf8Bytes(JSON.stringify(view)) > 900_000)
+        throw new Error("比较图过大，请在Web查看。");
+      this.setData(
+        { sitingView: view, sitingError: "", sitingNotice: "" },
+        () => {
+          this.drawSiting();
+          if (reveal) platform.reveal?.(reveal);
+        },
+      );
+    } catch (e) {
+      this.sitingComparison = null;
+      this.setData({ sitingView: null, sitingError: e.message });
+    }
+  },
+  sitingPlan(e) {
+    this.renderSiting(e.currentTarget.dataset.id, false, ".siting-switch");
+  },
+  sitingBefore(e) {
+    if (this.data.sitingView)
+      this.renderSiting(
+        this.data.sitingView.currentId,
+        e.currentTarget.dataset.before === "true",
+      );
+  },
+  drawSiting() {
+    if (
+      this.data.tab === "nearby" &&
+      !this.data.simpleMode &&
+      this.data.showCoverage &&
+      this.data.showSiting &&
+      (!this.data.reviewMode || this.data.reviewPanel === "coverage") &&
+      this.data.sitingView
+    )
+      platform.drawSketch?.(this.data.sitingView.sketch, this, "siting-sketch");
+  },
+  copySiting() {
+    return this.action(async () => {
+      this.updateSitingOptions();
+      if (!this.sitingComparison || !this.data.sitingView)
+        throw new Error("请先比较当前报告的补点方案。");
+      await platform.clipboard(
+        experience.sitingSummary(this.data.result, this.sitingComparison),
+      );
+      this.setData({
+        sitingNotice: "比较摘要已复制，包含候选坐标、来源与规划假设。",
+      });
+    });
+  },
   comparisonToggle() {
     this.setData({ showComparison: !this.data.showComparison });
     this.drawComparison();
@@ -602,6 +749,7 @@ Page({
   },
   updateCoverage() {
     if (!this.data.result || !this.data.showCoverage) return;
+    this.updateSitingOptions();
     const view = experience.coverageView(
       this.data.result,
       this.data.coverageCategory,
@@ -649,6 +797,7 @@ Page({
         this,
         "coverage-sketch",
       );
+    this.drawSiting();
   },
   copyCoverageArea() {
     return this.action(async () => {

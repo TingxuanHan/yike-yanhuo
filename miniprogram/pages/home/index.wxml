@@ -219,6 +219,48 @@
           <button class="quiet" bindtap="copyCoverageArea">复制分区摘要</button>
         </view>
         <text wx:if="{{coverageAreaError}}" class="error">{{coverageAreaError}}</text>
+        <view class="siting-panel">
+          <button class="disclosure" bindtap="sitingToggle">{{showSiting?'收起':'比较'}}设施补点方案</button>
+          <view wx:if="{{showSiting}}">
+            <text class="heading">多一处服务，放在哪里更有帮助？</text>
+            <text>从已有核查点选1至3处位置，比较补足的原缺口面积。</text>
+            <text class="muted">位置是规划假设，入口和用地需另行核实。本地比较不消耗地图接口额度。</text>
+            <view wx:if="{{sitingOptions.length > 1}}">
+              <label wx:for="{{sitingSelections}}" wx:key="index">候选位置{{index + 1}}{{index > 0?'（选填）':''}}
+                <picker range="{{sitingOptions}}" range-key="label" value="{{item}}" data-slot="{{index}}" bindchange="sitingSelect"><view class="picker">{{sitingOptions[item].label}} ▾</view></picker>
+              </label>
+              <button class="primary" bindtap="compareSites" disabled="{{!sitingSelections[0] && !sitingSelections[1] && !sitingSelections[2]}}">比较所选方案</button>
+            </view>
+            <text wx:else class="notice">当前时长没有可选测时点。请增加时长，或先完成社区体检。</text>
+            <text wx:if="{{sitingError}}" class="error">{{sitingError}}</text>
+            <view wx:if="{{sitingView}}" class="siting-result">
+              <text class="eyebrow">{{sitingView.minutes}}分钟范围 · {{sitingView.categoryLabel}} · 规划假设</text>
+              <text class="heading">原候选缺口约{{sitingView.baselineGap}} km²</text>
+              <text wx:if="{{sitingView.noProvenGap}}" class="notice">当前资料没有可证实的候选缺口。待核查区假设覆盖不计入改善，也不证明现实没有缺口。</text>
+              <text class="muted">按相同新增数量比较，先显示补足缺口较多的方案。不代表最优选址，小面积差异仍需现场核实。</text>
+              <view wx:for="{{sitingView.candidates}}" wx:key="id" class="siting-candidate"><text>{{item.letter}} · {{item.name}}</text><text class="muted">{{item.coordinates}}</text></view>
+              <view wx:for="{{sitingView.groups}}" wx:for-item="group" wx:key="count" class="siting-group">
+                <text class="place-name">{{group.label}}</text>
+                <button wx:for="{{group.plans}}" wx:key="id" data-id="{{item.id}}" bindtap="sitingPlan" class="siting-plan {{sitingView.currentId===item.id?'selected':''}}">
+                  <text>方案 {{item.label}}{{sitingView.currentId===item.id?' · 已选':''}}</text>
+                  <text>补足原缺口约{{item.gapGain}} km²</text>
+                  <text class="muted">待核查区假设覆盖约{{item.unknownAssumption}} km²</text>
+                </button>
+              </view>
+              <view class="siting-switch"><button class="{{sitingView.before?'primary':'secondary'}}" data-before="true" bindtap="sitingBefore">补点前</button><button class="{{sitingView.before?'secondary':'primary'}}" data-before="false" bindtap="sitingBefore">假设补点后</button></view>
+              <text class="place-name">{{sitingView.title}}</text>
+              <canvas canvas-id="siting-sketch" id="siting-sketch" class="coverage-area-sketch" />
+              <text class="muted">设施直线覆盖示意，不作导航。字母对应候选位置。{{sitingView.hasHoles?'含空洞分区只画边线。':''}}</text>
+              <view wx:for="{{sitingView.rows}}" wx:key="state" class="siting-area-row"><text><text style="color:{{item.color}}">■ </text>{{item.label}}</text><text>约{{item.area}} km²</text></view>
+              <text wx:if="{{!sitingView.before}}" class="muted">组合计算已扣除重复计入的原缺口约{{sitingView.duplicateGap}} km²。待核查区假设覆盖单列，不计入已证实的缺口改善。</text>
+              <text wx:if="{{sitingView.clipped}}" class="notice">步行范围可能截断，只比较当前已生成的部分。</text>
+              <text class="muted">按周边{{sitingView.distanceMeters}}米直线距离计算，距离边界保守保留。“未计入补足”不等于证明新增设施无法覆盖；面积不是受益人数或到店步行距离。</text>
+              <text class="muted">{{result.mode==='demo'?'人工构造数据':'百度API及已有核查记录，未现场验证'}} · 原始记录{{generatedLabel}}。原报告和公共设施未被改动。</text>
+              <button class="secondary" bindtap="copySiting">复制补点比较摘要</button>
+              <text wx:if="{{sitingNotice}}" class="notice">{{sitingNotice}}</text>
+            </view>
+          </view>
+        </view>
         <picker
           wx:if="{{coveragePoints.length}}"
           range="{{coverageOptions}}"

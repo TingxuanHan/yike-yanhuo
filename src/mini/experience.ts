@@ -1,6 +1,12 @@
 import { personalize } from "../core/personalize.js";
 import { walkingTimeBands } from "../core/time-bands.js";
 export { coverageAreaView } from "../core/coverage-area.js";
+export {
+  sitingOptions,
+  compareSelectedSites,
+  sitingView,
+  sitingSummary,
+} from "../core/facility-siting.js";
 import { toGeo } from "../core/geo.js";
 import {
   coveragePoints,

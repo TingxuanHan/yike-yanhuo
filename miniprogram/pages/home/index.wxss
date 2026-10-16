@@ -197,3 +197,58 @@
 .care-mode .coverage-area-row text {
   display: block;
 }
+.siting-panel {
+  border-top: 1px solid #cbded4;
+  border-bottom: 1px solid #cbded4;
+  margin: 16px 0;
+  padding: 6px 0;
+}
+.siting-panel label {
+  display: block;
+  margin: 14px 0;
+}
+.siting-candidate {
+  margin: 12px 0;
+}
+.siting-candidate > text {
+  display: block;
+}
+.siting-group {
+  margin: 18px 0;
+}
+.siting-plan {
+  text-align: left;
+  background: #fff;
+  border: 1px solid #cbded4;
+  margin: 8px 0;
+  padding: 12px;
+  line-height: 1.6;
+  color: #243f48;
+}
+.siting-plan > text {
+  display: block;
+}
+.siting-plan.selected {
+  border-color: #146c5d;
+  background: #eaf3ee;
+  border-left-width: 4px;
+}
+.siting-switch {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+.siting-switch button {
+  flex: 1;
+  min-width: 0;
+}
+.siting-area-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #dde6e1;
+}
+.siting-area-row > text {
+  display: block;
+}
+.siting-result {
+  margin-top: 20px;
+}
