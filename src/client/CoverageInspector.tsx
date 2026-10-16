@@ -1,5 +1,6 @@
 import { coveragePoints, type GapCategory } from "../core/coverage.js";
 import { CATEGORIES, type AnalysisResult } from "../shared/types.js";
+import { CoverageAreaPanel } from "./CoverageAreaPanel.js";
 
 export function CoverageInspector({
   result,
@@ -27,6 +28,11 @@ export function CoverageInspector({
       tabIndex={-1}
       aria-label="点位判定详情"
     >
+      <CoverageAreaPanel
+        result={result}
+        category={category}
+        minutes={minutes}
+      />
       <div className="section-line">
         <h3>为什么这样判定？</h3>
         <span>{points.length}个有效核查点</span>

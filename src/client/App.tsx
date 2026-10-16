@@ -1079,8 +1079,8 @@ export function App() {
                       ))}
                     </select>
                     <p>
-                      灰色实填 / ×：1公里内未检索到；浅灰斜线或虚线 /
-                      ?：数据不足。色块仅提示采样点周边，不是连续缺口面积。
+                      灰色实填：候选缺口；斜线或虚线：数据不足或边界待核查。色块是当前步行范围内的连续分区；×
+                      / ? 仍可查看采样点依据。
                     </p>
                     <CoverageInspector
                       key={`${result.id}:${gapCategory}:${minutes}`}

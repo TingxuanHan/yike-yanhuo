@@ -1,0 +1,489 @@
+{
+  "version": "distance-brackets-v1",
+  "evidence": "simulation",
+  "externalApiCalls": 0,
+  "oracle": "37m × 41m fixed offset grid; exact local Euclidean distances",
+  "inputs": [
+    {
+      "schemaVersion": 1,
+      "id": "完整检索与1公里边界",
+      "mode": "demo",
+      "generatedAt": "2026-10-16T00:00:00.000Z",
+      "center": {
+        "label": "完整检索与1公里边界",
+        "point": [
+          0,
+          0
+        ]
+      },
+      "contours": [
+        {
+          "minutes": 15,
+          "polygons": [
+            [
+              [
+                [
+                  -1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  -1500
+                ]
+              ]
+            ]
+          ],
+          "areaKm2": 9,
+          "clipped": false
+        }
+      ],
+      "samples": [],
+      "facilities": [
+        {
+          "id": "constructed-market",
+          "name": "构造菜场",
+          "category": "market",
+          "point": [
+            0,
+            0
+          ],
+          "address": "构造"
+        }
+      ],
+      "complete": {
+        "market": true,
+        "pharmacy": true,
+        "school": true,
+        "medical": true,
+        "park": true,
+        "elder": true
+      },
+      "gaps": [],
+      "warnings": [
+        "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+        "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+        "部分边界仍采用较粗采样，未超过本次加密预算。"
+      ],
+      "usage": {
+        "requests": 0,
+        "routePairs": 0,
+        "searchRequests": 0,
+        "cacheHits": 0,
+        "retries": 0
+      },
+      "elapsedMs": 0,
+      "parameters": {
+        "radiusMeters": 1500,
+        "coarseStepMeters": 400,
+        "refinedStepMeters": 100,
+        "refinementPoints": 96,
+        "meshVersion": "shared-edge-two-pass-v2",
+        "searchRadiusMeters": 4000,
+        "gapDistanceMeters": 1000,
+        "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+      },
+      "quality": {
+        "knownSamples": 177,
+        "totalSamples": 177,
+        "unknownFacilities": 0,
+        "skippedTriangles": 0
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "类别检索未取全",
+      "mode": "demo",
+      "generatedAt": "2026-10-16T00:00:00.000Z",
+      "center": {
+        "label": "类别检索未取全",
+        "point": [
+          0,
+          0
+        ]
+      },
+      "contours": [
+        {
+          "minutes": 15,
+          "polygons": [
+            [
+              [
+                [
+                  -1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  -1500
+                ]
+              ]
+            ]
+          ],
+          "areaKm2": 9,
+          "clipped": false
+        }
+      ],
+      "samples": [],
+      "facilities": [
+        {
+          "id": "constructed-market",
+          "name": "构造菜场",
+          "category": "market",
+          "point": [
+            0,
+            0
+          ],
+          "address": "构造"
+        }
+      ],
+      "complete": {
+        "market": false,
+        "pharmacy": true,
+        "school": true,
+        "medical": true,
+        "park": true,
+        "elder": true
+      },
+      "gaps": [],
+      "warnings": [
+        "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+        "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+        "部分边界仍采用较粗采样，未超过本次加密预算。"
+      ],
+      "usage": {
+        "requests": 0,
+        "routePairs": 0,
+        "searchRequests": 0,
+        "cacheHits": 0,
+        "retries": 0
+      },
+      "elapsedMs": 0,
+      "parameters": {
+        "radiusMeters": 1500,
+        "coarseStepMeters": 400,
+        "refinedStepMeters": 100,
+        "refinementPoints": 96,
+        "meshVersion": "shared-edge-two-pass-v2",
+        "searchRadiusMeters": 4000,
+        "gapDistanceMeters": 1000,
+        "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+      },
+      "quality": {
+        "knownSamples": 177,
+        "totalSamples": 177,
+        "unknownFacilities": 0,
+        "skippedTriangles": 0
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "检索边界截断",
+      "mode": "demo",
+      "generatedAt": "2026-10-16T00:00:00.000Z",
+      "center": {
+        "label": "检索边界截断",
+        "point": [
+          0,
+          0
+        ]
+      },
+      "contours": [
+        {
+          "minutes": 15,
+          "polygons": [
+            [
+              [
+                [
+                  -1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  -1500
+                ]
+              ]
+            ]
+          ],
+          "areaKm2": 9,
+          "clipped": false
+        }
+      ],
+      "samples": [],
+      "facilities": [
+        {
+          "id": "constructed-market",
+          "name": "构造菜场",
+          "category": "market",
+          "point": [
+            0,
+            0
+          ],
+          "address": "构造"
+        }
+      ],
+      "complete": {
+        "market": true,
+        "pharmacy": true,
+        "school": true,
+        "medical": true,
+        "park": true,
+        "elder": true
+      },
+      "gaps": [],
+      "warnings": [
+        "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+        "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+        "部分边界仍采用较粗采样，未超过本次加密预算。"
+      ],
+      "usage": {
+        "requests": 0,
+        "routePairs": 0,
+        "searchRequests": 0,
+        "cacheHits": 0,
+        "retries": 0
+      },
+      "elapsedMs": 0,
+      "parameters": {
+        "radiusMeters": 1500,
+        "coarseStepMeters": 400,
+        "refinedStepMeters": 100,
+        "refinementPoints": 96,
+        "meshVersion": "shared-edge-two-pass-v2",
+        "searchRadiusMeters": 2400,
+        "gapDistanceMeters": 1000,
+        "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+      },
+      "quality": {
+        "knownSamples": 177,
+        "totalSamples": 177,
+        "unknownFacilities": 0,
+        "skippedTriangles": 0
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "空洞与停用设施",
+      "mode": "demo",
+      "generatedAt": "2026-10-16T00:00:00.000Z",
+      "center": {
+        "label": "空洞与停用设施",
+        "point": [
+          0,
+          0
+        ]
+      },
+      "contours": [
+        {
+          "minutes": 15,
+          "polygons": [
+            [
+              [
+                [
+                  -1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  -1500
+                ],
+                [
+                  1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  1500
+                ],
+                [
+                  -1500,
+                  -1500
+                ]
+              ],
+              [
+                [
+                  -300,
+                  -300
+                ],
+                [
+                  300,
+                  -300
+                ],
+                [
+                  300,
+                  300
+                ],
+                [
+                  -300,
+                  300
+                ],
+                [
+                  -300,
+                  -300
+                ]
+              ]
+            ]
+          ],
+          "areaKm2": 9,
+          "clipped": false
+        }
+      ],
+      "samples": [],
+      "facilities": [
+        {
+          "id": "constructed-market",
+          "name": "构造菜场",
+          "category": "market",
+          "point": [
+            0,
+            0
+          ],
+          "address": "构造",
+          "evidence": [
+            {
+              "source": "constructed",
+              "recordId": "closed",
+              "checkedAt": "2026-10-16T00:00:00.000Z",
+              "status": "closed",
+              "basis": "构造停用"
+            }
+          ]
+        }
+      ],
+      "complete": {
+        "market": true,
+        "pharmacy": true,
+        "school": true,
+        "medical": true,
+        "park": true,
+        "elder": true
+      },
+      "gaps": [],
+      "warnings": [
+        "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+        "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+        "部分边界仍采用较粗采样，未超过本次加密预算。"
+      ],
+      "usage": {
+        "requests": 0,
+        "routePairs": 0,
+        "searchRequests": 0,
+        "cacheHits": 0,
+        "retries": 0
+      },
+      "elapsedMs": 0,
+      "parameters": {
+        "radiusMeters": 1500,
+        "coarseStepMeters": 400,
+        "refinedStepMeters": 100,
+        "refinementPoints": 96,
+        "meshVersion": "shared-edge-two-pass-v2",
+        "searchRadiusMeters": 4000,
+        "gapDistanceMeters": 1000,
+        "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+      },
+      "quality": {
+        "knownSamples": 177,
+        "totalSamples": 177,
+        "unknownFacilities": 0,
+        "skippedTriangles": 0
+      }
+    }
+  ],
+  "results": [
+    {
+      "label": "完整检索与1公里边界",
+      "evidence": "simulation",
+      "evaluated": 5913,
+      "falseCovered": 0,
+      "falseMissing": 0,
+      "unclassified": 0,
+      "areaKm2": {
+        "covered": 3.14032487629558,
+        "missing": 5.857770085607141,
+        "unknown": 0.001905038097282406
+      },
+      "conservationErrorSquareMeters": 3.725290298461914e-9,
+      "boundaryBandMeters": 0.6044533451884035
+    },
+    {
+      "label": "类别检索未取全",
+      "evidence": "simulation",
+      "evaluated": 5913,
+      "falseCovered": 0,
+      "falseMissing": 0,
+      "unclassified": 0,
+      "areaKm2": {
+        "covered": 3.14032487629558,
+        "missing": 0,
+        "unknown": 5.859675123704421
+      },
+      "conservationErrorSquareMeters": 1.862645149230957e-9,
+      "boundaryBandMeters": 0.6044533451884035
+    },
+    {
+      "label": "检索边界截断",
+      "evidence": "simulation",
+      "evaluated": 5913,
+      "falseCovered": 0,
+      "falseMissing": 0,
+      "unclassified": 0,
+      "areaKm2": {
+        "covered": 3.14032487629558,
+        "missing": 3.012810360314354,
+        "unknown": 2.8468647633900632
+      },
+      "conservationErrorSquareMeters": 3.725290298461914e-9,
+      "boundaryBandMeters": 0.6044533451884035
+    },
+    {
+      "label": "空洞与停用设施",
+      "evidence": "simulation",
+      "evaluated": 5689,
+      "falseCovered": 0,
+      "falseMissing": 0,
+      "unclassified": 0,
+      "areaKm2": {
+        "covered": 0,
+        "missing": 8.64,
+        "unknown": 0
+      },
+      "conservationErrorSquareMeters": 0,
+      "boundaryBandMeters": 0.6044533451884035
+    }
+  ]
+}

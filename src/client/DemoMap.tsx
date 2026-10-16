@@ -1,9 +1,6 @@
+import { coverageOverlay } from "../core/coverage-area.js";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  gapCells,
-  coveragePoints,
-  type GapCategory,
-} from "../core/coverage.js";
+import { coveragePoints, type GapCategory } from "../core/coverage.js";
 import { demoRoads } from "../core/demo.js";
 import { walkingTimeBands } from "../core/time-bands.js";
 import {
@@ -56,7 +53,8 @@ export function DemoMap({
   const container = useRef<HTMLDivElement>(null);
   const [pixels, setPixels] = useState(520);
   const cells = useMemo(
-    () => (result && showGaps ? gapCells(result, gapCategory, minutes) : null),
+    () =>
+      result && showGaps ? coverageOverlay(result, gapCategory, minutes) : null,
     [result, showGaps, gapCategory, minutes],
   );
   useEffect(() => {
@@ -239,8 +237,8 @@ export function DemoMap({
               >
                 <title>
                   {status === "missing"
-                    ? "未检索到设施的采样点周边"
-                    : "数据不足的采样点周边"}
+                    ? "候选设施缺口分区"
+                    : "检索或距离边界待核查分区"}
                 </title>
               </path>
             </g>

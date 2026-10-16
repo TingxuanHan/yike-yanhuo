@@ -186,7 +186,7 @@
           <button class="quiet" bindtap="refreshReminders">刷新提醒</button>
         </view>
         <text class="muted"
-          >{{minutes}}分钟可达采样点 ·
+          >{{minutes}}分钟范围 ·
           周边{{result.parameters.gapDistanceMeters}}米直线距离</text
         >
         <picker
@@ -199,6 +199,26 @@
             ▾</view
           ></picker
         >
+        <view wx:if="{{coverageArea}}" class="coverage-area-panel">
+          <text class="heading">这一片，哪里还需要核查？</text>
+          <text class="muted">{{coverageArea.categoryLabel}} · 连续分区 · 约{{coverageArea.totalArea}} km²</text>
+          <text wx:if="{{coverageArea.empty}}">当前时长没有已生成的范围，暂不计算面积。</text>
+          <view wx:else>
+            <canvas canvas-id="coverage-sketch" id="coverage-sketch" class="coverage-area-sketch" />
+            <text class="muted">设施距离分区示意，不作导航。{{coverageArea.hasHoles?'含空洞分区只画边线，避免填满空洞。':''}}</text>
+            <view class="coverage-area-bar"><view wx:for="{{coverageArea.rows}}" wx:key="state" style="width:{{item.percent}}%;background:{{item.color}}" /></view>
+            <view wx:for="{{coverageArea.rows}}" wx:key="state" class="coverage-area-row"><text>{{item.label}}</text><text>约{{item.area}} km² · {{item.percent}}%</text></view>
+          </view>
+          <text class="muted">面积不是人口覆盖率或到店步行距离，候选缺口仍需现场核查。</text>
+          <text wx:if="{{coverageArea.clipped}}" class="notice">步行范围可能被采样边界截断，面积只统计已生成部分。</text>
+          <button class="quiet" bindtap="coverageBasisToggle">{{showCoverageBasis?'收起':'查看'}}待核查原因</button>
+          <view wx:if="{{showCoverageBasis}}">
+            <text wx:for="{{coverageArea.reasons}}" wx:key="label" class="coverage-line">{{item.label}}：约{{item.area}} km²</text>
+            <text class="muted">距离圆内外边界间最宽约{{coverageArea.boundaryBand}}米归入待核查；不含地图坐标与路网插值误差。类别检索不全或核查范围超出检索边界，不判为缺口。</text>
+          </view>
+          <button class="quiet" bindtap="copyCoverageArea">复制分区摘要</button>
+        </view>
+        <text wx:if="{{coverageAreaError}}" class="error">{{coverageAreaError}}</text>
         <picker
           wx:if="{{coveragePoints.length}}"
           range="{{coverageOptions}}"

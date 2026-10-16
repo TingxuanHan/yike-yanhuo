@@ -1,3 +1,4 @@
+import { coverageOverlay } from "../core/coverage-area.js";
 import { useEffect, useRef, useState } from "react";
 import {
   CATEGORIES,
@@ -8,11 +9,7 @@ import {
 } from "../shared/types.js";
 import { toGeo } from "../core/geo.js";
 import { walkingTimeBands } from "../core/time-bands.js";
-import {
-  gapCells,
-  coveragePoints,
-  type GapCategory,
-} from "../core/coverage.js";
+import { coveragePoints, type GapCategory } from "../core/coverage.js";
 
 interface MapInstance {
   addOverlay(value: unknown): void;
@@ -172,7 +169,11 @@ export function BaiduMap(props: Props) {
         );
     }
     if (props.showGaps && props.result) {
-      const cells = gapCells(props.result, props.gapCategory, props.minutes);
+      const cells = coverageOverlay(
+        props.result,
+        props.gapCategory,
+        props.minutes,
+      );
       for (const status of ["missing", "unknown"] as const)
         for (const polygon of cells[status])
           instance.addOverlay(

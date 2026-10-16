@@ -66,6 +66,9 @@ Page({
     coveragePoints: [],
     coverageOptions: [],
     coverageSelected: null,
+    coverageArea: null,
+    coverageAreaError: "",
+    showCoverageBasis: false,
     selectedFacility: null,
     nearby: [],
     minutes: 15,
@@ -349,6 +352,7 @@ Page({
     if (this.data.tab === "nearby" && this.data.sketch && !this.data.mapNative)
       platform.drawSketch?.(this.data.sketch, this);
     if (this.data.tab === "nearby") this.drawComparison();
+    this.drawCoverage();
   },
   toggle(e) {
     const key = e.currentTarget.dataset.key;
@@ -472,6 +476,9 @@ Page({
   coverageToggle() {
     this.setData({ showCoverage: !this.data.showCoverage });
     this.updateCoverage();
+  },
+  coverageBasisToggle() {
+    this.setData({ showCoverageBasis: !this.data.showCoverageBasis });
   },
   comparisonToggle() {
     this.setData({ showComparison: !this.data.showComparison });
@@ -604,10 +611,61 @@ Page({
       0,
       view.coveragePoints.findIndex((p) => p.status !== "covered"),
     );
-    this.setData({
-      ...view,
-      coverageIndex: index,
-      coverageSelected: view.coveragePoints[index] || null,
+    let coverageArea = null,
+      coverageAreaError = "";
+    try {
+      coverageArea = experience.coverageAreaView(
+        this.data.result,
+        this.data.coverageCategory,
+        this.data.minutes,
+      );
+      if (utf8Bytes(JSON.stringify({ ...view, coverageArea })) > 900_000)
+        throw new Error("分区图过大，请在Web查看；逐点依据仍可查看。");
+    } catch (e) {
+      coverageArea = null;
+      coverageAreaError = e.message || "分区暂未生成，请重新选择类别。";
+    }
+    this.setData(
+      {
+        ...view,
+        coverageArea,
+        coverageAreaError,
+        coverageIndex: index,
+        coverageSelected: view.coveragePoints[index] || null,
+      },
+      () => this.drawCoverage(),
+    );
+  },
+  drawCoverage() {
+    if (
+      this.data.tab === "nearby" &&
+      !this.data.simpleMode &&
+      this.data.showCoverage &&
+      (!this.data.reviewMode || this.data.reviewPanel === "coverage") &&
+      this.data.coverageArea
+    )
+      platform.drawSketch?.(
+        this.data.coverageArea.sketch,
+        this,
+        "coverage-sketch",
+      );
+  },
+  copyCoverageArea() {
+    return this.action(async () => {
+      const a = this.data.coverageArea;
+      if (!a) throw new Error("请先打开设施核查并生成分区。");
+      await platform.clipboard(
+        [
+          `一刻烟火：${a.minutes}分钟范围，${a.categoryLabel}周边${a.distanceMeters}米直线核查`,
+          this.data.result.mode === "demo"
+            ? "构造演示数据，不代表真实社区。"
+            : "百度API及已有核查记录，未现场验证。",
+          ...a.rows.map((r) => `${r.label}：约${r.area}km²（${r.percent}%）`),
+          "面积不是人口覆盖率或到店步行距离；候选缺口需现场核查。",
+          `原始记录：${this.data.result.generatedAt}`,
+        ].join("\n"),
+      );
+      this.setData({ status: "分区摘要已复制，包含数据来源与核查口径。" });
     });
   },
   selectFacility(e) {

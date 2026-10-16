@@ -4,6 +4,7 @@ import { downloadJson } from "./api.js";
 import { CoverageChart, FacilityChart } from "./CoverageCharts.js";
 import { FacilityReview } from "./FacilityReview.js";
 import { REVIEW_LABELS, reviewState } from "../shared/facility-review.js";
+import { CoverageAreaReport } from "./CoverageAreaPanel.js";
 
 export const walkTime = (seconds: number) =>
   seconds === 0 ? "起点" : `约 ${Math.ceil(seconds / 60)} 分钟`;
@@ -164,6 +165,7 @@ export function Report({
           这些是候选核查点的数量，不是居民数量、行政社区数量或缺口面积。关键词检索无法证明现实中绝对不存在设施。
         </p>
       </section>
+      <CoverageAreaReport result={result} />
       <section>
         <h3>设施明细</h3>
         <p className="caption">

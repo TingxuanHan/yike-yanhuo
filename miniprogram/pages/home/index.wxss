@@ -160,3 +160,40 @@
   font-size: 32rpx;
   padding: 18rpx 0;
 }
+.coverage-area-panel {
+  margin: 22rpx 0;
+  padding: 24rpx;
+  background: #f1f6f3;
+  border: 1px solid #cbded4;
+  border-radius: 20rpx;
+}
+.coverage-area-sketch {
+  display: block;
+  width: 100%;
+  height: 480rpx;
+  margin: 18rpx 0;
+}
+.coverage-area-bar {
+  display: flex;
+  overflow: hidden;
+  height: 24rpx;
+  margin: 22rpx 0 8rpx;
+  border-radius: 12rpx;
+}
+.coverage-area-bar > view {
+  height: 100%;
+}
+.coverage-area-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10rpx 20rpx;
+  padding: 18rpx 0;
+  border-bottom: 1px solid #d9e4df;
+}
+.care-mode .coverage-area-row {
+  display: block;
+}
+.care-mode .coverage-area-row text {
+  display: block;
+}

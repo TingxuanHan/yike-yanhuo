@@ -1,5 +1,6 @@
 import { personalize } from "../core/personalize.js";
 import { walkingTimeBands } from "../core/time-bands.js";
+export { coverageAreaView } from "../core/coverage-area.js";
 import { toGeo } from "../core/geo.js";
 import {
   coveragePoints,
