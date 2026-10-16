@@ -1,5 +1,13 @@
 # 本地接口
 
+## 等时圈抽点复核
+
+`POST /api/contour-audit/preview`接收`{result,minutes,count}`，仅接受原始报告、5／10／15分钟及固定6／12点。服务器重新生成与原采样分离的位置及三种预测，返回`{fingerprint,plan}`，不调用地图。`plan.maxRouteUnits`分别为12／24，包含现有一次重试上限。
+
+`POST /api/contour-audit`在相同输入中增加`{fingerprint,requestId,confirmed:true}`，返回202和任务编号。公开服务要求设备鉴权；源摘要变化或未确认返回400，同一请求编号对应不同输入返回409，预算不足／已有真实地图任务返回429。任务编号规则、容量和保留时间沿用既有队列，重复提交不重复启动。
+
+使用`GET /api/analyses/:id`读取状态，完成字段为`contourAudit`（非普通`result`）。`DELETE`取消并删除可见结果，迟到上游响应不发布。复核不修改原报告、不查设施，使用原网关串行及缓存；用量与读取时间保留。完整schema、复算和限制见[抽点复核](contour-audit.md)。
+
 ## 定向补核查
 
 `POST /api/verification/preview`接收`{result,category,minutes,taskIds}`。`result`为完整原报告，类别与时长必须属于当前报告，1至3个不同任务编号须由共享`verificationTasks`生成。返回`{fingerprint,plan}`，包含任务及带一次重试余量的`maxRouteUnits`/`maxSearchUnits`。预览不调用地图。
