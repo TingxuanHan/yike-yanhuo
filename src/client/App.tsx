@@ -1098,6 +1098,7 @@ export function App() {
                         setVerificationBefore(before);
                         setResult(next);
                         setReplay(true);
+                        setLiveMap(false);
                         setSelected(null);
                         setGapPoint(null);
                         setMode(next.mode);
