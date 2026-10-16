@@ -70,18 +70,21 @@ npm run dev
 
 ## 材料导航
 
-2026-10-16百度修订版按任务书的**功能正确性与覆盖率40%、API深度调用与工程优化30%、产品交互与用户体验15%、开源工程规范15%**组织证据。核心新增[连续设施覆盖分区](docs/coverage-area.md)：复用现有报告量化已找到设施、候选缺口和待核查面积，保留模拟、API回放和现场待验证的区别。
+2026-10-16新版按任务书的**功能正确性与覆盖率40%、API深度调用与工程优化30%、产品交互与用户体验15%、开源工程规范15%**组织证据。18页PDF和26分镜有声视频覆盖功能基线`e28efa0`，包括[连续覆盖分区](docs/coverage-area.md)、定向补查、补点、多条件取舍、绕行核查及抽点复核；244项业务测试与44项浏览器流程通过。详见[新版运行与材料索引](docs/submission-v2-guide.md)。
 
-后续新增[补点方案比较与演示分镜](docs/facility-siting.md)，将面积核查接到位置假设；208项业务测试、38项浏览器流程通过。`npm run benchmark:siting`复现固定构造验证，`-- --replay=文件路径`可复算导出结果。此增强尚未录入下方旧PDF/视频；增强前源码与材料已固定在`os2026-baidu-baseline-20261016`标签及[独立校验记录](docs/validation/submission-baseline-20261016.json)。
+补点、补查、多条件与抽点均可导出依据并独立复算。构造、历史API回放与重复接口核对分别标记，不能合并成总体准确率。旧版标签与附件保留，不与本版混用校验值。
 
 “一句话安排”支持基础AI、自用API和离线手工条件确认；已接入两端办事、购物及步行目标表单。模型接口由后端统一鉴权并保管密钥；开发环境已完成Qwen3-8B真实接口联调，新部署仍需独立配置服务。本机免费模式每次调用前核对指定模型零元价格，不能据此保证其他模型或未来价格。配置步骤、免费测试渠道与数据边界见[规划助手接入](docs/planning-assistant.md)。
 
-- [百度评分修订版作品介绍 PDF · 16页](materials/yike-yanhuo-baidu-submission.pdf) · [可编辑文稿](docs/submission-baidu-brief.md)
+- [新版作品介绍 PDF · 18页](materials/yike-yanhuo-baidu-v2.pdf) · [可编辑文稿](docs/submission-v2-brief.md)
+- [新版中文配音与字幕视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v2-20261016/yike-yanhuo-baidu-v2.mp4) · [字幕](materials/yike-yanhuo-baidu-v2.srt) · [旁白与章节](docs/submission-v2-transcript.md)
+- [新版完整材料与源码包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v2-20261016) · [运行与验收](docs/submission-v2-guide.md)
+- [历史百度修订PDF · 16页](materials/yike-yanhuo-baidu-submission.pdf) · [可编辑文稿](docs/submission-baidu-brief.md)
 - [历史v1作品介绍 PDF · 14页](materials/yike-yanhuo-submission.pdf)（原评分主线已由百度修订版更正，固定发布附件保留）
 - [实走校准补充说明 PDF · 2页](materials/yike-yanhuo-calibration-addendum.pdf) · [固定构造对照](docs/experiments/walk-calibration-simulation.md)（功能基线541d9cf的增强；v1视频保持原版本内容）
-- [带中文配音与字幕的演示视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-submission-v1/yike-yanhuo-submission.mp4)
-- [固定版本与完整交付包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-submission-v1)
-- [评审运行与材料索引](docs/submission-guide.md) · [可编辑文稿](docs/submission-brief.md) · [视频逐字稿](docs/submission-transcript.md)
+- [历史v1有声字幕视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-submission-v1/yike-yanhuo-submission.mp4)
+- [历史v1固定版本与交付包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-submission-v1)
+- [历史材料索引](docs/submission-guide.md) · [原文稿](docs/submission-brief.md) · [原视频旁白](docs/submission-transcript.md)
 - [早期技术与验证报告](materials/yike-yanhuo-technical-report.pdf)（历史版本，当前状态以提交版为准）
 
 - [验收要求与交付清单](docs/requirements.md)

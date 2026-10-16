@@ -1,0 +1,3124 @@
+{
+  "schema": "yike-contour-audit-v1",
+  "evidence": "simulation",
+  "report": {
+    "schemaVersion": 1,
+    "id": "96a63a3f-f014-4e23-8732-fd2bbf7b442c",
+    "mode": "demo",
+    "generatedAt": "2026-10-16T14:05:04.570Z",
+    "center": {
+      "label": "里巷中心",
+      "point": [
+        -400,
+        0
+      ]
+    },
+    "contours": [
+      {
+        "minutes": 5,
+        "polygons": [
+          [
+            [
+              [
+                -760,
+                0
+              ],
+              [
+                -731.716,
+                -68.284
+              ],
+              [
+                -707.185,
+                -107.185
+              ],
+              [
+                -700,
+                -111.716
+              ],
+              [
+                -630,
+                -130
+              ],
+              [
+                -600,
+                -160
+              ],
+              [
+                -584.531,
+                -184.531
+              ],
+              [
+                -560,
+                -200
+              ],
+              [
+                -530,
+                -230
+              ],
+              [
+                -511.716,
+                -300
+              ],
+              [
+                -507.185,
+                -307.185
+              ],
+              [
+                -440,
+                -320
+              ],
+              [
+                -400,
+                -360
+              ],
+              [
+                -375.147,
+                -300
+              ],
+              [
+                -370,
+                -270
+              ],
+              [
+                -346.667,
+                -200
+              ],
+              [
+                -300,
+                -111.716
+              ],
+              [
+                -230,
+                -130
+              ],
+              [
+                -200,
+                -160
+              ],
+              [
+                -175.147,
+                -100
+              ],
+              [
+                -170,
+                -70
+              ],
+              [
+                -146.667,
+                0
+              ],
+              [
+                -170.448,
+                29.552
+              ],
+              [
+                -200,
+                53.333
+              ],
+              [
+                -270,
+                30
+              ],
+              [
+                -300,
+                24.853
+              ],
+              [
+                -333.508,
+                66.492
+              ],
+              [
+                -375.147,
+                100
+              ],
+              [
+                -370,
+                130
+              ],
+              [
+                -346.667,
+                200
+              ],
+              [
+                -370.448,
+                229.552
+              ],
+              [
+                -400,
+                253.333
+              ],
+              [
+                -470,
+                230
+              ],
+              [
+                -500,
+                224.853
+              ],
+              [
+                -560,
+                200
+              ],
+              [
+                -530,
+                170
+              ],
+              [
+                -511.716,
+                100
+              ],
+              [
+                -600,
+                53.333
+              ],
+              [
+                -670,
+                30
+              ],
+              [
+                -700,
+                24.853
+              ],
+              [
+                -760,
+                0
+              ]
+            ]
+          ]
+        ],
+        "areaKm2": 0.16898853744800013,
+        "clipped": false
+      },
+      {
+        "minutes": 10,
+        "polygons": [
+          [
+            [
+              [
+                -1120,
+                0
+              ],
+              [
+                -800,
+                -320
+              ],
+              [
+                -773.333,
+                -346.667
+              ],
+              [
+                -746.667,
+                -373.333
+              ],
+              [
+                -720,
+                -400
+              ],
+              [
+                -400,
+                -720
+              ],
+              [
+                320,
+                0
+              ],
+              [
+                0,
+                320
+              ],
+              [
+                -80,
+                240
+              ],
+              [
+                -40,
+                360
+              ],
+              [
+                -160,
+                320
+              ],
+              [
+                -80,
+                400
+              ],
+              [
+                -400,
+                720
+              ],
+              [
+                -1120,
+                0
+              ]
+            ],
+            [
+              [
+                -308.873,
+                300
+              ],
+              [
+                -284.853,
+                315.147
+              ],
+              [
+                -248.284,
+                300
+              ],
+              [
+                -300,
+                291.127
+              ],
+              [
+                -303.957,
+                296.043
+              ],
+              [
+                -308.873,
+                300
+              ]
+            ],
+            [
+              [
+                -108.873,
+                100
+              ],
+              [
+                -100,
+                151.716
+              ],
+              [
+                -84.853,
+                115.147
+              ],
+              [
+                -93.726,
+                93.726
+              ],
+              [
+                -100,
+                91.127
+              ],
+              [
+                -103.957,
+                96.043
+              ],
+              [
+                -108.873,
+                100
+              ]
+            ]
+          ]
+        ],
+        "areaKm2": 1.0288974942135,
+        "clipped": false
+      },
+      {
+        "minutes": 15,
+        "polygons": [
+          [
+            [
+              [
+                -1480,
+                0
+              ],
+              [
+                -480,
+                -1000
+              ],
+              [
+                -453.333,
+                -1026.667
+              ],
+              [
+                -400,
+                -1080
+              ],
+              [
+                400,
+                -280
+              ],
+              [
+                416,
+                -200
+              ],
+              [
+                413.333,
+                -186.667
+              ],
+              [
+                440,
+                0
+              ],
+              [
+                470,
+                70
+              ],
+              [
+                422.857,
+                211.429
+              ],
+              [
+                400,
+                280
+              ],
+              [
+                -120,
+                800
+              ],
+              [
+                -173.333,
+                853.333
+              ],
+              [
+                -260,
+                940
+              ],
+              [
+                -346.667,
+                1026.667
+              ],
+              [
+                -400,
+                1080
+              ],
+              [
+                -1480,
+                0
+              ]
+            ]
+          ]
+        ],
+        "areaKm2": 2.2714133039999997,
+        "clipped": false
+      }
+    ],
+    "samples": [
+      {
+        "point": [
+          -2000,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2666.666666666667,
+          "meters": 3200
+        }
+      },
+      {
+        "point": [
+          -2000,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          -2000,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          -2000,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          -2000,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          -2000,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          -2000,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          -2000,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          -2000,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2666.666666666667,
+          "meters": 3200
+        }
+      },
+      {
+        "point": [
+          -1600,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          -1600,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          -1600,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          -1600,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          -1600,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -1600,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          -1600,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          -1600,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          -1600,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          -1200,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          -1200,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          -1200,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          -1200,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -1200,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -1200,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -1200,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          -1200,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          -1200,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          -800,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          -800,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          -800,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -800,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -800,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "point": [
+          -800,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -800,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -800,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          -800,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          -400,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          -400,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -400,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -400,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "point": [
+          -400,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 0,
+          "meters": 0
+        }
+      },
+      {
+        "point": [
+          -400,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "point": [
+          -400,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -400,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -400,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          0,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          0,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          0,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          0,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          0,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "point": [
+          0,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          0,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          0,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          0,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          400,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          400,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          400,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          400,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          400,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          400,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          400,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "point": [
+          400,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          400,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          800,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          800,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          800,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          800,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          800,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          800,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          800,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          800,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          800,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          1200,
+          -1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2666.666666666667,
+          "meters": 3200
+        }
+      },
+      {
+        "point": [
+          1200,
+          -1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          1200,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          1200,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          1200,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          1200,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          1200,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2000,
+          "meters": 2400
+        }
+      },
+      {
+        "point": [
+          1200,
+          1200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "point": [
+          1200,
+          1600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 2666.666666666667,
+          "meters": 3200
+        }
+      },
+      {
+        "point": [
+          -200,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "point": [
+          -200,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 166.66666666666669,
+          "meters": 200
+        }
+      },
+      {
+        "point": [
+          -400,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 166.66666666666669,
+          "meters": 200
+        }
+      },
+      {
+        "point": [
+          -600,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 166.66666666666669,
+          "meters": 200
+        }
+      },
+      {
+        "point": [
+          -400,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 166.66666666666669,
+          "meters": 200
+        }
+      },
+      {
+        "point": [
+          -600,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "point": [
+          -600,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "point": [
+          -800,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          0,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -200,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "point": [
+          -600,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -200,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -600,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -800,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -200,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          0,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -1000,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -1000,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -400,
+          600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -600,
+          600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -200,
+          -600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -400,
+          -600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          200,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          200,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "point": [
+          -1000,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -1000,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -600,
+          -600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          -800,
+          -600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          0,
+          600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -200,
+          600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          200,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 666.6666666666667,
+          "meters": 800
+        }
+      },
+      {
+        "point": [
+          200,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -600,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -200,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -1200,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          400,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -600,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -800,
+          600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -200,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          0,
+          -600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -1000,
+          400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -1200,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          200,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          400,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -1000,
+          600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          200,
+          -600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -1000,
+          -800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1166.6666666666667,
+          "meters": 1400
+        }
+      },
+      {
+        "point": [
+          -1000,
+          -600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          200,
+          600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          200,
+          800
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1166.6666666666667,
+          "meters": 1400
+        }
+      },
+      {
+        "point": [
+          -1200,
+          -600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1166.6666666666667,
+          "meters": 1400
+        }
+      },
+      {
+        "point": [
+          400,
+          600
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1166.6666666666667,
+          "meters": 1400
+        }
+      },
+      {
+        "point": [
+          -1400,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -1400,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -400,
+          1000
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          -600,
+          1000
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -200,
+          -1000
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -400,
+          -1000
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "point": [
+          600,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "point": [
+          600,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1833.3333333333335,
+          "meters": 2200
+        }
+      },
+      {
+        "point": [
+          -1400,
+          -400
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1166.6666666666667,
+          "meters": 1400
+        }
+      },
+      {
+        "point": [
+          -1400,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -600,
+          -1000
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "point": [
+          -800,
+          -1000
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 1166.6666666666667,
+          "meters": 1400
+        }
+      },
+      {
+        "point": [
+          -300,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 250,
+          "meters": 300
+        }
+      },
+      {
+        "point": [
+          -200,
+          100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 416.6666666666667,
+          "meters": 500
+        }
+      },
+      {
+        "point": [
+          -300,
+          100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 451.1844635310913,
+          "meters": 541.4213562373095
+        }
+      },
+      {
+        "point": [
+          -500,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 250,
+          "meters": 300
+        }
+      },
+      {
+        "point": [
+          -400,
+          -100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 83.33333333333334,
+          "meters": 100
+        }
+      },
+      {
+        "point": [
+          -500,
+          -100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 117.85113019775793,
+          "meters": 141.4213562373095
+        }
+      },
+      {
+        "point": [
+          -300,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 416.6666666666667,
+          "meters": 500
+        }
+      },
+      {
+        "point": [
+          -400,
+          100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 250,
+          "meters": 300
+        }
+      },
+      {
+        "point": [
+          -500,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 83.33333333333334,
+          "meters": 100
+        }
+      },
+      {
+        "point": [
+          -600,
+          -100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 250,
+          "meters": 300
+        }
+      },
+      {
+        "point": [
+          -200,
+          -100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 250,
+          "meters": 300
+        }
+      },
+      {
+        "point": [
+          -300,
+          -100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 284.5177968644246,
+          "meters": 341.4213562373095
+        }
+      },
+      {
+        "point": [
+          -300,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 416.6666666666667,
+          "meters": 500
+        }
+      },
+      {
+        "point": [
+          -500,
+          100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 284.5177968644246,
+          "meters": 341.4213562373095
+        }
+      },
+      {
+        "point": [
+          -500,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 250,
+          "meters": 300
+        }
+      },
+      {
+        "point": [
+          -600,
+          100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 416.6666666666667,
+          "meters": 500
+        }
+      },
+      {
+        "point": [
+          -700,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 250,
+          "meters": 300
+        }
+      },
+      {
+        "point": [
+          -700,
+          100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 451.1844635310913,
+          "meters": 541.4213562373095
+        }
+      },
+      {
+        "point": [
+          -100,
+          -100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 451.1844635310913,
+          "meters": 541.4213562373095
+        }
+      },
+      {
+        "point": [
+          -100,
+          0
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 416.6666666666667,
+          "meters": 500
+        }
+      },
+      {
+        "point": [
+          -400,
+          300
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 416.6666666666667,
+          "meters": 500
+        }
+      },
+      {
+        "point": [
+          -500,
+          300
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 451.1844635310913,
+          "meters": 541.4213562373095
+        }
+      },
+      {
+        "point": [
+          -300,
+          -300
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 451.1844635310913,
+          "meters": 541.4213562373095
+        }
+      },
+      {
+        "point": [
+          -400,
+          -300
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 250,
+          "meters": 300
+        }
+      },
+      {
+        "point": [
+          -700,
+          -100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 284.5177968644246,
+          "meters": 341.4213562373095
+        }
+      },
+      {
+        "point": [
+          -700,
+          -200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 416.6666666666667,
+          "meters": 500
+        }
+      },
+      {
+        "point": [
+          -100,
+          100
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 617.8511301977579,
+          "meters": 741.4213562373095
+        }
+      },
+      {
+        "point": [
+          -100,
+          200
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 583.3333333333334,
+          "meters": 700
+        }
+      },
+      {
+        "point": [
+          -500,
+          -300
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 284.5177968644246,
+          "meters": 341.4213562373095
+        }
+      },
+      {
+        "point": [
+          -600,
+          -300
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 416.6666666666667,
+          "meters": 500
+        }
+      },
+      {
+        "point": [
+          -200,
+          300
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 583.3333333333334,
+          "meters": 700
+        }
+      },
+      {
+        "point": [
+          -300,
+          300
+        ],
+        "travel": {
+          "status": "ok",
+          "seconds": 617.8511301977579,
+          "meters": 741.4213562373095
+        }
+      }
+    ],
+    "facilities": [
+      {
+        "id": "demo-0",
+        "name": "巷口菜场",
+        "category": "market",
+        "point": [
+          -600,
+          -200
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-0",
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "id": "demo-1",
+        "name": "晨光市集",
+        "category": "market",
+        "point": [
+          -1400,
+          800
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-1",
+        "travel": {
+          "status": "ok",
+          "seconds": 1500,
+          "meters": 1800
+        }
+      },
+      {
+        "id": "demo-2",
+        "name": "东岸菜场",
+        "category": "market",
+        "point": [
+          1800,
+          0
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-2",
+        "travel": {
+          "status": "ok",
+          "seconds": 2833.3333333333335,
+          "meters": 3400
+        }
+      },
+      {
+        "id": "demo-3",
+        "name": "四季药房",
+        "category": "pharmacy",
+        "point": [
+          -200,
+          200
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-3",
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "id": "demo-4",
+        "name": "安康药店",
+        "category": "pharmacy",
+        "point": [
+          -800,
+          -600
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-4",
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "id": "demo-5",
+        "name": "桥畔药房",
+        "category": "pharmacy",
+        "point": [
+          600,
+          -600
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-5",
+        "travel": {
+          "status": "ok",
+          "seconds": 1333.3333333333335,
+          "meters": 1600
+        }
+      },
+      {
+        "id": "demo-6",
+        "name": "东街药店",
+        "category": "pharmacy",
+        "point": [
+          1800,
+          1000
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-6",
+        "travel": {
+          "status": "ok",
+          "seconds": 2666.666666666667,
+          "meters": 3200
+        }
+      },
+      {
+        "id": "demo-7",
+        "name": "榕树小学",
+        "category": "school",
+        "point": [
+          -800,
+          600
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-7",
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "id": "demo-8",
+        "name": "东岸小学",
+        "category": "school",
+        "point": [
+          1800,
+          -1200
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-8",
+        "travel": {
+          "status": "ok",
+          "seconds": 2833.3333333333335,
+          "meters": 3400
+        }
+      },
+      {
+        "id": "demo-9",
+        "name": "里巷卫生站",
+        "category": "medical",
+        "point": [
+          -400,
+          200
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-9",
+        "travel": {
+          "status": "ok",
+          "seconds": 166.66666666666669,
+          "meters": 200
+        }
+      },
+      {
+        "id": "demo-10",
+        "name": "南街卫生中心",
+        "category": "medical",
+        "point": [
+          -200,
+          -1000
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-10",
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "id": "demo-11",
+        "name": "东岸卫生站",
+        "category": "medical",
+        "point": [
+          1200,
+          400
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-11",
+        "travel": {
+          "status": "ok",
+          "seconds": 2333.3333333333335,
+          "meters": 2800
+        }
+      },
+      {
+        "id": "demo-12",
+        "name": "口袋花园",
+        "category": "park",
+        "point": [
+          -600,
+          400
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-12",
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "id": "demo-13",
+        "name": "河西小园",
+        "category": "park",
+        "point": [
+          200,
+          600
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-13",
+        "travel": {
+          "status": "ok",
+          "seconds": 1000,
+          "meters": 1200
+        }
+      },
+      {
+        "id": "demo-14",
+        "name": "南街绿地",
+        "category": "park",
+        "point": [
+          -600,
+          -800
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-14",
+        "travel": {
+          "status": "ok",
+          "seconds": 833.3333333333334,
+          "meters": 1000
+        }
+      },
+      {
+        "id": "demo-15",
+        "name": "东岸花园",
+        "category": "park",
+        "point": [
+          800,
+          -400
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-15",
+        "travel": {
+          "status": "ok",
+          "seconds": 1666.6666666666667,
+          "meters": 2000
+        }
+      },
+      {
+        "id": "demo-16",
+        "name": "邻里长者食堂",
+        "category": "elder",
+        "point": [
+          -400,
+          -400
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-16",
+        "travel": {
+          "status": "ok",
+          "seconds": 333.33333333333337,
+          "meters": 400
+        }
+      },
+      {
+        "id": "demo-17",
+        "name": "日间照料站",
+        "category": "elder",
+        "point": [
+          -1000,
+          0
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-17",
+        "travel": {
+          "status": "ok",
+          "seconds": 500,
+          "meters": 600
+        }
+      },
+      {
+        "id": "demo-18",
+        "name": "东岸养老驿站",
+        "category": "elder",
+        "point": [
+          1000,
+          800
+        ],
+        "address": "模拟街区 · 人工构造设施",
+        "uid": "demo-18",
+        "travel": {
+          "status": "ok",
+          "seconds": 1833.3333333333335,
+          "meters": 2200
+        }
+      }
+    ],
+    "complete": {
+      "market": true,
+      "pharmacy": true,
+      "school": true,
+      "medical": true,
+      "park": true,
+      "elder": true
+    },
+    "gaps": [
+      {
+        "point": [
+          -400,
+          -800
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -400,
+          -400
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          0,
+          -400
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          400,
+          0
+        ],
+        "category": "market",
+        "status": "missing"
+      },
+      {
+        "point": [
+          400,
+          0
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -600,
+          -400
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -200,
+          -400
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          0,
+          -200
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -200,
+          -600
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -400,
+          -600
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          200,
+          -200
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          200,
+          0
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -1000,
+          -400
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -600,
+          -600
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -800,
+          -600
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          200,
+          200
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          200,
+          400
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -600,
+          -800
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -200,
+          800
+        ],
+        "category": "market",
+        "status": "missing"
+      },
+      {
+        "point": [
+          400,
+          200
+        ],
+        "category": "market",
+        "status": "missing"
+      },
+      {
+        "point": [
+          400,
+          200
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -200,
+          -800
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          0,
+          -600
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          200,
+          -400
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          400,
+          -200
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -400,
+          1000
+        ],
+        "category": "market",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -400,
+          -1000
+        ],
+        "category": "school",
+        "status": "missing"
+      },
+      {
+        "point": [
+          -300,
+          -300
+        ],
+        "category": "school",
+        "status": "missing"
+      }
+    ],
+    "warnings": [
+      "本报告采用人工构造的道路与设施，不代表上海四平路街道的实际情况。",
+      "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+      "部分边界仍采用较粗采样，未超过本次加密预算。"
+    ],
+    "elapsedMs": 24,
+    "usage": {
+      "requests": 0,
+      "routePairs": 0,
+      "searchRequests": 0,
+      "cacheHits": 0,
+      "retries": 0
+    },
+    "parameters": {
+      "radiusMeters": 1600,
+      "coarseStepMeters": 400,
+      "refinedStepMeters": 100,
+      "refinementPoints": 96,
+      "searchRadiusMeters": 3263,
+      "gapDistanceMeters": 1000,
+      "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点",
+      "meshVersion": "shared-edge-two-pass-v2"
+    },
+    "quality": {
+      "knownSamples": 177,
+      "totalSamples": 177,
+      "unknownFacilities": 0,
+      "skippedTriangles": 0
+    }
+  },
+  "plan": {
+    "version": "fixed-polar-holdout-v1",
+    "sourceId": "96a63a3f-f014-4e23-8732-fd2bbf7b442c",
+    "sourceGeneratedAt": "2026-10-16T14:05:04.570Z",
+    "minutes": 5,
+    "count": 6,
+    "minimumSeparationMeters": 10,
+    "circleSpeedMps": 1.2,
+    "points": [
+      {
+        "number": 1,
+        "point": [
+          -169.03,
+          95.671
+        ],
+        "predictions": {
+          "current": false,
+          "coarse": true,
+          "circle": true
+        }
+      },
+      {
+        "number": 2,
+        "point": [
+          -954.328,
+          -229.61
+        ],
+        "predictions": {
+          "current": false,
+          "coarse": false,
+          "circle": false
+        }
+      },
+      {
+        "number": 3,
+        "point": [
+          523.88,
+          382.683
+        ],
+        "predictions": {
+          "current": false,
+          "coarse": false,
+          "circle": false
+        }
+      },
+      {
+        "number": 4,
+        "point": [
+          -630.97,
+          -95.671
+        ],
+        "predictions": {
+          "current": true,
+          "coarse": true,
+          "circle": true
+        }
+      },
+      {
+        "number": 5,
+        "point": [
+          154.32799999999997,
+          229.61
+        ],
+        "predictions": {
+          "current": false,
+          "coarse": false,
+          "circle": false
+        }
+      },
+      {
+        "number": 6,
+        "point": [
+          -1323.88,
+          -382.683
+        ],
+        "predictions": {
+          "current": false,
+          "coarse": false,
+          "circle": false
+        }
+      }
+    ],
+    "maxRouteUnits": 12
+  },
+  "plannedAt": "2026-10-16T14:06:05.505Z",
+  "completedAt": "2026-10-16T14:06:05.514Z",
+  "observations": [
+    {
+      "number": 1,
+      "point": [
+        -169.03,
+        95.671
+      ],
+      "travel": {
+        "status": "ok",
+        "seconds": 250.46570347580243,
+        "meters": 300.5588441709629
+      },
+      "readAt": "2026-10-16T14:06:05.514Z"
+    },
+    {
+      "number": 2,
+      "point": [
+        -954.328,
+        -229.61
+      ],
+      "travel": {
+        "status": "ok",
+        "seconds": 712.0254499947059,
+        "meters": 854.430539993647
+      },
+      "readAt": "2026-10-16T14:06:05.514Z"
+    },
+    {
+      "number": 3,
+      "point": [
+        523.88,
+        382.683
+      ],
+      "travel": {
+        "status": "ok",
+        "seconds": 1898.3874394948373,
+        "meters": 2278.0649273938047
+      },
+      "readAt": "2026-10-16T14:06:05.514Z"
+    },
+    {
+      "number": 4,
+      "point": [
+        -630.97,
+        -95.671
+      ],
+      "travel": {
+        "status": "ok",
+        "seconds": 250.46570347580243,
+        "meters": 300.5588441709629
+      },
+      "readAt": "2026-10-16T14:06:05.514Z"
+    },
+    {
+      "number": 5,
+      "point": [
+        154.32799999999997,
+        229.61
+      ],
+      "travel": {
+        "status": "ok",
+        "seconds": 712.0254499947059,
+        "meters": 854.430539993647
+      },
+      "readAt": "2026-10-16T14:06:05.514Z"
+    },
+    {
+      "number": 6,
+      "point": [
+        -1323.88,
+        -382.683
+      ],
+      "travel": {
+        "status": "ok",
+        "seconds": 1231.7207728281705,
+        "meters": 1478.0649273938045
+      },
+      "readAt": "2026-10-16T14:06:05.514Z"
+    }
+  ],
+  "metrics": [
+    {
+      "model": "current",
+      "label": "当前轮廓",
+      "evaluated": 6,
+      "agreement": 5,
+      "falseReachable": 0,
+      "missedReachable": 1,
+      "observationUnknown": 0,
+      "predictionUnknown": 0
+    },
+    {
+      "model": "coarse",
+      "label": "原规则网格",
+      "evaluated": 6,
+      "agreement": 6,
+      "falseReachable": 0,
+      "missedReachable": 0,
+      "observationUnknown": 0,
+      "predictionUnknown": 0
+    },
+    {
+      "model": "circle",
+      "label": "直线圆（1.2米/秒）",
+      "evaluated": 6,
+      "agreement": 6,
+      "falseReachable": 0,
+      "missedReachable": 0,
+      "observationUnknown": 0,
+      "predictionUnknown": 0
+    }
+  ],
+  "paired": {
+    "evaluated": 6,
+    "currentAgreement": 5,
+    "circleAgreement": 6
+  },
+  "usage": {
+    "requests": 0,
+    "routePairs": 0,
+    "searchRequests": 0,
+    "cacheHits": 0,
+    "retries": 0
+  }
+}

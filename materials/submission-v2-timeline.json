@@ -1,0 +1,166 @@
+{
+  "createdAt": "2026-10-16T14:11:03.773Z",
+  "functionalBaseline": "e28efa0",
+  "source": "Headless actual UI recording with explicitly labelled editorial cards",
+  "blockedRequests": 0,
+  "browserErrors": 0,
+  "video": ".cache/submission-v2-raw.webm",
+  "scenes": [
+    {
+      "id": "title",
+      "title": "一刻烟火｜15分钟生活圈智能体检与规划助手",
+      "start": 52,
+      "end": 12896
+    },
+    {
+      "id": "home",
+      "title": "01｜从简单首页开始",
+      "start": 12965,
+      "end": 25597
+    },
+    {
+      "id": "community",
+      "title": "02｜社区体检：沿道路计算范围",
+      "start": 25649,
+      "end": 41097
+    },
+    {
+      "id": "duration",
+      "title": "同一批测时｜切换5、10、15分钟",
+      "start": 41157,
+      "end": 55013
+    },
+    {
+      "id": "coverage",
+      "title": "03｜把设施空白分清楚",
+      "start": 55074,
+      "end": 71818
+    },
+    {
+      "id": "repair",
+      "title": "04｜缺数据，先做小范围补查",
+      "start": 71874,
+      "end": 89670
+    },
+    {
+      "id": "siting",
+      "title": "05｜设施补点：比较同数量方案",
+      "start": 89721,
+      "end": 106018
+    },
+    {
+      "id": "conditions",
+      "title": "换种走法｜三条件检查与共同收益",
+      "start": 106071,
+      "end": 123302
+    },
+    {
+      "id": "detour",
+      "title": "06｜看起来近，为什么要走更远",
+      "start": 123353,
+      "end": 140953
+    },
+    {
+      "id": "audit",
+      "title": "07｜先冻结判断，再抽点复核",
+      "start": 141009,
+      "end": 161986
+    },
+    {
+      "id": "report",
+      "title": "报告导出｜留下来源与计算依据",
+      "start": 162042,
+      "end": 177436
+    },
+    {
+      "id": "algorithm",
+      "title": "技术路线｜预算内共享边加密",
+      "start": 177488,
+      "end": 194752
+    },
+    {
+      "id": "comparison",
+      "title": "08｜每个人的十五分钟不同",
+      "start": 194807,
+      "end": 209475
+    },
+    {
+      "id": "trip",
+      "title": "09｜买菜、取药与回家，一起核算",
+      "start": 209523,
+      "end": 228552
+    },
+    {
+      "id": "ai",
+      "title": "语音与AI｜本人核对后才应用",
+      "start": 228608,
+      "end": 248400
+    },
+    {
+      "id": "notice",
+      "title": "10｜具体到入口的邻里提醒",
+      "start": 248434,
+      "end": 264288
+    },
+    {
+      "id": "conflict",
+      "title": "反馈有分歧，就显示分歧",
+      "start": 264340,
+      "end": 280203
+    },
+    {
+      "id": "alternative",
+      "title": "11｜下一站不好走，先比较备选",
+      "start": 280261,
+      "end": 296211
+    },
+    {
+      "id": "entrance",
+      "title": "私人地点簿｜另一入口也能记住",
+      "start": 296251,
+      "end": 309853
+    },
+    {
+      "id": "card",
+      "title": "12｜带上一张离线出门卡",
+      "start": 309908,
+      "end": 325417
+    },
+    {
+      "id": "family",
+      "title": "13｜家人给建议，决定留给本人",
+      "start": 325478,
+      "end": 340636
+    },
+    {
+      "id": "wechat",
+      "title": "双端共用规则｜微信原生页面静帧",
+      "start": 340692,
+      "end": 359402
+    },
+    {
+      "id": "real",
+      "title": "14｜上海真实API路线回放",
+      "start": 359474,
+      "end": 376305
+    },
+    {
+      "id": "validation",
+      "title": "15｜保留提升，也保留未改善的结果",
+      "start": 376360,
+      "end": 399817
+    },
+    {
+      "id": "governance",
+      "title": "40 / 30 / 15 / 15｜实现、工程、体验与规范",
+      "start": 399874,
+      "end": 421836
+    },
+    {
+      "id": "closing",
+      "title": "可运行、可复核、可持续完善",
+      "start": 421891,
+      "end": 440730
+    }
+  ]
+}

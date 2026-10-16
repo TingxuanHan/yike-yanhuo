@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T14:11:58.633209+00:00",
+  "file": "yike-yanhuo-baidu-v2.pdf",
+  "pages": 18,
+  "pageMarkers": 18,
+  "requiredTextChecks": 12,
+  "embeddedFonts": 6,
+  "bytes": 1114403,
+  "sha256": "f4d28aa2bbb8996e8c7d46bd1f779af4a76f2ec1a4f69392efecce5c281a02b1",
+  "functionalBaseline": "e28efa0",
+  "visualQA": "18 rendered pages inspected; pages 9, 12 and 13 additionally inspected at full size",
+  "fieldValidationClaimed": false
+}

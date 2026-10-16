@@ -1,0 +1,99 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T14:13:00.377148+00:00",
+  "evidence": "simulation",
+  "note": "Five film exports; not five new independent experiments",
+  "externalApiCalls": 0,
+  "records": [
+    {
+      "file": "materials/submission-v2-evidence/verification.json",
+      "result": {
+        "sourceSha256": "c2f1bfb51908dbc6793d8765f76482a91d9025435b5800085c7449480d3939f7",
+        "evidence": "simulation",
+        "verifiedReports": 2,
+        "localSearches": 0,
+        "maxConservationErrorSquareMeters": 4.656612873077393e-10,
+        "externalApiCalls": 0
+      }
+    },
+    {
+      "file": "materials/submission-v2-evidence/siting.json",
+      "result": {
+        "sourceSha256": "8cf02b53834c870f7ca958b2da1134ac47843cd667338d13a2ac5bf7a610420c",
+        "evidence": "simulation",
+        "verifiedScenarios": 7,
+        "maxAreaErrorSquareMeters": 5.820766091346741e-11,
+        "externalApiCalls": 0
+      }
+    },
+    {
+      "file": "materials/submission-v2-evidence/conditions.json",
+      "result": {
+        "sourceSha256": "5cfe7ddd5a4425fc306c5fadb445c92dbf27bda86c122c40a962652492649dd8",
+        "schema": "yike-siting-conditions-v1",
+        "evidence": "simulation",
+        "verifiedConditions": 3,
+        "verifiedPlans": 7,
+        "maxErrorSquareMeters": 2.3283064365386963e-10,
+        "externalApiCalls": 0
+      }
+    },
+    {
+      "file": "materials/submission-v2-evidence/detour.json",
+      "result": {
+        "sourceSha256": "c488e11348d1bce33655bd33aa5269e5f46480ff2798f0a69d9069fb86ff42ca",
+        "schema": "yike-detour-audit-v1",
+        "evidence": "simulation",
+        "verifiedPoints": 116,
+        "hotspots": 21,
+        "externalApiCalls": 0
+      }
+    },
+    {
+      "file": "materials/submission-v2-evidence/audit.json",
+      "result": {
+        "schema": "yike-contour-audit-v1",
+        "evidence": "simulation",
+        "verifiedPoints": 6,
+        "metrics": [
+          {
+            "model": "current",
+            "label": "当前轮廓",
+            "evaluated": 6,
+            "agreement": 5,
+            "falseReachable": 0,
+            "missedReachable": 1,
+            "observationUnknown": 0,
+            "predictionUnknown": 0
+          },
+          {
+            "model": "coarse",
+            "label": "原规则网格",
+            "evaluated": 6,
+            "agreement": 6,
+            "falseReachable": 0,
+            "missedReachable": 0,
+            "observationUnknown": 0,
+            "predictionUnknown": 0
+          },
+          {
+            "model": "circle",
+            "label": "直线圆（1.2米/秒）",
+            "evaluated": 6,
+            "agreement": 6,
+            "falseReachable": 0,
+            "missedReachable": 0,
+            "observationUnknown": 0,
+            "predictionUnknown": 0
+          }
+        ],
+        "paired": {
+          "evaluated": 6,
+          "currentAgreement": 5,
+          "circleAgreement": 6
+        },
+        "externalApiCalls": 0
+      }
+    }
+  ]
+}

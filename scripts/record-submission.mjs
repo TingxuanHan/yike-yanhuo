@@ -80,6 +80,12 @@ try {
   page.on("dialog", (d) => d.accept());
   const started = Date.now();
   const sleep = async (ms) => page.waitForTimeout(fast ? 80 : ms);
+  const frame = async (locator, block = "start") =>
+    locator.evaluate(
+      (element, block) =>
+        element.scrollIntoView({ block, behavior: "instant" }),
+      block,
+    );
   const card = async (eyebrow, title, body, note = "") =>
     page.evaluate(
       ({ eyebrow, title, body, note }) => {
@@ -151,11 +157,14 @@ try {
       .click();
     await page.locator("#coverage-inspector").scrollIntoViewIfNeeded();
     await sleep(3500);
-    await page.getByLabel("核查类别", { exact: true }).selectOption("pharmacy");
+    await page
+      .getByLabel("核查类别", { exact: true })
+      .selectOption(v2 ? "school" : "pharmacy");
     if (v2) {
-      await page
-        .getByRole("region", { name: "连续覆盖分区", exact: true })
-        .scrollIntoViewIfNeeded();
+      await frame(
+        page.getByRole("region", { name: "连续覆盖分区", exact: true }),
+        "center",
+      );
     }
   });
   if (v2) {
@@ -191,12 +200,22 @@ try {
       await panel
         .getByRole("button", { name: "采用补查结果", exact: true })
         .click();
-      await panel
+      await frame(panel.locator(".verification-diff"));
+    });
+    await scene("siting", async () => {
+      await page
+        .getByRole("region", { name: "定向补核查", exact: true })
         .getByRole("button", { name: "恢复补查前报告", exact: true })
         .click();
       await page.getByText("补齐缺失数据", { exact: true }).click();
-    });
-    await scene("siting", async () => {
+      await page.goto(base + "/?showcase=1");
+      await page
+        .getByRole("button", { name: "体验模拟社区", exact: true })
+        .click();
+      await page.locator(".result-strip").waitFor();
+      await page
+        .getByRole("button", { name: "2. 查设施缺口", exact: true })
+        .click();
       await page.getByLabel("核查类别", { exact: true }).selectOption("school");
       await page.getByText("比较设施补点方案", { exact: true }).click();
       const panel = page.getByRole("region", {
@@ -222,6 +241,7 @@ try {
         .getByRole("button", { name: "导出补点比较依据", exact: true })
         .click();
       await (await download).saveAs(`${cacheDir}/siting.json`);
+      await frame(panel.locator(".siting-sketch"), "center");
     });
     await scene("conditions", async () => {
       const parent = page.getByRole("region", {
@@ -247,6 +267,7 @@ try {
         .getByRole("button", { name: "导出多条件检查依据", exact: true })
         .click();
       await (await download).saveAs(`${cacheDir}/conditions.json`);
+      await frame(panel.locator(".siting-conclusion"));
     });
     await scene("detour", async () => {
       await page.getByText("比较设施补点方案", { exact: true }).click();
@@ -265,6 +286,7 @@ try {
         .getByRole("button", { name: "导出绕行核查依据", exact: true })
         .click();
       await (await download).saveAs(`${cacheDir}/detour.json`);
+      await frame(panel);
     });
     await scene("audit", async () => {
       await page
@@ -313,6 +335,7 @@ try {
         .getByRole("button", { name: "导出抽点复核依据", exact: true })
         .click();
       await (await download).saveAs(`${cacheDir}/audit.json`);
+      await frame(panel.locator(".audit-result"));
     });
   }
   await scene("report", async () => {
