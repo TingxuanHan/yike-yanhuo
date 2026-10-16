@@ -1,5 +1,15 @@
 # 本地接口
 
+## 定向补核查
+
+`POST /api/verification/preview`接收`{result,category,minutes,taskIds}`。`result`为完整原报告，类别与时长必须属于当前报告，1至3个不同任务编号须由共享`verificationTasks`生成。返回`{fingerprint,plan}`，包含任务及带一次重试余量的`maxRouteUnits`/`maxSearchUnits`。预览不调用地图。
+
+`POST /api/verification`在相同输入上增加`{fingerprint,requestId,confirmed:true}`，返回202和任务编号。`requestId`为8至80个字母、数字、下划线或连字符；同空间内相同编号/内容返回原任务，内容不同返回409。当前报告摘要变化、未确认、现场任务、超过容量、预算不足和已有真实地图任务都会在执行前拒绝。请求体上限2100000字节，原报告仍受2MB校验。
+
+任务共用`GET/DELETE /api/analyses/:id`查询和取消，沿用外部部署设备鉴权、空间隔离与来源保护。最多保留8个任务、10分钟；最多2个运行任务且真实地图任务最多1个，网关中的测时、检索等服务API继续串行。任务幂等状态为内存记录，不保证跨重启；取消不退还已发出的上游用量。补查端点每个拥有者/来源地址每10分钟最多30次操作。
+
+结果新编号并含`verification`来源/回执、`baseGeneratedAt`基础数据时间，以及最多12条`localSearches`。原全局`complete`不会因局部结果完整而提升。分区只采用每个完整查询分别缩入核查距离后的范围；来源冲突不证明覆盖。客户端明确采用前保存一组前后备份，Web可导出并用`npm run verify:repair -- 文件路径`离线校验。完整使用、字段边界及模拟/真实区别见[定向补核查](targeted-verification.md)。
+
 ## 实走校准记录
 
 沿用`GET/PUT /api/life`，不新增地图或模型接口。`LifeBook.walks`为最多30条的可选字段，包含准备时固定的步速与历史引用、后补计时、距离来源和排除原因。严格校验字段并移除未声明数据，保留原有鉴权、私有空间隔离和版本409；旧地点簿兼容。合并冲突、有效条件与导出格式见[实走校准](walk-calibration.md)。

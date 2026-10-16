@@ -2,6 +2,8 @@
 
 2026-10-16。将连续设施缺口接到具体位置假设：选择1至3个已有测时点，比较单点及组合方案，共最多7种。Web与微信使用同一计算实现，不新增地图检索、路线、模型或语音请求。
 
+后续结果页增强：先显示由计算规则生成的单点比较结论，再显示紧凑方案、地图与三项关键面积；组合解释相对少一处方案的额外收益。坐标与完整面积保留在依据内。无已证实缺口时不做收益优选，显示尺度内相差不足1000平方米时提示接近，不代表统计等价。当前221项业务、40项浏览器流程通过，验证细节与补证闭环见[定向补核查](targeted-verification.md)。
+
 ## 使用
 
 1. 社区体检 → 体验模拟社区，或打开已有报告。
@@ -67,4 +69,4 @@ npm run benchmark:siting -- --replay=path/to/yike-siting-school-15.json
 | 37—50秒 | 选择A+B并切换前后 | 两处一起增加，当前例子的改善仍约0.830平方公里。重叠不重复计入，待核查区也不会被当成已经证实的改善。 |
 | 50—60秒 | 导出按钮、微信对应图 | 结果可导出复算，也能在微信查看。面积不是受益人数；是否适合设点，还需要核实入口、用地和现场情况。 |
 
-截图：[Web桌面](images/siting-web-desktop.png)、[Web320像素](images/siting-web-320.png)、[Web390像素](images/siting-web-390.png)、[微信标准](images/siting-mini-standard.png)、[微信大字](images/siting-mini-large.png)。原v1视频和百度修订PDF尚未包含此功能，本轮保留原文件；这份分镜尚未录制。
+当前截图：[Web桌面](images/siting-compact-web-desktop.png)、[Web320像素](images/siting-compact-web-320.png)、[Web390像素](images/siting-compact-web-390.png)、[微信标准](images/siting-compact-mini-standard.png)、[微信大字](images/siting-compact-mini-large.png)。原v1视频和百度修订PDF尚未包含此功能，本轮保留原文件；这份分镜尚未录制。
