@@ -1,0 +1,37 @@
+{
+  "schema": "yike-submission-baseline-v1",
+  "sourceCommit": "3909ecdb503a6040251bc92ac9e6fb327130cb11",
+  "sourceTag": "os2026-baidu-baseline-20261016",
+  "createdAt": "2026-10-16T03:42:50.7874405Z",
+  "rubric": [
+    40,
+    30,
+    15,
+    15
+  ],
+  "artifacts": [
+    {
+      "path": "materials/yike-yanhuo-baidu-submission.pdf",
+      "bytes": 1159446,
+      "sha256": "5b0ea5eafc94ce1e2dcd0c8bff657a4ef0ea272339e204e085aee02fc2f4c05c",
+      "version": "3909ecdb503a6040251bc92ac9e6fb327130cb11"
+    },
+    {
+      "path": "materials/yike-yanhuo-calibration-addendum.pdf",
+      "bytes": 265573,
+      "sha256": "a0ebc1369f8134e41d3b29ddd81dbf38c7e4a3fca592808879a04b4ed17a900c",
+      "version": "3909ecdb503a6040251bc92ac9e6fb327130cb11"
+    },
+    {
+      "path": "materials/yike-yanhuo-submission.mp4",
+      "bytes": 14995559,
+      "sha256": "803f7fa078b2c85a0e9e12f603ea4b2da7e761f4c642446bb30ef3c4c2075737",
+      "version": "os2026-submission-v1"
+    }
+  ],
+  "notes": [
+    "Video remains the original v1; calibration and continuous coverage are in the revised PDFs and baseline source.",
+    "Private repository; this manifest does not grant external access or submit competition materials.",
+    "Local Developer Tools project configuration is excluded."
+  ]
+}
