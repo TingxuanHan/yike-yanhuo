@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-16",
+  "codeBaseline": "921127e",
+  "rubric": [
+    40,
+    30,
+    15,
+    15
+  ],
+  "files": [
+    {
+      "path": "materials/yike-yanhuo-baidu-submission.pdf",
+      "pages": 16,
+      "bytes": 1159446,
+      "sha256": "5b0ea5eafc94ce1e2dcd0c8bff657a4ef0ea272339e204e085aee02fc2f4c05c"
+    },
+    {
+      "path": "materials/yike-yanhuo-calibration-addendum.pdf",
+      "pages": 2,
+      "bytes": 265573,
+      "sha256": "a0ebc1369f8134e41d3b29ddd81dbf38c7e4a3fca592808879a04b4ed17a900c"
+    }
+  ],
+  "visualReview": "All 18 rendered pages inspected; calibration page 2 spacing repaired.",
+  "historicalRelease": "os2026-submission-v1 remains unchanged; old video does not show the new coverage and calibration features."
+}

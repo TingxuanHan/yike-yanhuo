@@ -1,18 +1,22 @@
 # 参赛材料与评审运行指引
 
-作品：一刻烟火：15分钟生活圈智能体检与规划助手。提交版日期：2026-10-16。
+作品：一刻烟火：15分钟生活圈智能体检与规划助手。百度评分修订日期：2026-10-16。
+
+**当前主线：百度40/30/15/15。** 依次为功能正确性与覆盖率、API深度调用与工程优化、产品交互与用户体验、开源工程规范。当前应优先阅读[16页百度修订PDF](../materials/yike-yanhuo-baidu-submission.pdf)及[可编辑文本](submission-baidu-brief.md)。新增功能基线`921127e`实现[连续设施覆盖分区](coverage-area.md)，三类面积、几何边界、两端展示与自包含导出均可复核；201项业务测试、37项浏览器流程通过。核心代码的[CI记录](https://github.com/TingxuanHan/yike-yanhuo/actions/runs/38842588561)与提交关联。
 
 开发增强补充：功能基线`541d9cf`加入[实走校准](walk-calibration.md)与[2页补充PDF](../materials/yike-yanhuo-calibration-addendum.pdf)。[四组构造对照](experiments/walk-calibration-simulation.md)保留建议改善和失效情况；193项业务测试、36项浏览器流程通过。下方v1固定源码、14页文档与视频仍对应原版本，不包含新功能；需要展示新功能时应使用main的新提交与补充说明，不能把原视频说成已演示该功能。补充PDF可用`scripts/build-calibration-addendum.py`重建。
 
-## 三项提交物
+## 三项提交物及版本对应
 
 | 材料 | 固定入口 | 说明 |
 | --- | --- | --- |
-| 完整源码 | [仓库](https://github.com/TingxuanHan/yike-yanhuo/tree/os2026-submission-v1) | 固定标签 `os2026-submission-v1`；Release另附同版本源码ZIP |
-| 作品介绍 | [14页PDF](../materials/yike-yanhuo-submission.pdf) | 背景、架构、场景、创新、对照结果、治理、90天计划；按30/30/20/20组织 |
-| 演示视频 | [MP4下载/播放文件](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-submission-v1/yike-yanhuo-submission.mp4) | 中文配音、烧录字幕，另附SRT；展示真实界面操作和明确标注的回放 |
+| 完整源码 | [新增功能基线921127e](https://github.com/TingxuanHan/yike-yanhuo/tree/921127e)；文档修订见main | 包含本轮连续分区与实走校准；历史v1源码ZIP仍对应原标签 |
+| 作品介绍 | [16页百度修订PDF](../materials/yike-yanhuo-baidu-submission.pdf) | 背景、架构、场景、创新及40/30/15/15证据索引；第15—16页给出连续分区及验证 |
+| 演示视频 | [v1有声字幕MP4](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-submission-v1/yike-yanhuo-submission.mp4) | 中文配音、烧录字幕，另附SRT；未包含本轮连续分区及实走校准，新增功能见文档和运行流程 |
 
-[发布页与全部附件](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-submission-v1)提供PDF、MP4、SRT、源码包、SHA-256校验清单和完整材料包。GitHub附件可能直接下载；MP4采用H.264/AAC、16:9与快速启动，可用常见播放器打开。
+[历史v1发布页](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-submission-v1)提供原14页PDF、MP4、SRT、源码包、SHA-256校验清单和完整材料包。它没有被覆盖，原14页的通用评分主线已由本轮百度修订版纠正；新增PDF尚未作为Release附件重新发布，不沿用旧包的校验和。GitHub附件可能直接下载；MP4采用H.264/AAC、16:9与快速启动，可用常见播放器打开。
+
+两份当前PDF的[独立SHA-256清单](../materials/baidu-revision-sha256.txt)与[18页验收记录](validation/baidu-revision.json)随main保存；不能用旧v1清单校验修订文件。
 
 **访问状态：** 当前仓库仍按所有者原要求保持私有，链接需要授权账号登录。企业任务书要求开源源码，因此正式提交前必须由所有者确认公开发布方式；只拥有本地文件或私有链接不等于已经满足外部评审访问。尚未发送比赛邮件，也没有代替所有者完成报名信息确认。
 
@@ -23,7 +27,7 @@
 ```sh
 git clone https://github.com/TingxuanHan/yike-yanhuo.git
 cd yike-yanhuo
-git checkout os2026-submission-v1
+git checkout 921127e
 npm ci
 npm run build
 npm start
@@ -41,6 +45,8 @@ npm start
 npm test
 npm run test:ui
 npm run benchmark:demo
+npm run benchmark:coverage
+npm run benchmark:walk
 ```
 
 浏览器测试需要Playwright Chromium：按环境执行 `npx playwright install chromium`。普通测试均使用构造环境，不会自动发起真实API调用。功能基线 `09b3027` 已完成184项业务/接口/小程序业务测试、34项浏览器流程和生产构建；该提交的 [CI](https://github.com/TingxuanHan/yike-yanhuo/actions/runs/38765916736) 可追溯。提交版材料生成与成片检查另见 [材料验收记录](submission-validation.md)。
@@ -52,8 +58,8 @@ npm run benchmark:demo
 
 ## 文稿与视频复现
 
-- [作品介绍可编辑文本](submission-brief.md)、[旁白与章节](submission-transcript.md)、[分镜JSON](submission-video.json)。
-- `scripts/build-submission.py`：用ReportLab生成PDF；Windows默认微软雅黑，可按脚本参数指定字体；输出须重新逐页渲染检查。
+- [百度修订版可编辑文本](submission-baidu-brief.md)、[历史旁白与章节](submission-transcript.md)、[v1分镜JSON](submission-video.json)。
+- `scripts/build-submission.py`：main中生成16页百度修订版，保留v1原件；Windows默认微软雅黑，可按脚本参数指定字体；输出须重新逐页渲染检查。原14页生成脚本可在v1标签中获取。
 - `scripts/make-submission-voice.ps1`：调用本机SAPI中文语音，输出缓存WAV；不调用付费合成服务。
 - `scripts/record-submission.mjs`：生产构建后，启动独立8790端口、内存数据和空地图密钥，用无头浏览器录制；禁止外部与真实API请求。`REHEARSAL_FAST=1`只作流程检查。
 - `scripts/compose-submission.py`：按逐句语音和场景时间拼接，生成带烧录字幕的MP4、SRT与封面；需要本机FFmpeg。
@@ -69,11 +75,11 @@ npm run benchmark:demo
 
 现提交作品“一刻烟火：15分钟生活圈智能体检与规划助手”，参赛方向为百度地图企业赛题。附件包含作品介绍PDF、代码运行说明和材料索引。代码仓库与演示视频链接如下：
 
-- 代码：`https://github.com/TingxuanHan/yike-yanhuo/tree/os2026-submission-v1`
+- 代码：`https://github.com/TingxuanHan/yike-yanhuo/tree/921127e`（功能基线；最新文档在main）
 - 视频：`https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-submission-v1/yike-yanhuo-submission.mp4`
 - 全部附件：`https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-submission-v1`
 
-文档区分模拟演示、百度API对照与待实地核验事项。请查收。
+附件请使用百度评分修订版PDF；v1视频展示既有核心流程，连续分区与实走校准的新增实现及验证见文档。材料区分模拟演示、百度API对照与待实地核验事项。请查收。
 
 报名人/团队：[按确认邮件填写]；报名编号：[若有]；联系方式：[由报名人填写]。
 

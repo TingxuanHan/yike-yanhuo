@@ -66,11 +66,12 @@ npm run dev
 
 ## 材料导航
 
-2026-10-16提交版覆盖社区体检、日常出行、入口提醒、备选比较和家人协助。按技术创新30%、场景落地30%、开源治理20%、长期发展20%组织证据，保留模拟、API实测和现场待验证的区别。
+2026-10-16百度修订版按任务书的**功能正确性与覆盖率40%、API深度调用与工程优化30%、产品交互与用户体验15%、开源工程规范15%**组织证据。核心新增[连续设施覆盖分区](docs/coverage-area.md)：复用现有报告量化已找到设施、候选缺口和待核查面积，保留模拟、API回放和现场待验证的区别。
 
 “一句话安排”支持基础AI、自用API和离线手工条件确认；已接入两端办事、购物及步行目标表单。模型接口由后端统一鉴权并保管密钥；开发环境已完成Qwen3-8B真实接口联调，新部署仍需独立配置服务。本机免费模式每次调用前核对指定模型零元价格，不能据此保证其他模型或未来价格。配置步骤、免费测试渠道与数据边界见[规划助手接入](docs/planning-assistant.md)。
 
-- [提交版作品介绍 PDF · 14页](materials/yike-yanhuo-submission.pdf)
+- [百度评分修订版作品介绍 PDF · 16页](materials/yike-yanhuo-baidu-submission.pdf) · [可编辑文稿](docs/submission-baidu-brief.md)
+- [历史v1作品介绍 PDF · 14页](materials/yike-yanhuo-submission.pdf)（原评分主线已由百度修订版更正，固定发布附件保留）
 - [实走校准补充说明 PDF · 2页](materials/yike-yanhuo-calibration-addendum.pdf) · [固定构造对照](docs/experiments/walk-calibration-simulation.md)（功能基线541d9cf的增强；v1视频保持原版本内容）
 - [带中文配音与字幕的演示视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-submission-v1/yike-yanhuo-submission.mp4)
 - [固定版本与完整交付包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-submission-v1)
