@@ -64,6 +64,20 @@ const story = JSON.parse(
     "utf8",
   ),
 );
+let identityCheck;
+if (v4) {
+  const publicText = [
+    JSON.stringify(story.scenes),
+    JSON.stringify(subtitles),
+    JSON.stringify(metadata.format.tags),
+    await readFile("materials/yike-yanhuo-baidu-v4.srt", "utf8"),
+    await readFile("docs/submission-v4-transcript.md", "utf8"),
+  ].join("\n");
+  for (const text of ["韩庭轩", "南京大学", "姜可"])
+    assert.ok(!publicText.includes(text), "Video contains excluded identity");
+  assert.equal(metadata.format.tags.artist, "一刻烟火");
+  identityCheck = { excludedNamesAndSchool: true, artist: "一刻烟火" };
+}
 assert.equal(timeline.scenes.length, story.scenes.length);
 assert.equal(
   subtitles.length,
@@ -168,6 +182,7 @@ try {
     scenes: timeline.scenes.length,
     spokenCaptions: subtitles.length,
     fullDecode: true,
+    ...(identityCheck ? { identityCheck } : {}),
     playback,
   };
   await writeFile(

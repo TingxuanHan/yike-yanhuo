@@ -5,221 +5,221 @@
       "id": "title",
       "title": "一刻烟火 · 从家门口，走进好生活",
       "start": 0,
-      "end": 16960
+      "end": 16640
     },
     {
       "id": "simple",
       "title": "简易首页 · 复杂条件按需展开",
-      "start": 16960,
-      "end": 29120
+      "start": 16640,
+      "end": 28800
     },
     {
       "id": "locate",
       "title": "真实上海社区 · 地址定位",
-      "start": 29120,
-      "end": 43320
+      "start": 28800,
+      "end": 43000
     },
     {
       "id": "analyze",
       "title": "实际API检索与测时 · 中间等待已剪短",
-      "start": 43320,
-      "end": 63400
+      "start": 43000,
+      "end": 63080
     },
     {
       "id": "range",
       "title": "道路上的5、10、15分钟范围",
-      "start": 63400,
-      "end": 78720
+      "start": 63080,
+      "end": 78400
     },
     {
       "id": "places",
       "title": "六类设施 · 地图与清单联动",
-      "start": 78720,
-      "end": 94000
+      "start": 78400,
+      "end": 93680
     },
     {
       "id": "algorithm",
       "title": "创新一：预算内共享边加密",
-      "start": 94000,
-      "end": 110160
+      "start": 93680,
+      "end": 109840
     },
     {
       "id": "coverage",
       "title": "创新二：把资料不足与候选缺口分开",
-      "start": 110160,
-      "end": 127360
+      "start": 109840,
+      "end": 127040
     },
     {
       "id": "review",
       "title": "设施核查台账与到期提醒 · 构造演练",
-      "start": 127360,
-      "end": 138440
+      "start": 127040,
+      "end": 138120
     },
     {
       "id": "repair",
       "title": "定向补查 · 先预览，采用后可恢复 · 构造演练",
-      "start": 138440,
-      "end": 155080
+      "start": 138120,
+      "end": 154760
     },
     {
       "id": "siting",
       "title": "创新三：单点与组合补点 · 构造演练",
-      "start": 155080,
-      "end": 170120
+      "start": 154760,
+      "end": 169800
     },
     {
       "id": "conditions",
       "title": "多条件取舍与共同收益 · 构造演练",
-      "start": 170120,
-      "end": 186400
+      "start": 169800,
+      "end": 186080
     },
     {
       "id": "detour",
       "title": "绕行核查线索 · 构造演练",
-      "start": 186400,
-      "end": 202760
+      "start": 186080,
+      "end": 202440
     },
     {
       "id": "audit",
       "title": "创新四：冻结预测与分离抽点 · 构造演练",
-      "start": 202760,
-      "end": 222080
+      "start": 202440,
+      "end": 221760
     },
     {
       "id": "report",
       "title": "保存、回放、打印与独立复算 · 构造演练",
-      "start": 222080,
-      "end": 236440
+      "start": 221760,
+      "end": 236120
     },
     {
       "id": "personal",
       "title": "个人步速、时长与峰谷等灯假设",
-      "start": 236440,
-      "end": 254440
+      "start": 236120,
+      "end": 254120
     },
     {
       "id": "placebook",
       "title": "记住地图外的小店 · 构造演练",
-      "start": 254440,
-      "end": 267360
+      "start": 254120,
+      "end": 267040
     },
     {
       "id": "calibration",
       "title": "创新五：事先预测，再用记录校准 · 构造数据",
-      "start": 267360,
-      "end": 281160
+      "start": 267040,
+      "end": 280840
     },
     {
       "id": "daily",
       "title": "一趟办事、购物与返程 · 构造演练",
-      "start": 281160,
-      "end": 299160
+      "start": 280840,
+      "end": 298840
     },
     {
       "id": "familiar",
       "title": "熟路照片与分段歇脚 · 原生页面留档",
-      "start": 299160,
-      "end": 312320
+      "start": 298840,
+      "end": 312000
     },
     {
       "id": "shopping",
       "title": "私人价格记忆与购物预算 · 构造演练",
-      "start": 312320,
-      "end": 326040
+      "start": 312000,
+      "end": 325720
     },
     {
       "id": "movement",
       "title": "顺路动一动 · 构造演练",
-      "start": 326040,
-      "end": 339240
+      "start": 325720,
+      "end": 338920
     },
     {
       "id": "ai_settings",
       "title": "基础AI、自定义API与确认式规划",
-      "start": 339240,
-      "end": 351960
+      "start": 338920,
+      "end": 351640
     },
     {
       "id": "voice",
       "title": "语音转文字与条件确认 · 历史真实接口留档",
-      "start": 351960,
-      "end": 371160
+      "start": 351640,
+      "end": 370840
     },
     {
       "id": "notice",
       "title": "创新六：具体到入口的邻里提醒 · 构造演练",
-      "start": 371160,
-      "end": 386440
+      "start": 370840,
+      "end": 386120
     },
     {
       "id": "conflict",
       "title": "可信依据、时效与反馈分歧 · 构造演练",
-      "start": 386440,
-      "end": 401480
+      "start": 386120,
+      "end": 401160
     },
     {
       "id": "alternative",
       "title": "下一站备选 · 比较后由本人替换 · 构造演练",
-      "start": 401480,
-      "end": 416080
+      "start": 401160,
+      "end": 415760
     },
     {
       "id": "entrance",
       "title": "同店另一入口 · 私人记录与明确确认 · 构造演练",
-      "start": 416080,
-      "end": 429200
+      "start": 415760,
+      "end": 428880
     },
     {
       "id": "walking",
       "title": "逐段文字指引 · 上海历史API路线留档",
-      "start": 429200,
-      "end": 445280
+      "start": 428880,
+      "end": 444960
     },
     {
       "id": "card",
       "title": "离线出门卡、常用方案与恢复 · 构造演练",
-      "start": 445280,
-      "end": 460040
+      "start": 444960,
+      "end": 459720
     },
     {
       "id": "family",
       "title": "家人远程建议与主动结束 · 构造演练",
-      "start": 460040,
-      "end": 480280
+      "start": 459720,
+      "end": 479960
     },
     {
       "id": "location",
       "title": "一键联系家人、带时间的位置线索 · 构造演练",
-      "start": 480280,
-      "end": 493040
+      "start": 479960,
+      "end": 492720
     },
     {
       "id": "sync",
       "title": "Web与微信共用私人空间 · 本机服务演练",
-      "start": 493040,
-      "end": 506120
+      "start": 492720,
+      "end": 505800
     },
     {
       "id": "mini",
       "title": "微信原生双端与共用核心 · 开发者工具留档",
-      "start": 506120,
-      "end": 523880
+      "start": 505800,
+      "end": 523560
     },
     {
       "id": "finish",
       "title": "完整源码公开 · MIT许可与可复现验证",
-      "start": 523880,
-      "end": 541880
+      "start": 523560,
+      "end": 541560
     }
   ],
   "edits": [
     {
       "id": "title",
-      "sourceVersion": "v3",
+      "sourceVersion": "cards",
       "sourceScene": "title",
-      "sourceStart": 0.0,
-      "sourceEnd": 16.663,
-      "seconds": 16.96
+      "sourceStart": 0.001,
+      "sourceEnd": 16.867,
+      "seconds": 16.64
     },
     {
       "id": "simple",
@@ -487,10 +487,10 @@
     },
     {
       "id": "finish",
-      "sourceVersion": "v3",
+      "sourceVersion": "cards",
       "sourceScene": "finish",
-      "sourceStart": 189.739,
-      "sourceEnd": 207.421,
+      "sourceStart": 16.918,
+      "sourceEnd": 35.117,
       "seconds": 18.0
     }
   ],

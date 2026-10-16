@@ -5,7 +5,7 @@ import importlib.util,json,subprocess,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('previous',ROOT/'scripts/package-submission-v2.py')
 p=importlib.util.module_from_spec(spec);spec.loader.exec_module(p)
-TAG='os2026-baidu-v4-20261016'
+TAG='os2026-baidu-v4.1-20261016'
 
 def main():
     revision=p.git('rev-parse','HEAD')

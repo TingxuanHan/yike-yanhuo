@@ -9,7 +9,8 @@ def main():
     voices={x['id']:x for x in json.loads((ROOT/'.cache/submission-v4-voice/manifest.json').read_text(encoding='utf-8'))}
     versions={'v3':json.loads((ROOT/'materials/submission-v3-edited-timeline.json').read_text(encoding='utf-8')),'v2':json.loads((ROOT/'materials/submission-v2-timeline.json').read_text(encoding='utf-8')),'new':json.loads((ROOT/'materials/submission-v4-extra-timeline.json').read_text(encoding='utf-8'))}
     assert versions['new']['browserErrors']==[] and versions['new']['prohibitedRequests']==0
-    sources={'v3':'materials/yike-yanhuo-baidu-v3.mp4','v2':'.cache/submission-v2-raw.webm','new':'.cache/submission-v4-extra.webm'}
+    versions['cards']=json.loads((ROOT/'materials/submission-v4-cards-timeline.json').read_text(encoding='utf-8'))
+    sources={'v3':'materials/yike-yanhuo-baidu-v3.mp4','v2':'.cache/submission-v2-raw.webm','new':'.cache/submission-v4-extra.webm','cards':'.cache/submission-v4-cards.webm'}
     folder=ROOT/'.cache/submission-v4-segments';folder.mkdir(exist_ok=True)
     scenes=[];cursor=0.0;edits=[]
     for n,s in enumerate(story['scenes']):
@@ -34,7 +35,7 @@ def main():
     run(['ffmpeg','-v','error','-y','-f','concat','-safe','0','-i',str(concat),'-c','copy','.cache/submission-v4-edited.mp4'])
     rate=22050;audio=bytearray(math.ceil(cursor*rate)*2);captions=[];srt=[]
     ass=['[Script Info]','ScriptType: v4.00+','PlayResX: 1600','PlayResY: 900','WrapStyle: 2','','[V4+ Styles]','Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding','Style: Spoken,Microsoft YaHei,28,&H00FFFFFF,&H00FFFFFF,&H00383E12,&H00383E12,0,0,0,0,100,100,0,0,1,0,0,8,60,60,10,1','Style: Chapter,Microsoft YaHei,18,&H00C8E3DA,&H00FFFFFF,&H00383E12,&H00383E12,0,0,0,0,100,100,0,0,1,0,0,8,60,60,10,1','','[Events]','Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text']
-    transcript=['# 一刻烟火：完整功能演示旁白','','预设普通话神经网络配音。包含本轮真实上海API、构造场景实际操作与明确标注的历史接口/微信页面留档。','',json.dumps(story['registration'],ensure_ascii=False),'']
+    transcript=['# 一刻烟火：完整功能演示旁白','','预设普通话神经网络配音。包含本轮真实上海API、构造场景实际操作与明确标注的历史接口/微信页面留档。','','项目：一刻烟火；赛道：开源 AI 工具赛道；企业赛题：'+story['registration']['topic'],'']
     for scene in scenes:
         a,z=scene['start']/1000,scene['end']/1000;t=a+.4
         ass.append(f'Dialogue: 0,{m.stamp(a,True)},{m.stamp(z,True)},Chapter,,0,0,0,,{{\\an8\\pos(800,805)}}'+scene['title']);transcript.extend([f'## {m.stamp(a).split(",")[0]} {scene["title"]}',''])
@@ -52,7 +53,7 @@ def main():
     (ROOT/'materials/submission-v4-caption-timing.json').write_text(json.dumps(captions,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     (ROOT/'materials/submission-v4-edited-timeline.json').write_text(json.dumps({'video':'materials/yike-yanhuo-baidu-v4.mp4','scenes':scenes,'edits':edits,'browserErrors':0,'blockedRequests':0},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     (ROOT/'docs/submission-v4-transcript.md').write_text('\n'.join(transcript),encoding='utf-8')
-    run(['ffmpeg','-hide_banner','-loglevel','warning','-y','-i','.cache/submission-v4-edited.mp4','-i','.cache/submission-v4-narration.wav','-vf','pad=1600:900:0:0:color=0x123e38,ass=.cache/submission-v4.ass','-af','loudnorm=I=-16:TP=-1.5:LRA=7','-map','0:v:0','-map','1:a:0','-c:v','libx264','-preset','medium','-crf','20','-pix_fmt','yuv420p','-r','25','-c:a','aac','-b:a','128k','-ar','48000','-ac','2','-t',str(cursor),'-movflags','+faststart','-metadata','title=一刻烟火：完整功能与创新演示','-metadata','artist=韩庭轩、姜可｜南京大学','materials/yike-yanhuo-baidu-v4.mp4'])
+    run(['ffmpeg','-hide_banner','-loglevel','warning','-y','-i','.cache/submission-v4-edited.mp4','-i','.cache/submission-v4-narration.wav','-vf','pad=1600:900:0:0:color=0x123e38,ass=.cache/submission-v4.ass','-af','loudnorm=I=-16:TP=-1.5:LRA=7','-map','0:v:0','-map','1:a:0','-c:v','libx264','-preset','medium','-crf','20','-pix_fmt','yuv420p','-r','25','-c:a','aac','-b:a','128k','-ar','48000','-ac','2','-t',str(cursor),'-movflags','+faststart','-metadata','title=一刻烟火：完整功能与创新演示','-metadata','artist=一刻烟火','materials/yike-yanhuo-baidu-v4.mp4'])
     run(['ffmpeg','-v','error','-y','-ss','4','-i','materials/yike-yanhuo-baidu-v4.mp4','-frames:v','1','materials/yike-yanhuo-baidu-v4-cover.png'])
     print(json.dumps({'seconds':cursor,'scenes':len(scenes),'captions':len(captions)}))
 if __name__=='__main__':main()

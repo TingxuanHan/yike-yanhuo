@@ -2,14 +2,14 @@
 
 项目名称：**一刻烟火**。参赛赛道：**开源 AI 工具赛道**。企业赛题：**【开源 AI 工具赛道】百度地图赛题：基于地图开放能力的“15 分钟生活圈”智能体检与规划助手**。
 
-负责人：**韩庭轩**；单位/学校：**南京大学**；其他团队成员：**姜可**。以上信息包含在文档封面和视频片头。
+负责人：**韩庭轩**；单位/学校：**南京大学**；其他团队成员：**姜可**。完整报名信息保留在文档封面；视频不包含负责人、学校和其他成员信息。
 
 ## 提交材料
 
-- **完整可运行代码**：[公开仓库](https://github.com/TingxuanHan/yike-yanhuo) · [固定版本](https://github.com/TingxuanHan/yike-yanhuo/tree/os2026-baidu-v4-20261016)。
+- **完整可运行代码**：[公开仓库](https://github.com/TingxuanHan/yike-yanhuo) · [固定版本](https://github.com/TingxuanHan/yike-yanhuo/tree/os2026-baidu-v4.1-20261016)。
 - **作品介绍**：[14页PDF](../materials/yike-yanhuo-baidu-v4.pdf) · [可编辑文稿](submission-v4-brief.md)。
-- **作品演示视频**：[完整有声字幕视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v4-20261016/yike-yanhuo-baidu-v4.mp4) · [SRT字幕](../materials/yike-yanhuo-baidu-v4.srt) · [逐字稿与章节时间](submission-v4-transcript.md)。
-- [全部附件、源码ZIP及校验清单](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v4-20261016)。v3保留为6页/3分27秒简版，正式完整材料采用本页v4。
+- **作品演示视频**：[完整有声字幕视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v4.1-20261016/yike-yanhuo-baidu-v4.mp4) · [SRT字幕](../materials/yike-yanhuo-baidu-v4.srt) · [逐字稿与章节时间](submission-v4-transcript.md)。
+- [全部附件、源码ZIP及校验清单](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v4.1-20261016)。v3保留为6页/3分27秒简版，正式完整材料采用本页v4。
 
 ## 全部已实现功能与创新索引
 

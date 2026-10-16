@@ -10,7 +10,7 @@
 
 负责人：**韩庭轩**；单位/学校：**南京大学**；其他团队成员：**姜可**。
 
-本仓库已于2026-10-16公开。当前完整材料：[14页作品介绍](materials/yike-yanhuo-baidu-v4.pdf)、[完整功能与真实API演示视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v4-20261016/yike-yanhuo-baidu-v4.mp4)、[功能与版本索引](docs/submission-v4-guide.md)。
+本仓库已于2026-10-16公开。当前完整材料：[14页作品介绍](materials/yike-yanhuo-baidu-v4.pdf)、[完整功能与真实API演示视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v4.1-20261016/yike-yanhuo-baidu-v4.mp4)、[功能与版本索引](docs/submission-v4-guide.md)。
 
 ## 开发状态
 
@@ -76,15 +76,15 @@ npm run dev
 
 ## 材料导航
 
-2026-10-16当前完整版聚焦背景、架构、场景与全部已实现功能，**14页PDF＋约9分钟、35分镜有声字幕视频**，封面与片头包含参赛团队信息。上海社区片段实际调用百度接口，路线236条、检索6次；构造演练与微信静帧另行标注。按百度任务书40/30/15/15对应实现，244项业务测试与44项浏览器流程通过。详见[全部功能与材料索引](docs/submission-v4-guide.md)。
+2026-10-16当前完整版聚焦背景、架构、场景与全部已实现功能，**14页PDF＋约9分钟、35分镜有声字幕视频**，文档封面包含参赛团队信息，视频仅保留项目、赛道和赛题。上海社区片段实际调用百度接口，路线236条、检索6次；构造演练与微信静帧另行标注。按百度任务书40/30/15/15对应实现，244项业务测试与44项浏览器流程通过。详见[全部功能与材料索引](docs/submission-v4-guide.md)。
 
 补点、补查、多条件与抽点均可导出依据并独立复算。构造、历史API回放与重复接口核对分别标记，不能合并成总体准确率。旧版标签与附件保留，不与本版混用校验值。
 
 “一句话安排”支持基础AI、自用API和离线手工条件确认；已接入两端办事、购物及步行目标表单。模型接口由后端统一鉴权并保管密钥；开发环境已完成Qwen3-8B真实接口联调，新部署仍需独立配置服务。本机免费模式每次调用前核对指定模型零元价格，不能据此保证其他模型或未来价格。配置步骤、免费测试渠道与数据边界见[规划助手接入](docs/planning-assistant.md)。
 
 - [完整作品介绍 PDF · 14页](materials/yike-yanhuo-baidu-v4.pdf) · [可编辑文稿](docs/submission-v4-brief.md)
-- [完整功能有声字幕视频 · 约9分钟](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v4-20261016/yike-yanhuo-baidu-v4.mp4) · [字幕](materials/yike-yanhuo-baidu-v4.srt) · [旁白与章节](docs/submission-v4-transcript.md)
-- [当前完整材料与源码包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v4-20261016) · [功能与运行](docs/submission-v4-guide.md) · [验收](docs/submission-v4-validation.md)
+- [完整功能有声字幕视频 · 约9分钟](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v4.1-20261016/yike-yanhuo-baidu-v4.mp4) · [字幕](materials/yike-yanhuo-baidu-v4.srt) · [旁白与章节](docs/submission-v4-transcript.md)
+- [当前完整材料与源码包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v4.1-20261016) · [功能与运行](docs/submission-v4-guide.md) · [验收](docs/submission-v4-validation.md)
 - [v3简版：6页介绍与3分27秒视频](docs/submission-v3-guide.md)
 - [历史v2：18页介绍与26章视频](docs/submission-v2-guide.md)
 - [历史百度修订PDF · 16页](materials/yike-yanhuo-baidu-submission.pdf) · [可编辑文稿](docs/submission-baidu-brief.md)
