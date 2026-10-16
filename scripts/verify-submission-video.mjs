@@ -8,11 +8,14 @@ import { execFileSync } from "node:child_process";
 process.env.PLAYWRIGHT_BROWSERS_PATH ??= resolve(".cache/playwright");
 const { chromium } = await import("@playwright/test");
 const v2 = process.env.SUBMISSION_VARIANT === "v2";
-const prefix = v2 ? "submission-v2" : "submission";
+const v3 = process.env.SUBMISSION_VARIANT === "v3";
+const prefix = v3 ? "submission-v3" : v2 ? "submission-v2" : "submission";
 const file = resolve(
-  v2
-    ? "materials/yike-yanhuo-baidu-v2.mp4"
-    : "materials/yike-yanhuo-submission.mp4",
+  v3
+    ? "materials/yike-yanhuo-baidu-v3.mp4"
+    : v2
+      ? "materials/yike-yanhuo-baidu-v2.mp4"
+      : "materials/yike-yanhuo-submission.mp4",
 );
 const { size } = await stat(file);
 const metadata = JSON.parse(
@@ -32,14 +35,21 @@ execFileSync("ffmpeg", ["-v", "error", "-i", file, "-f", "null", "-"], {
   stdio: "pipe",
 });
 const timeline = JSON.parse(
-  await readFile(`materials/${prefix}-timeline.json`, "utf8"),
+  await readFile(
+    `materials/${prefix}${v3 ? "-edited" : ""}-timeline.json`,
+    "utf8",
+  ),
 );
 const subtitles = JSON.parse(
   await readFile(`materials/${prefix}-caption-timing.json`, "utf8"),
 );
 const story = JSON.parse(
   await readFile(
-    v2 ? "docs/submission-video-v2.json" : "docs/submission-video.json",
+    v3
+      ? "docs/submission-video-v3.json"
+      : v2
+        ? "docs/submission-video-v2.json"
+        : "docs/submission-video.json",
     "utf8",
   ),
 );

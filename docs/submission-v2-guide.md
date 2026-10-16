@@ -6,15 +6,15 @@
 
 ## 三项提交物
 
-| 材料 | 入口 | 内容 |
-| --- | --- | --- |
-| 完整代码 | [固定版本源码](https://github.com/TingxuanHan/yike-yanhuo/tree/os2026-baidu-v2-20261016) | 可运行Web、微信原生开发版、锁文件、构造数据、复算和测试脚本 |
-| 作品介绍 | [18页PDF](../materials/yike-yanhuo-baidu-v2.pdf) · [可编辑文稿](submission-v2-brief.md) | 背景、架构、场景、实现增量、API成本、对照结果、规范与维护安排 |
+| 材料     | 入口                                                                                                                              | 内容                                                                               |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 完整代码 | [固定版本源码](https://github.com/TingxuanHan/yike-yanhuo/tree/os2026-baidu-v2-20261016)                                          | 可运行Web、微信原生开发版、锁文件、构造数据、复算和测试脚本                        |
+| 作品介绍 | [18页PDF](../materials/yike-yanhuo-baidu-v2.pdf) · [可编辑文稿](submission-v2-brief.md)                                           | 背景、架构、场景、实现增量、API成本、对照结果、规范与维护安排                      |
 | 演示视频 | [新版有声字幕MP4](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v2-20261016/yike-yanhuo-baidu-v2.mp4) | 26个分镜、中文配音和烧录字幕；另附SRT、封面及[逐字稿](submission-v2-transcript.md) |
 
 [新版发布页与全部附件](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v2-20261016)提供源码ZIP、材料ZIP、SHA-256清单与机器检查记录。发布页上的材料版本和源码提交由`submission-v2-manifest.json`对应；视频和PDF标注的是功能基线，不把材料整理误写成业务功能改动。
 
-**访问状态：仓库和Release仍为私有。** 有授权的GitHub账号可以访问；外部评审访问和赛题要求的开源公开方式须在正式提交前落实。没有自动更改可见性、发送报名邮件或宣称已完成比赛提交。
+**版本说明：此为历史v2材料。** 仓库和Release已于2026-10-16经所有者授权公开；最新精简文档及真实API演示见[v3材料](submission-v3-guide.md)。没有代发参赛邮件。
 
 ## 本版更新
 

@@ -1,0 +1,150 @@
+{
+  "video": ".cache/submission-v3-raw.webm",
+  "recordedAt": "2026-10-16T14:53:18.894Z",
+  "scenes": [
+    {
+      "id": "title",
+      "title": "一刻烟火 · 从家门口，走进好生活",
+      "start": 66,
+      "end": 16729,
+      "voiceDuration": 16.648072562358276
+    },
+    {
+      "id": "locate",
+      "title": "01 定位真实社区",
+      "start": 16793,
+      "end": 30715,
+      "voiceDuration": 13.91206349206349
+    },
+    {
+      "id": "analyze",
+      "title": "02 实际检索设施与步行测时 · 中间等待已剪短",
+      "start": 30798,
+      "end": 50545,
+      "voiceDuration": 19.74403628117914
+    },
+    {
+      "id": "range",
+      "title": "03 生活圈沿道路展开",
+      "start": 50632,
+      "end": 65662,
+      "voiceDuration": 15.016054421768706
+    },
+    {
+      "id": "places",
+      "title": "04 从地图找到身边的生活设施",
+      "start": 65744,
+      "end": 80724,
+      "voiceDuration": 14.96798185941043
+    },
+    {
+      "id": "coverage",
+      "title": "05 区分设施缺口与资料不足",
+      "start": 80797,
+      "end": 97714,
+      "voiceDuration": 16.911972789115648
+    },
+    {
+      "id": "planning",
+      "title": "06 设施补点与多条件比较",
+      "start": 97767,
+      "end": 116436,
+      "voiceDuration": 18.66403628117914
+    },
+    {
+      "id": "personal",
+      "title": "07 换成自己的步速与时间",
+      "start": 116483,
+      "end": 134167,
+      "voiceDuration": 17.68
+    },
+    {
+      "id": "daily",
+      "title": "08 一趟出门，办完几件事 · 以下为构造场景演练",
+      "start": 134224,
+      "end": 151929,
+      "voiceDuration": 17.70403628117914
+    },
+    {
+      "id": "family",
+      "title": "09 简易模式与家人协助 · 构造场景",
+      "start": 151982,
+      "end": 171929,
+      "voiceDuration": 19.936009070294787
+    },
+    {
+      "id": "mini",
+      "title": "10 微信原生小程序 · 开发者工具实机页面留档",
+      "start": 171967,
+      "end": 189445,
+      "voiceDuration": 17.46403628117914
+    },
+    {
+      "id": "finish",
+      "title": "一刻烟火 · 完整源码已公开",
+      "start": 189513,
+      "end": 207195,
+      "voiceDuration": 17.680000000000003
+    }
+  ],
+  "browserErrors": 0,
+  "errors": [],
+  "blockedRequests": 0,
+  "api": [
+    {
+      "path": "/api/geocode",
+      "status": 200,
+      "at": "2026-10-16T14:42:29.807Z"
+    },
+    {
+      "path": "/api/analyses",
+      "status": 202,
+      "at": "2026-10-16T14:42:43.633Z"
+    },
+    {
+      "path": "/api/geocode",
+      "status": 200,
+      "at": "2026-10-16T14:50:07.620Z"
+    }
+  ],
+  "quotaBefore": {
+    "day": "2026-10-16",
+    "used": {
+      "route": 6,
+      "search": 0,
+      "other": 0,
+      "map": 0
+    },
+    "limits": {
+      "route": 500,
+      "search": 12,
+      "other": 50,
+      "map": 500
+    }
+  },
+  "quotaAfter": {
+    "day": "2026-10-16",
+    "used": {
+      "route": 242,
+      "search": 6,
+      "other": 2,
+      "map": 41
+    },
+    "limits": {
+      "route": 500,
+      "search": 12,
+      "other": 50,
+      "map": 500
+    }
+  },
+  "initialLiveRecording": {
+    "video": ".cache/submission-v3-first-run.webm",
+    "analysis": {
+      "id": "analyze",
+      "title": "02 实际检索设施与步行测时 · 中间等待已剪短",
+      "start": 30766,
+      "end": 307178,
+      "voiceDuration": 19.74403628117914
+    }
+  }
+}

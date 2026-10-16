@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "pages": 6,
+  "requiredRegistration": true,
+  "requiredTopics": true,
+  "embeddedChineseFonts": true,
+  "fonts": [
+    "/AAAAAA+MicrosoftYaHei-0",
+    "/AAAAAA+MicrosoftYaHei-Bold-0",
+    "/AAAAAB+MicrosoftYaHei-0",
+    "/AAAAAB+MicrosoftYaHei-Bold-0",
+    "/AAAAAC+MicrosoftYaHei-0",
+    "/Helvetica"
+  ],
+  "bytes": 1653911,
+  "sha256": "cef6946f1968667ade83e893916af8455a3a00820994bd49b5b7f2c79fd32329"
+}

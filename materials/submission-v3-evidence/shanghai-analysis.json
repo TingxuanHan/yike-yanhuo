@@ -1,0 +1,2682 @@
+{
+  "schemaVersion": 1,
+  "id": "86e2bd42-6aa4-4ab3-915a-90f34f79b58f",
+  "mode": "baidu",
+  "generatedAt": "2026-10-16T14:47:14.777Z",
+  "center": {
+    "label": "上海市杨浦区抚顺路社区睦邻中心",
+    "point": [0, 0],
+    "geo": {
+      "lng": 121.51649820940204,
+      "lat": 31.283733525621674
+    }
+  },
+  "contours": [
+    {
+      "minutes": 5,
+      "polygons": [
+        [
+          [
+            [-259.649, -59.649],
+            [-256.604, -100],
+            [-230.303, -130.303],
+            [-200, -124.49],
+            [-149.315, -149.315],
+            [-119.913, -200],
+            [-114.198, -214.198],
+            [-100, -213.772],
+            [-16.522, -216.522],
+            [0, -242.857],
+            [83.516, -216.484],
+            [100, -217.857],
+            [155.645, -244.355],
+            [200, -231.429],
+            [243.651, -200],
+            [248.246, -151.754],
+            [200, -158.333],
+            [116.304, -183.696],
+            [169.565, -100],
+            [172.131, -27.869],
+            [175.182, 0],
+            [200, 37.778],
+            [291.892, 91.892],
+            [300, 90.164],
+            [304.225, 95.775],
+            [306.977, 106.977],
+            [300, 106.061],
+            [254.634, 154.634],
+            [221.186, 200],
+            [209.728, 209.728],
+            [200, 214.451],
+            [162.121, 200],
+            [100, 172.109],
+            [53.409, 200],
+            [35.606, 235.606],
+            [0, 277.049],
+            [-43.925, 200],
+            [-146.875, 106.25],
+            [-198.361, 101.639],
+            [-180, 200],
+            [-182.353, 217.647],
+            [-200, 211.194],
+            [-221.127, 200],
+            [-212.5, 187.5],
+            [-200.943, 100],
+            [-200.709, 99.291],
+            [-232.692, 0],
+            [-259.649, -59.649]
+          ]
+        ]
+      ],
+      "areaKm2": 0.172660243577,
+      "clipped": false
+    },
+    {
+      "minutes": 10,
+      "polygons": [
+        [
+          [
+            [-485.911, -142.955],
+            [-481.004, -200],
+            [-471.746, -271.746],
+            [-400, -379.365],
+            [-392.571, -385.143],
+            [-379.687, -379.687],
+            [-325.714, -362.857],
+            [-200, -342.308],
+            [-128.571, -328.571],
+            [-170.874, -400],
+            [-130.29, -460.581],
+            [-81.69, -481.69],
+            [0, -482.857],
+            [59.42, -481.159],
+            [112.715, -487.285],
+            [200, -504.098],
+            [376.389, -400],
+            [391.748, -391.748],
+            [393.103, -206.897],
+            [394.239, -200],
+            [400, -180.282],
+            [515.152, -42.424],
+            [559.223, 0],
+            [508.609, 108.609],
+            [522.905, 200],
+            [543.791, 343.791],
+            [400, 249.107],
+            [347.586, 247.586],
+            [352.273, 304.545],
+            [326.459, 326.459],
+            [289.15, 344.575],
+            [260, 400],
+            [247.647, 447.647],
+            [200, 450.784],
+            [138.817, 477.635],
+            [31.206, 431.206],
+            [0, 491.667],
+            [-27.368, 545.263],
+            [-85.246, 514.754],
+            [-200, 467.633],
+            [-235.897, 400],
+            [-327.928, 327.928],
+            [-400, 247.619],
+            [-431.646, 200],
+            [-467.797, 132.203],
+            [-459.206, 70.397],
+            [-470.432, 0],
+            [-477.941, -77.941],
+            [-485.911, -142.955]
+          ]
+        ]
+      ],
+      "areaKm2": 0.7673884351504999,
+      "clipped": false
+    },
+    {
+      "minutes": 15,
+      "polygons": [
+        [
+          [
+            [-716.017, -316.017],
+            [-700.513, -400],
+            [-689.908, -489.908],
+            [-665.169, -600],
+            [-623.918, -623.918],
+            [-600, -617.957],
+            [-409.709, -609.709],
+            [-400, -623.81],
+            [-274.576, -674.576],
+            [-200, -717.857],
+            [-119.298, -719.298],
+            [0, -727.7],
+            [59.231, -740.769],
+            [200, -727.526],
+            [306.667, -693.333],
+            [400, -789.583],
+            [415.152, -784.848],
+            [649.593, -649.593],
+            [679.739, -520.261],
+            [724.28, -400],
+            [779.762, -220.238],
+            [785.217, -200],
+            [709.512, -90.488],
+            [718.894, 0],
+            [800, 161.468],
+            [820.488, 200],
+            [821.932, 221.932],
+            [857.62, 400],
+            [901.099, 501.099],
+            [800, 498.571],
+            [720.225, 520.225],
+            [643.956, 600],
+            [625.078, 625.078],
+            [600, 642.781],
+            [443.617, 643.617],
+            [400, 648.81],
+            [265.608, 665.608],
+            [200, 652.321],
+            [117.258, 717.258],
+            [0, 699.2],
+            [-121.446, 678.554],
+            [-299.39, 699.39],
+            [-378.142, 421.858],
+            [-389.744, 400],
+            [-395.495, 395.495],
+            [-400, 390.476],
+            [-526.582, 200],
+            [-600, 62.315],
+            [-687.5, 0],
+            [-669.536, -69.536],
+            [-680.967, -200],
+            [-716.017, -316.017]
+          ]
+        ]
+      ],
+      "areaKm2": 1.8012348079124998,
+      "clipped": false
+    }
+  ],
+  "samples": [
+    {
+      "point": [-1600, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2547,
+        "meters": 2975
+      }
+    },
+    {
+      "point": [-1600, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1957,
+        "meters": 2287
+      }
+    },
+    {
+      "point": [-1600, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 2018,
+        "meters": 2360
+      }
+    },
+    {
+      "point": [-1600, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1726,
+        "meters": 2017
+      }
+    },
+    {
+      "point": [-1600, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 1824,
+        "meters": 2133
+      }
+    },
+    {
+      "point": [-1600, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1696,
+        "meters": 1982
+      }
+    },
+    {
+      "point": [-1600, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1999,
+        "meters": 2338
+      }
+    },
+    {
+      "point": [-1600, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 2472,
+        "meters": 2890
+      }
+    },
+    {
+      "point": [-1600, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2590,
+        "meters": 3025
+      }
+    },
+    {
+      "point": [-1200, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2024,
+        "meters": 2364
+      }
+    },
+    {
+      "point": [-1200, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1849,
+        "meters": 2162
+      }
+    },
+    {
+      "point": [-1200, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1452,
+        "meters": 1697
+      }
+    },
+    {
+      "point": [-1200, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1578,
+        "meters": 1845
+      }
+    },
+    {
+      "point": [-1200, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 1495,
+        "meters": 1747
+      }
+    },
+    {
+      "point": [-1200, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1305,
+        "meters": 1527
+      }
+    },
+    {
+      "point": [-1200, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1748,
+        "meters": 2043
+      }
+    },
+    {
+      "point": [-1200, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1915,
+        "meters": 2238
+      }
+    },
+    {
+      "point": [-1200, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2303,
+        "meters": 2692
+      }
+    },
+    {
+      "point": [-800, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1924,
+        "meters": 2249
+      }
+    },
+    {
+      "point": [-800, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1775,
+        "meters": 2075
+      }
+    },
+    {
+      "point": [-800, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1327,
+        "meters": 1551
+      }
+    },
+    {
+      "point": [-800, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 997,
+        "meters": 1166
+      }
+    },
+    {
+      "point": [-800, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 1035,
+        "meters": 1211
+      }
+    },
+    {
+      "point": [-800, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1155,
+        "meters": 1355
+      }
+    },
+    {
+      "point": [-800, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1290,
+        "meters": 1509
+      }
+    },
+    {
+      "point": [-800, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1802,
+        "meters": 2106
+      }
+    },
+    {
+      "point": [-800, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2226,
+        "meters": 2602
+      }
+    },
+    {
+      "point": [-400, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1775,
+        "meters": 2075
+      }
+    },
+    {
+      "point": [-400, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1391,
+        "meters": 1625
+      }
+    },
+    {
+      "point": [-400, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1122,
+        "meters": 1313
+      }
+    },
+    {
+      "point": [-400, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 613,
+        "meters": 717
+      }
+    },
+    {
+      "point": [-400, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 494,
+        "meters": 580
+      }
+    },
+    {
+      "point": [-400, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 920,
+        "meters": 1077
+      }
+    },
+    {
+      "point": [-400, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1065,
+        "meters": 1247
+      }
+    },
+    {
+      "point": [-400, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1566,
+        "meters": 1830
+      }
+    },
+    {
+      "point": [-400, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1981,
+        "meters": 2317
+      }
+    },
+    {
+      "point": [0, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1911,
+        "meters": 2234
+      }
+    },
+    {
+      "point": [0, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1567,
+        "meters": 1833
+      }
+    },
+    {
+      "point": [0, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 977,
+        "meters": 1142
+      }
+    },
+    {
+      "point": [0, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 484,
+        "meters": 567
+      }
+    },
+    {
+      "point": [0, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 0,
+        "meters": 0
+      }
+    },
+    {
+      "point": [0, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 556,
+        "meters": 652
+      }
+    },
+    {
+      "point": [0, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1152,
+        "meters": 1347
+      }
+    },
+    {
+      "point": [0, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1327,
+        "meters": 1550
+      }
+    },
+    {
+      "point": [0, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1794,
+        "meters": 2095
+      }
+    },
+    {
+      "point": [400, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1752,
+        "meters": 2047
+      }
+    },
+    {
+      "point": [400, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1334,
+        "meters": 1560
+      }
+    },
+    {
+      "point": [400, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 905,
+        "meters": 1059
+      }
+    },
+    {
+      "point": [400, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 617,
+        "meters": 722
+      }
+    },
+    {
+      "point": [400, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 436,
+        "meters": 510
+      }
+    },
+    {
+      "point": [400, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 789,
+        "meters": 925
+      }
+    },
+    {
+      "point": [400, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1027,
+        "meters": 1206
+      }
+    },
+    {
+      "point": [400, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1669,
+        "meters": 1955
+      }
+    },
+    {
+      "point": [400, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1855,
+        "meters": 2173
+      }
+    },
+    {
+      "point": [800, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1728,
+        "meters": 2019
+      }
+    },
+    {
+      "point": [800, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1601,
+        "meters": 1874
+      }
+    },
+    {
+      "point": [800, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1085,
+        "meters": 1268
+      }
+    },
+    {
+      "point": [800, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 992,
+        "meters": 1159
+      }
+    },
+    {
+      "point": [800, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 1076,
+        "meters": 1259
+      }
+    },
+    {
+      "point": [800, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 762,
+        "meters": 890
+      }
+    },
+    {
+      "point": [800, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1179,
+        "meters": 1377
+      }
+    },
+    {
+      "point": [800, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1477,
+        "meters": 1731
+      }
+    },
+    {
+      "point": [800, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1962,
+        "meters": 2298
+      }
+    },
+    {
+      "point": [1200, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2057,
+        "meters": 2404
+      }
+    },
+    {
+      "point": [1200, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1783,
+        "meters": 2086
+      }
+    },
+    {
+      "point": [1200, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1732,
+        "meters": 2027
+      }
+    },
+    {
+      "point": [1200, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1468,
+        "meters": 1721
+      }
+    },
+    {
+      "point": [1200, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 1235,
+        "meters": 1444
+      }
+    },
+    {
+      "point": [1200, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1299,
+        "meters": 1520
+      }
+    },
+    {
+      "point": [1200, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1348,
+        "meters": 1575
+      }
+    },
+    {
+      "point": [1200, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1816,
+        "meters": 2125
+      }
+    },
+    {
+      "point": [1200, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2120,
+        "meters": 2483
+      }
+    },
+    {
+      "point": [1600, -1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2323,
+        "meters": 2716
+      }
+    },
+    {
+      "point": [1600, -1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 2038,
+        "meters": 2382
+      }
+    },
+    {
+      "point": [1600, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 2155,
+        "meters": 2520
+      }
+    },
+    {
+      "point": [1600, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1825,
+        "meters": 2134
+      }
+    },
+    {
+      "point": [1600, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 1667,
+        "meters": 1949
+      }
+    },
+    {
+      "point": [1600, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1684,
+        "meters": 1970
+      }
+    },
+    {
+      "point": [1600, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1602,
+        "meters": 1872
+      }
+    },
+    {
+      "point": [1600, 1200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1956,
+        "meters": 2286
+      }
+    },
+    {
+      "point": [1600, 1600],
+      "travel": {
+        "status": "ok",
+        "seconds": 2352,
+        "meters": 2750
+      }
+    },
+    {
+      "point": [-200, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 232,
+        "meters": 273
+      }
+    },
+    {
+      "point": [0, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 253,
+        "meters": 297
+      }
+    },
+    {
+      "point": [-200, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 285,
+        "meters": 334
+      }
+    },
+    {
+      "point": [200, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 245,
+        "meters": 287
+      }
+    },
+    {
+      "point": [200, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 368,
+        "meters": 431
+      }
+    },
+    {
+      "point": [0, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 243,
+        "meters": 286
+      }
+    },
+    {
+      "point": [-200, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 630,
+        "meters": 738
+      }
+    },
+    {
+      "point": [-200, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 485,
+        "meters": 568
+      }
+    },
+    {
+      "point": [-400, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 487,
+        "meters": 571
+      }
+    },
+    {
+      "point": [400, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 380,
+        "meters": 444
+      }
+    },
+    {
+      "point": [200, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 275,
+        "meters": 322
+      }
+    },
+    {
+      "point": [200, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 519,
+        "meters": 607
+      }
+    },
+    {
+      "point": [-200, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 530,
+        "meters": 622
+      }
+    },
+    {
+      "point": [-400, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 500,
+        "meters": 586
+      }
+    },
+    {
+      "point": [200, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 473,
+        "meters": 553
+      }
+    },
+    {
+      "point": [400, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 614,
+        "meters": 720
+      }
+    },
+    {
+      "point": [-600, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 795,
+        "meters": 932
+      }
+    },
+    {
+      "point": [-600, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1132,
+        "meters": 1326
+      }
+    },
+    {
+      "point": [0, 600],
+      "travel": {
+        "status": "ok",
+        "seconds": 652,
+        "meters": 764
+      }
+    },
+    {
+      "point": [-200, 600],
+      "travel": {
+        "status": "ok",
+        "seconds": 737,
+        "meters": 864
+      }
+    },
+    {
+      "point": [200, -600],
+      "travel": {
+        "status": "ok",
+        "seconds": 717,
+        "meters": 840
+      }
+    },
+    {
+      "point": [0, -600],
+      "travel": {
+        "status": "ok",
+        "seconds": 764,
+        "meters": 894
+      }
+    },
+    {
+      "point": [600, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 687,
+        "meters": 803
+      }
+    },
+    {
+      "point": [600, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 642,
+        "meters": 750
+      }
+    },
+    {
+      "point": [-600, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 802,
+        "meters": 939
+      }
+    },
+    {
+      "point": [-600, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 766,
+        "meters": 897
+      }
+    },
+    {
+      "point": [-200, -600],
+      "travel": {
+        "status": "ok",
+        "seconds": 768,
+        "meters": 898
+      }
+    },
+    {
+      "point": [-400, -600],
+      "travel": {
+        "status": "ok",
+        "seconds": 870,
+        "meters": 1017
+      }
+    },
+    {
+      "point": [400, 600],
+      "travel": {
+        "status": "ok",
+        "seconds": 859,
+        "meters": 1007
+      }
+    },
+    {
+      "point": [200, 600],
+      "travel": {
+        "status": "ok",
+        "seconds": 838,
+        "meters": 982
+      }
+    },
+    {
+      "point": [600, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 738,
+        "meters": 864
+      }
+    },
+    {
+      "point": [600, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 686,
+        "meters": 801
+      }
+    },
+    {
+      "point": [-800, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1097,
+        "meters": 1283
+      }
+    },
+    {
+      "point": [-200, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 992,
+        "meters": 1160
+      }
+    },
+    {
+      "point": [200, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1075,
+        "meters": 1260
+      }
+    },
+    {
+      "point": [800, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 858,
+        "meters": 1003
+      }
+    },
+    {
+      "point": [200, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1004,
+        "meters": 1176
+      }
+    },
+    {
+      "point": [400, -600],
+      "travel": {
+        "status": "ok",
+        "seconds": 809,
+        "meters": 946
+      }
+    },
+    {
+      "point": [600, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 749,
+        "meters": 876
+      }
+    },
+    {
+      "point": [800, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 917,
+        "meters": 1072
+      }
+    },
+    {
+      "point": [600, -600],
+      "travel": {
+        "status": "ok",
+        "seconds": 839,
+        "meters": 982
+      }
+    },
+    {
+      "point": [-600, -800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1488,
+        "meters": 1742
+      }
+    },
+    {
+      "point": [-600, -600],
+      "travel": {
+        "status": "ok",
+        "seconds": 842,
+        "meters": 984
+      }
+    },
+    {
+      "point": [-800, -600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1020,
+        "meters": 1192
+      }
+    },
+    {
+      "point": [800, 600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1042,
+        "meters": 1217
+      }
+    },
+    {
+      "point": [600, 600],
+      "travel": {
+        "status": "ok",
+        "seconds": 860,
+        "meters": 1004
+      }
+    },
+    {
+      "point": [600, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1047,
+        "meters": 1222
+      }
+    },
+    {
+      "point": [1000, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 1268,
+        "meters": 1482
+      }
+    },
+    {
+      "point": [1000, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 1241,
+        "meters": 1452
+      }
+    },
+    {
+      "point": [1000, 600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1035,
+        "meters": 1210
+      }
+    },
+    {
+      "point": [1000, 800],
+      "travel": {
+        "status": "ok",
+        "seconds": 1300,
+        "meters": 1519
+      }
+    },
+    {
+      "point": [1200, 600],
+      "travel": {
+        "status": "ok",
+        "seconds": 1167,
+        "meters": 1364
+      }
+    },
+    {
+      "point": [100, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 124,
+        "meters": 145
+      }
+    },
+    {
+      "point": [100, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 94,
+        "meters": 111
+      }
+    },
+    {
+      "point": [0, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 181,
+        "meters": 214
+      }
+    },
+    {
+      "point": [-100, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 254,
+        "meters": 298
+      }
+    },
+    {
+      "point": [-100, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 120,
+        "meters": 140
+      }
+    },
+    {
+      "point": [-100, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 115,
+        "meters": 136
+      }
+    },
+    {
+      "point": [-200, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 240,
+        "meters": 282
+      }
+    },
+    {
+      "point": [200, 100],
+      "travel": {
+        "status": "ok",
+        "seconds": 188,
+        "meters": 220
+      }
+    },
+    {
+      "point": [100, 100],
+      "travel": {
+        "status": "ok",
+        "seconds": 194,
+        "meters": 227
+      }
+    },
+    {
+      "point": [200, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 377,
+        "meters": 441
+      }
+    },
+    {
+      "point": [100, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 285,
+        "meters": 333
+      }
+    },
+    {
+      "point": [-300, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 440,
+        "meters": 517
+      }
+    },
+    {
+      "point": [-200, 100],
+      "travel": {
+        "status": "ok",
+        "seconds": 299,
+        "meters": 351
+      }
+    },
+    {
+      "point": [-300, 100],
+      "travel": {
+        "status": "ok",
+        "seconds": 405,
+        "meters": 475
+      }
+    },
+    {
+      "point": [-100, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 360,
+        "meters": 422
+      }
+    },
+    {
+      "point": [0, 300],
+      "travel": {
+        "status": "ok",
+        "seconds": 314,
+        "meters": 367
+      }
+    },
+    {
+      "point": [-100, 300],
+      "travel": {
+        "status": "ok",
+        "seconds": 370,
+        "meters": 433
+      }
+    },
+    {
+      "point": [100, -300],
+      "travel": {
+        "status": "ok",
+        "seconds": 369,
+        "meters": 433
+      }
+    },
+    {
+      "point": [0, -300],
+      "travel": {
+        "status": "ok",
+        "seconds": 376,
+        "meters": 440
+      }
+    },
+    {
+      "point": [300, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 359,
+        "meters": 420
+      }
+    },
+    {
+      "point": [300, 0],
+      "travel": {
+        "status": "ok",
+        "seconds": 355,
+        "meters": 415
+      }
+    },
+    {
+      "point": [-100, -300],
+      "travel": {
+        "status": "ok",
+        "seconds": 588,
+        "meters": 689
+      }
+    },
+    {
+      "point": [-200, -300],
+      "travel": {
+        "status": "ok",
+        "seconds": 578,
+        "meters": 677
+      }
+    },
+    {
+      "point": [-300, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 346,
+        "meters": 406
+      }
+    },
+    {
+      "point": [-300, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 438,
+        "meters": 513
+      }
+    },
+    {
+      "point": [300, 100],
+      "travel": {
+        "status": "ok",
+        "seconds": 294,
+        "meters": 345
+      }
+    },
+    {
+      "point": [300, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 393,
+        "meters": 461
+      }
+    },
+    {
+      "point": [200, 300],
+      "travel": {
+        "status": "ok",
+        "seconds": 448,
+        "meters": 523
+      }
+    },
+    {
+      "point": [100, 300],
+      "travel": {
+        "status": "ok",
+        "seconds": 385,
+        "meters": 451
+      }
+    },
+    {
+      "point": [100, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 341,
+        "meters": 400
+      }
+    },
+    {
+      "point": [-100, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 527,
+        "meters": 616
+      }
+    },
+    {
+      "point": [-400, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 475,
+        "meters": 555
+      }
+    },
+    {
+      "point": [100, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 449,
+        "meters": 526
+      }
+    },
+    {
+      "point": [-300, 200],
+      "travel": {
+        "status": "ok",
+        "seconds": 356,
+        "meters": 416
+      }
+    },
+    {
+      "point": [-400, 100],
+      "travel": {
+        "status": "ok",
+        "seconds": 518,
+        "meters": 608
+      }
+    },
+    {
+      "point": [-100, 400],
+      "travel": {
+        "status": "ok",
+        "seconds": 462,
+        "meters": 540
+      }
+    },
+    {
+      "point": [-200, 300],
+      "travel": {
+        "status": "ok",
+        "seconds": 419,
+        "meters": 491
+      }
+    },
+    {
+      "point": [100, -400],
+      "travel": {
+        "status": "ok",
+        "seconds": 488,
+        "meters": 572
+      }
+    },
+    {
+      "point": [200, -300],
+      "travel": {
+        "status": "ok",
+        "seconds": 420,
+        "meters": 492
+      }
+    },
+    {
+      "point": [300, -200],
+      "travel": {
+        "status": "ok",
+        "seconds": 371,
+        "meters": 434
+      }
+    },
+    {
+      "point": [400, -100],
+      "travel": {
+        "status": "ok",
+        "seconds": 543,
+        "meters": 635
+      }
+    },
+    {
+      "point": [-300, 300],
+      "travel": {
+        "status": "ok",
+        "seconds": 476,
+        "meters": 557
+      }
+    },
+    {
+      "point": [300, -300],
+      "travel": {
+        "status": "ok",
+        "seconds": 411,
+        "meters": 482
+      }
+    },
+    {
+      "point": [400, 300],
+      "travel": {
+        "status": "ok",
+        "seconds": 828,
+        "meters": 970
+      }
+    }
+  ],
+  "facilities": [
+    {
+      "id": "market:93df0dc3624c5f32882fb55b",
+      "uid": "93df0dc3624c5f32882fb55b",
+      "name": "阳普鞍山菜市场(鞍山四村店)",
+      "category": "market",
+      "point": [126.76582120517762, -146.23707005965227],
+      "geo": {
+        "lat": 31.282418385871313,
+        "lng": 121.51783219308436
+      },
+      "address": "上海市杨浦区鞍山路101-2临(近锦西路)",
+      "travel": {
+        "status": "ok",
+        "seconds": 174,
+        "meters": 205
+      }
+    },
+    {
+      "id": "market:d19a60d0d5042c11593ac89c",
+      "uid": "d19a60d0d5042c11593ac89c",
+      "name": "美城菜市场(鞍山支路供应点)",
+      "category": "market",
+      "point": [-49.36611070988544, 193.85574032770148],
+      "geo": {
+        "lat": 31.28547690977069,
+        "lng": 121.51597871932562
+      },
+      "address": "鞍山支路9号",
+      "travel": {
+        "status": "ok",
+        "seconds": 212,
+        "meters": 248
+      }
+    },
+    {
+      "id": "market:a9fdc86976844f1b1e1d11f3",
+      "uid": "a9fdc86976844f1b1e1d11f3",
+      "name": "四平同济市集(鞍山路310弄小区店)",
+      "category": "market",
+      "point": [-47.163714624466394, 206.629485730645],
+      "geo": {
+        "lat": 31.28559178666431,
+        "lng": 121.51600189560777
+      },
+      "address": "鞍山支路11号（同济大学地铁站1口步行460米）",
+      "travel": {
+        "status": "ok",
+        "seconds": 212,
+        "meters": 248
+      }
+    },
+    {
+      "id": "market:00f1c7fbb7dccd06c056ac5b",
+      "uid": "00f1c7fbb7dccd06c056ac5b",
+      "name": "阳普阜新菜市场",
+      "category": "market",
+      "point": [-310.068345027481, -125.93053222067508],
+      "geo": {
+        "lat": 31.282601006701267,
+        "lng": 121.51323529429814
+      },
+      "address": "阜新路151号",
+      "travel": {
+        "status": "ok",
+        "seconds": 364,
+        "meters": 426
+      }
+    },
+    {
+      "id": "market:75d0881a9e8639543a04b15b",
+      "uid": "75d0881a9e8639543a04b15b",
+      "name": "阳普长岭菜市场(凤城三村小区店)",
+      "category": "market",
+      "point": [968.1152715754769, 306.61416951704695],
+      "geo": {
+        "lat": 31.286490969286206,
+        "lng": 121.5266858921907
+      },
+      "address": "长岭路56号(近延吉西路)",
+      "travel": {
+        "status": "ok",
+        "seconds": 1068,
+        "meters": 1248
+      }
+    },
+    {
+      "id": "market:d0b8923fcd6445fbb5f42f54",
+      "uid": "d0b8923fcd6445fbb5f42f54",
+      "name": "双辽菜市场",
+      "category": "market",
+      "point": [739.6209459051227, -881.8460869879623],
+      "geo": {
+        "lat": 31.275802904184683,
+        "lng": 121.52428139783214
+      },
+      "address": "双辽支路70弄35号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1176,
+        "meters": 1377
+      }
+    },
+    {
+      "id": "market:743d271b58697db7c7f0259b",
+      "uid": "743d271b58697db7c7f0259b",
+      "name": "密云菜市场",
+      "category": "market",
+      "point": [-1262.5363606933201, -260.0384912753944],
+      "geo": {
+        "lat": 31.281394946516112,
+        "lng": 121.50321227090946
+      },
+      "address": "密云路290号56号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1478,
+        "meters": 1727
+      }
+    },
+    {
+      "id": "market:119afb7d29ec14a45b10937e",
+      "uid": "119afb7d29ec14a45b10937e",
+      "name": "三角地邮电菜市场",
+      "category": "market",
+      "point": [-1255.8950267603047, -930.2181822333469],
+      "geo": {
+        "lat": 31.27536788408178,
+        "lng": 121.50328215907814
+      },
+      "address": "东沙虹港路10号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1636,
+        "meters": 1913
+      }
+    },
+    {
+      "id": "market:07f3c8b5638e777a6240a95b",
+      "uid": "07f3c8b5638e777a6240a95b",
+      "name": "平昌菜市场",
+      "category": "market",
+      "point": [349.1139252399829, 1780.5194335930141],
+      "geo": {
+        "lat": 31.29974609946805,
+        "lng": 121.52017200944618
+      },
+      "address": "国定路171号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1945,
+        "meters": 2276
+      }
+    },
+    {
+      "id": "market:cde9e2c7acafbcade91e97ad",
+      "uid": "cde9e2c7acafbcade91e97ad",
+      "name": "阳普国年菜市场",
+      "category": "market",
+      "point": [-336.0019857563933, 1817.6939699883494],
+      "geo": {
+        "lat": 31.300080417643972,
+        "lng": 121.51296238908421
+      },
+      "address": "政肃路55号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2146,
+        "meters": 2508
+      }
+    },
+    {
+      "id": "pharmacy:123f7907e50000ea9ee321dd",
+      "uid": "123f7907e50000ea9ee321dd",
+      "name": "益丰大药房(鞍山路店)",
+      "category": "pharmacy",
+      "point": [143.676467117063, -175.22564388411863],
+      "geo": {
+        "lat": 31.282157685723757,
+        "lng": 121.51801014740587
+      },
+      "address": "鞍山路101号",
+      "travel": {
+        "status": "ok",
+        "seconds": 197,
+        "meters": 231
+      }
+    },
+    {
+      "id": "pharmacy:0eb1e1ba4c1f839ed1f49e7b",
+      "uid": "0eb1e1ba4c1f839ed1f49e7b",
+      "name": "老百姓大药房(锦西路店)",
+      "category": "pharmacy",
+      "point": [-50.98803030796776, -364.0522796248281],
+      "geo": {
+        "lat": 31.280459529336405,
+        "lng": 121.51596165152093
+      },
+      "address": "上海市杨浦区锦西路109号",
+      "travel": {
+        "status": "ok",
+        "seconds": 475,
+        "meters": 555
+      }
+    },
+    {
+      "id": "pharmacy:378838fb4e91dfdbc1f1cfdb",
+      "uid": "378838fb4e91dfdbc1f1cfdb",
+      "name": "乐御医上海乐同堂大药房(鞍山路店)",
+      "category": "pharmacy",
+      "point": [-434.0427572410508, -93.53623890352027],
+      "geo": {
+        "lat": 31.282892335177753,
+        "lng": 121.511930685206
+      },
+      "address": "上海市杨浦区四平路1028弄45号乙",
+      "travel": {
+        "status": "ok",
+        "seconds": 508,
+        "meters": 594
+      }
+    },
+    {
+      "id": "pharmacy:a17ef7f4e711dff031f71d18",
+      "uid": "a17ef7f4e711dff031f71d18",
+      "name": "第一医药(控江路店)",
+      "category": "pharmacy",
+      "point": [179.1794334735808, -480.53283045133315],
+      "geo": {
+        "lat": 31.279411996023043,
+        "lng": 121.51838375266748
+      },
+      "address": "上海市杨浦区控江路同济绿园",
+      "travel": {
+        "status": "ok",
+        "seconds": 569,
+        "meters": 666
+      }
+    },
+    {
+      "id": "pharmacy:e4b7469a3f2d6b98a4c75602",
+      "uid": "e4b7469a3f2d6b98a4c75602",
+      "name": "上海月亮晟大药房有限公司",
+      "category": "pharmacy",
+      "point": [476.56265996142196, -397.4511873592994],
+      "geo": {
+        "lat": 31.280159166157887,
+        "lng": 121.5215131795726
+      },
+      "address": "上海市杨浦区控江路1690号2号楼1507室",
+      "travel": {
+        "status": "ok",
+        "seconds": 641,
+        "meters": 751
+      }
+    },
+    {
+      "id": "pharmacy:f1f5cac50e234f8137b06ca6",
+      "uid": "f1f5cac50e234f8137b06ca6",
+      "name": "老百姓大药房(大连路店)",
+      "category": "pharmacy",
+      "point": [-568.508428326343, -541.6948654892793],
+      "geo": {
+        "lat": 31.27886195338708,
+        "lng": 121.51051567436669
+      },
+      "address": "上海市杨浦区大连路1548号",
+      "travel": {
+        "status": "ok",
+        "seconds": 788,
+        "meters": 921
+      }
+    },
+    {
+      "id": "pharmacy:23b351bed331fdbd3617dc4e",
+      "uid": "23b351bed331fdbd3617dc4e",
+      "name": "沪丰大药房(上海信息技术大厦A座店)",
+      "category": "pharmacy",
+      "point": [873.5658954363926, -348.01775356104093],
+      "geo": {
+        "lat": 31.280603731094523,
+        "lng": 121.52569092900785
+      },
+      "address": "上海市杨浦区控江路1555号A座110室",
+      "travel": {
+        "status": "ok",
+        "seconds": 1011,
+        "meters": 1182
+      }
+    },
+    {
+      "id": "pharmacy:474d490b8b144f791e1d11f4",
+      "uid": "474d490b8b144f791e1d11f4",
+      "name": "益丰大药房(辽源西路店)",
+      "category": "pharmacy",
+      "point": [344.3932855689205, -973.442675048857],
+      "geo": {
+        "lat": 31.274979157415775,
+        "lng": 121.52012233315149
+      },
+      "address": "上海市杨浦区辽源西路82号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1112,
+        "meters": 1300
+      }
+    },
+    {
+      "id": "pharmacy:eb3675036d6ed90200ec015d",
+      "uid": "eb3675036d6ed90200ec015d",
+      "name": "复美大药房(吉申店)",
+      "category": "pharmacy",
+      "point": [-1010.9168761233651, -239.48293684033138],
+      "geo": {
+        "lat": 31.281579806803023,
+        "lng": 121.50586011623068
+      },
+      "address": "上海市虹口区大连西路17-2号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1201,
+        "meters": 1404
+      }
+    },
+    {
+      "id": "pharmacy:8a7b28139c878bf57c29bda8",
+      "uid": "8a7b28139c878bf57c29bda8",
+      "name": "益丰大药房(长岭路店)",
+      "category": "pharmacy",
+      "point": [852.6772782976187, 595.204628212073],
+      "geo": {
+        "lat": 31.289086322049016,
+        "lng": 121.52547111364954
+      },
+      "address": "上海市杨浦区长岭路102~106号",
+      "travel": {
+        "status": "ok",
+        "seconds": 972,
+        "meters": 1136
+      }
+    },
+    {
+      "id": "school:b533ea4aeaa8953f4f6d4679",
+      "uid": "b533ea4aeaa8953f4f6d4679",
+      "name": "打虎山路第一小学",
+      "category": "school",
+      "point": [-260.2241948578331, -384.27349092244106],
+      "geo": {
+        "lat": 31.280277675865413,
+        "lng": 121.51375981488542
+      },
+      "address": "上海市杨浦区打虎山路138号",
+      "travel": {
+        "status": "ok",
+        "seconds": 781,
+        "meters": 914
+      }
+    },
+    {
+      "id": "school:dbf4d6ee870301576ea3ccb5",
+      "uid": "dbf4d6ee870301576ea3ccb5",
+      "name": "民办打一外国语小学",
+      "category": "school",
+      "point": [570.2669306247067, -135.55618652448197],
+      "geo": {
+        "lat": 31.28251444123197,
+        "lng": 121.52249924953088
+      },
+      "address": "上海市杨浦区本溪路150号（近铁岭路）",
+      "travel": {
+        "status": "ok",
+        "seconds": 680,
+        "meters": 794
+      }
+    },
+    {
+      "id": "school:d799f93dd7d2053208ccdd62",
+      "uid": "d799f93dd7d2053208ccdd62",
+      "name": "许昌路第五小学",
+      "category": "school",
+      "point": [206.00086177255264, -633.5544157909396],
+      "geo": {
+        "lat": 31.27803584174519,
+        "lng": 121.51866600025872
+      },
+      "address": "上海市杨浦区许昌路1501号(近控江路)",
+      "travel": {
+        "status": "ok",
+        "seconds": 676,
+        "meters": 791
+      }
+    },
+    {
+      "id": "school:75d0881ac735004c3a04b1d2",
+      "uid": "75d0881ac735004c3a04b1d2",
+      "name": "同济小学",
+      "category": "school",
+      "point": [-67.10478926121678, 740.0329923423519],
+      "geo": {
+        "lat": 31.29038879302009,
+        "lng": 121.51579205144063
+      },
+      "address": "上海市杨浦区四平街道彰武路同济新村758号",
+      "travel": {
+        "status": "ok",
+        "seconds": 799,
+        "meters": 936
+      }
+    },
+    {
+      "id": "school:4e8fd5a9f5e508bbd8eced4c",
+      "uid": "4e8fd5a9f5e508bbd8eced4c",
+      "name": "凤城新村小学",
+      "category": "school",
+      "point": [724.2383189812468, 585.0134666086572],
+      "geo": {
+        "lat": 31.288994670857416,
+        "lng": 121.52411952317924
+      },
+      "address": "凤城六村60号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1160,
+        "meters": 1357
+      }
+    },
+    {
+      "id": "school:a34484c1be1fb56879dbd22f",
+      "uid": "a34484c1be1fb56879dbd22f",
+      "name": "易达中小学(杨浦校区)",
+      "category": "school",
+      "point": [882.8023007247191, -438.82891970070216],
+      "geo": {
+        "lat": 31.279787047784893,
+        "lng": 121.52578812566402
+      },
+      "address": "上海市杨浦区江浦路街道江浦路1500号智慧树创意产业园2号楼2层203室",
+      "travel": {
+        "status": "ok",
+        "seconds": 1056,
+        "meters": 1235
+      }
+    },
+    {
+      "id": "school:49d959385f386442c61e51dd",
+      "uid": "49d959385f386442c61e51dd",
+      "name": "二师附小",
+      "category": "school",
+      "point": [-988.1331739832456, -148.7936205195729],
+      "geo": {
+        "lat": 31.28239539429242,
+        "lng": 121.50609987397128
+      },
+      "address": "上海市杨浦区大连西路16号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1281,
+        "meters": 1498
+      }
+    },
+    {
+      "id": "school:2c0bd6c50f43e1ab43ab9ad2",
+      "uid": "2c0bd6c50f43e1ab43ab9ad2",
+      "name": "齐齐哈尔路第一小学分校(庄河路)",
+      "category": "school",
+      "point": [665.5589752133669, -1332.852976847498],
+      "geo": {
+        "lat": 31.271746907382376,
+        "lng": 121.52350202797169
+      },
+      "address": "上海市杨浦区江浦路街道许昌路1151号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1416,
+        "meters": 1655
+      }
+    },
+    {
+      "id": "school:df463267f4ed4fe7f50e77e9",
+      "uid": "df463267f4ed4fe7f50e77e9",
+      "name": "上海市民办四中心实验小学",
+      "category": "school",
+      "point": [-958.3837539896837, 1248.5418602865814],
+      "geo": {
+        "lat": 31.294961916820856,
+        "lng": 121.50641293344151
+      },
+      "address": "上海市虹口区辉河路40弄40号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1852,
+        "meters": 2167
+      }
+    },
+    {
+      "id": "school:be1ea5efa2ddb7be14948ed2",
+      "uid": "be1ea5efa2ddb7be14948ed2",
+      "name": "复旦大学第二附属学校(邯郸校区)",
+      "category": "school",
+      "point": [-432.18181791376253, 1580.4316797777328],
+      "geo": {
+        "lat": 31.29794666955267,
+        "lng": 121.5119502682661
+      },
+      "address": "上海市杨浦区政修路130号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2013,
+        "meters": 2355
+      }
+    },
+    {
+      "id": "medical:7c5e480b08b66fadadb22a56",
+      "uid": "7c5e480b08b66fadadb22a56",
+      "name": "四平社区卫生服务中心",
+      "category": "medical",
+      "point": [405.18112481349726, -54.673515078626515],
+      "geo": {
+        "lat": 31.283241835567008,
+        "lng": 121.52076201650513
+      },
+      "address": "上海市杨浦区铁岭路39号",
+      "travel": {
+        "status": "ok",
+        "seconds": 454,
+        "meters": 531
+      }
+    },
+    {
+      "id": "medical:78bd50f797889e5a31870ad6",
+      "uid": "78bd50f797889e5a31870ad6",
+      "name": "上海交通大学医学院江浦社区卫生服务中心",
+      "category": "medical",
+      "point": [341.87504198327713, -756.2667275263518],
+      "geo": {
+        "lat": 31.276932264936956,
+        "lng": 121.52009583313895
+      },
+      "address": "上海市杨浦区许昌路1482号",
+      "travel": {
+        "status": "ok",
+        "seconds": 857,
+        "meters": 1003
+      }
+    },
+    {
+      "id": "medical:0ad2b2866c5e97eba1d230fc",
+      "uid": "0ad2b2866c5e97eba1d230fc",
+      "name": "控江街道社区卫生服务中心(门诊综合楼)",
+      "category": "medical",
+      "point": [1037.5761124600979, 274.2382820963894],
+      "geo": {
+        "lat": 31.286199806337695,
+        "lng": 121.52741684338416
+      },
+      "address": "上海市杨浦区延吉西路100号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1128,
+        "meters": 1318
+      }
+    },
+    {
+      "id": "medical:d6c5d9917a7e84f130169b50",
+      "uid": "d6c5d9917a7e84f130169b50",
+      "name": "上海市杨浦区控江社区卫生服务中心",
+      "category": "medical",
+      "point": [1051.8490049224124, 272.2137134437816],
+      "geo": {
+        "lat": 31.286181598979525,
+        "lng": 121.52756704006543
+      },
+      "address": "上海市杨浦区延吉西路100号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1128,
+        "meters": 1318
+      }
+    },
+    {
+      "id": "medical:f857dd5cf6a8891d31f71d9d",
+      "uid": "f857dd5cf6a8891d31f71d9d",
+      "name": "南茶苑社区卫生服务站",
+      "category": "medical",
+      "point": [598.4968680477605, 1423.5290282587491],
+      "geo": {
+        "lat": 31.296535612056335,
+        "lng": 121.52279631916304
+      },
+      "address": "上海市杨浦区国顺路120弄",
+      "travel": {
+        "status": "ok",
+        "seconds": 1568,
+        "meters": 1837
+      }
+    },
+    {
+      "id": "medical:2ecff0ad2e8a64168d7727a7",
+      "uid": "2ecff0ad2e8a64168d7727a7",
+      "name": "五角场街道社区卫生服务中心(铁村站点)",
+      "category": "medical",
+      "point": [116.21480739879051, 1686.647561079848],
+      "geo": {
+        "lat": 31.29890189060273,
+        "lng": 121.51772116252332
+      },
+      "address": "上海市杨浦区纪念路100号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1825,
+        "meters": 2132
+      }
+    },
+    {
+      "id": "medical:02a8d0df878fb409c3364445",
+      "uid": "02a8d0df878fb409c3364445",
+      "name": "上海市虹口区嘉兴路街道社区卫生服务中心",
+      "category": "medical",
+      "point": [-759.5705569607248, -1539.5388371966912],
+      "geo": {
+        "lat": 31.269888139351316,
+        "lng": 121.50850508697425
+      },
+      "address": "上海市虹口区虹关路1号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1933,
+        "meters": 2261
+      }
+    },
+    {
+      "id": "medical:c8b5cdefe2bba51a130daa54",
+      "uid": "c8b5cdefe2bba51a130daa54",
+      "name": "曲阳路街道社区卫生服务中心",
+      "category": "medical",
+      "point": [-1459.1386252166574, 1129.7376160684912],
+      "geo": {
+        "lat": 31.293893486059634,
+        "lng": 121.50114338348943
+      },
+      "address": "上海市虹口区曲阳路街道巴林路78号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2103,
+        "meters": 2457
+      }
+    },
+    {
+      "id": "medical:161a0ed28a74fd495cd4fe5b",
+      "uid": "161a0ed28a74fd495cd4fe5b",
+      "name": "欧阳路街道社区卫生服务中心",
+      "category": "medical",
+      "point": [-1623.0378687952873, -1110.0583078289405],
+      "geo": {
+        "lat": 31.273750545210152,
+        "lng": 121.49941863691028
+      },
+      "address": "上海市虹口区欧阳路街道四平路421弄20号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2075,
+        "meters": 2426
+      }
+    },
+    {
+      "id": "medical:65de4c49d6e9e141e9f853d8",
+      "uid": "65de4c49d6e9e141e9f853d8",
+      "name": "杨浦区平凉社区卫生服务中心齐齐哈尔路门诊部",
+      "category": "medical",
+      "point": [1506.5584324066836, -1411.5834253378334],
+      "geo": {
+        "lat": 31.27103886842665,
+        "lng": 121.53235204402543
+      },
+      "address": "上海市杨浦区齐齐哈尔路828号1楼",
+      "travel": {
+        "status": "ok",
+        "seconds": 2174,
+        "meters": 2543
+      }
+    },
+    {
+      "id": "park:14076deeeab728f502294f21",
+      "uid": "14076deeeab728f502294f21",
+      "name": "松鹤公园",
+      "category": "park",
+      "point": [405.66770069346217, 246.657789611793],
+      "geo": {
+        "lat": 31.285951769352366,
+        "lng": 121.52076713684654
+      },
+      "address": "上海市杨浦区抚顺路240号",
+      "travel": {
+        "status": "ok",
+        "seconds": 434,
+        "meters": 510
+      }
+    },
+    {
+      "id": "park:61f634f6261fde796b49f331",
+      "uid": "61f634f6261fde796b49f331",
+      "name": "鲁迅公园",
+      "category": "park",
+      "point": [-2503.94508451731, -683.2809108965889],
+      "geo": {
+        "lat": 31.27758864124854,
+        "lng": 121.49014866303061
+      },
+      "address": "上海市虹口区四川北路2288号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2855,
+        "meters": 3337
+      }
+    },
+    {
+      "id": "park:79cceb364ab169881e580032",
+      "uid": "79cceb364ab169881e580032",
+      "name": "和平公园",
+      "category": "park",
+      "point": [-653.7189621495265, -815.4656624919469],
+      "geo": {
+        "lat": 31.276399876859703,
+        "lng": 121.50961898580663
+      },
+      "address": "上海市虹口区天宝路891号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1449,
+        "meters": 1696
+      }
+    },
+    {
+      "id": "park:d7fd2ad34f73f04d0bccdd08",
+      "uid": "d7fd2ad34f73f04d0bccdd08",
+      "name": "江浦公园",
+      "category": "park",
+      "point": [1342.565288220682, -1308.4686237496248],
+      "geo": {
+        "lat": 31.271966200835347,
+        "lng": 121.53062630931022
+      },
+      "address": "上海市杨浦区长阳路1111号明珠公寓",
+      "travel": {
+        "status": "ok",
+        "seconds": 1922,
+        "meters": 2250
+      }
+    },
+    {
+      "id": "park:50fb64ff365e225ce9f85321",
+      "uid": "50fb64ff365e225ce9f85321",
+      "name": "杨浦公园",
+      "category": "park",
+      "point": [2487.5295509015405, 303.74889897379717],
+      "geo": {
+        "lat": 31.286465201324734,
+        "lng": 121.5426750116239
+      },
+      "address": "上海市杨浦区双阳路399号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2541,
+        "meters": 2972
+      }
+    },
+    {
+      "id": "park:6deee30820f7ff6b29fc4821",
+      "uid": "6deee30820f7ff6b29fc4821",
+      "name": "四平科技公园",
+      "category": "park",
+      "point": [-352.28947308803254, 1061.0621380629686],
+      "geo": {
+        "lat": 31.293275873501045,
+        "lng": 121.5127909923929
+      },
+      "address": "上海市杨浦区四平路1777号近中山北二路",
+      "travel": {
+        "status": "ok",
+        "seconds": 1403,
+        "meters": 1640
+      }
+    },
+    {
+      "id": "park:db89d3c096d37211b21e36a8",
+      "uid": "db89d3c096d37211b21e36a8",
+      "name": "和平公园-生态岛",
+      "category": "park",
+      "point": [-633.4364307573463, -860.9203781013334],
+      "geo": {
+        "lat": 31.275991093345954,
+        "lng": 121.50983242319579
+      },
+      "address": "上海市虹口区新港路和平公园",
+      "travel": {
+        "status": "ok",
+        "seconds": 1499,
+        "meters": 1755
+      }
+    },
+    {
+      "id": "park:5a54524bbfa5a3b29fec2bf5",
+      "uid": "5a54524bbfa5a3b29fec2bf5",
+      "name": "德惠路口袋公园",
+      "category": "park",
+      "point": [2599.8176055892554, -139.10790079527172],
+      "geo": {
+        "lat": 31.282482499942272,
+        "lng": 121.54385664269171
+      },
+      "address": "上海市杨浦区大桥街道周家嘴路3354号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2734,
+        "meters": 3196
+      }
+    },
+    {
+      "id": "park:cca3915e9e77b6e272455b70",
+      "uid": "cca3915e9e77b6e272455b70",
+      "name": "鲁迅公园-北大山",
+      "category": "park",
+      "point": [-2396.8300997052143, -352.94221211496176],
+      "geo": {
+        "lat": 31.280559444435944,
+        "lng": 121.49127585678451
+      },
+      "address": "上海市虹口区四川北路2288号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2652,
+        "meters": 3099
+      }
+    },
+    {
+      "id": "park:4334bd0b7018288526d2bb8e",
+      "uid": "4334bd0b7018288526d2bb8e",
+      "name": "黄兴公园",
+      "category": "park",
+      "point": [1894.7435471197757, 1730.9846286270358],
+      "geo": {
+        "lat": 31.29930062287986,
+        "lng": 121.5364369985015
+      },
+      "address": "上海市杨浦区营口路699号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2619,
+        "meters": 3068
+      }
+    },
+    {
+      "id": "elder:41d061d2890c4d25ca09f0d6",
+      "uid": "41d061d2890c4d25ca09f0d6",
+      "name": "上海遐福养老院",
+      "category": "elder",
+      "point": [-62.460977358471844, -853.1129288425182],
+      "geo": {
+        "lat": 31.276061307327026,
+        "lng": 121.51584091926038
+      },
+      "address": "上海市杨浦区辽源西路230弄18号一楼（鞍山新村地铁站3号口步行430米）",
+      "travel": {
+        "status": "ok",
+        "seconds": 1053,
+        "meters": 1232
+      }
+    },
+    {
+      "id": "elder:786ba02aa1e6129cf942b2e3",
+      "uid": "786ba02aa1e6129cf942b2e3",
+      "name": "世纪养老院",
+      "category": "elder",
+      "point": [-680.5062447717401, 1321.8309626887483],
+      "geo": {
+        "lat": 31.29562102064315,
+        "lng": 121.5093370975376
+      },
+      "address": "上海市杨浦区政修路270号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1816,
+        "meters": 2122
+      }
+    },
+    {
+      "id": "elder:285b3e0e8ef975cf734b878d",
+      "uid": "285b3e0e8ef975cf734b878d",
+      "name": "上海杨浦区康而寿养老服务中心",
+      "category": "elder",
+      "point": [2336.656882619331, 799.0686503462912],
+      "geo": {
+        "lat": 31.290919712714377,
+        "lng": 121.54108734646556
+      },
+      "address": "杨浦区延吉中路43号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2317,
+        "meters": 2706
+      }
+    },
+    {
+      "id": "elder:c3cddeff4bf2568345572622",
+      "uid": "c3cddeff4bf2568345572622",
+      "name": "稳得福(上海)养老服务有限公司",
+      "category": "elder",
+      "point": [-973.1688315885189, -2078.4480772899483],
+      "geo": {
+        "lat": 31.265041618813164,
+        "lng": 121.50625734692717
+      },
+      "address": "上海市虹口区嘉兴路街道公平路761号虹业大楼12楼12G室",
+      "travel": {
+        "status": "ok",
+        "seconds": 2348,
+        "meters": 2747
+      }
+    },
+    {
+      "id": "elder:2f50054b460c1cb7eedfca4d",
+      "uid": "2f50054b460c1cb7eedfca4d",
+      "name": "共清护理院",
+      "category": "elder",
+      "point": [921.7369074934957, 1101.9621027523992],
+      "geo": {
+        "lat": 31.293643695212253,
+        "lng": 121.52619784280712
+      },
+      "address": "上海市杨浦区国权路33号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1550,
+        "meters": 1818
+      }
+    },
+    {
+      "id": "elder:730ac302b8fafe8d3a13fdfe",
+      "uid": "730ac302b8fafe8d3a13fdfe",
+      "name": "上海欧阳社区蒋家桥长者照护之家",
+      "category": "elder",
+      "point": [-1182.498896745756, -595.8221513747698],
+      "geo": {
+        "lat": 31.27837517568278,
+        "lng": 121.50405452215561
+      },
+      "address": "上海市虹口区蒋家桥路15号1层(邮电新村地铁站4号口步行450米)",
+      "travel": {
+        "status": "ok",
+        "seconds": 1439,
+        "meters": 1684
+      }
+    },
+    {
+      "id": "elder:33b5efc2771fe2211894c6b7",
+      "uid": "33b5efc2771fe2211894c6b7",
+      "name": "上海市杨浦安久康为老服务中心",
+      "category": "elder",
+      "point": [821.5961769509935, 422.1336699061777],
+      "geo": {
+        "lat": 31.287529859677278,
+        "lng": 121.52514404061337
+      },
+      "address": "抚顺路151号(抚顺路地铁站1号口步行460米)",
+      "travel": {
+        "status": "ok",
+        "seconds": 787,
+        "meters": 919
+      }
+    },
+    {
+      "id": "elder:9d7d6e51961bbbf6cd04ef53",
+      "uid": "9d7d6e51961bbbf6cd04ef53",
+      "name": "虹叶老年公寓",
+      "category": "elder",
+      "point": [-2085.122762241947, -1869.5806406199988],
+      "geo": {
+        "lat": 31.266920006204327,
+        "lng": 121.4945560193542
+      },
+      "address": "上海市虹口区溧阳路28号",
+      "travel": {
+        "status": "ok",
+        "seconds": 2769,
+        "meters": 3235
+      }
+    },
+    {
+      "id": "elder:87fd654a5e264fd146e274ba",
+      "uid": "87fd654a5e264fd146e274ba",
+      "name": "上海君护护理站",
+      "category": "elder",
+      "point": [-359.4856742504783, -750.1666825361497],
+      "geo": {
+        "lat": 31.27698712388375,
+        "lng": 121.51271526523841
+      },
+      "address": "大连路1278号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1048,
+        "meters": 1227
+      }
+    },
+    {
+      "id": "elder:5788236fc9b530916fa3ccca",
+      "uid": "5788236fc9b530916fa3ccca",
+      "name": "弘云养护院",
+      "category": "elder",
+      "point": [-1262.8948902878044, -291.2236442535721],
+      "geo": {
+        "lat": 31.28111449208492,
+        "lng": 121.50320849802632
+      },
+      "address": "密云路290号2楼290号",
+      "travel": {
+        "status": "ok",
+        "seconds": 1504,
+        "meters": 1757
+      }
+    }
+  ],
+  "complete": {
+    "market": false,
+    "pharmacy": false,
+    "school": false,
+    "medical": false,
+    "park": false,
+    "elder": false
+  },
+  "gaps": [],
+  "warnings": [
+    "菜市场检索结果可能不完整，相关空白点仅标为待核查。",
+    "药店检索结果可能不完整，相关空白点仅标为待核查。",
+    "小学检索结果可能不完整，相关空白点仅标为待核查。",
+    "医疗检索结果可能不完整，相关空白点仅标为待核查。",
+    "公园检索结果可能不完整，相关空白点仅标为待核查。",
+    "养老检索结果可能不完整，相关空白点仅标为待核查。",
+    "设施类别按检索关键词映射，是否营业、开放及实际入口仍需核验；检索完成不代表地图收录了所有设施。",
+    "可达范围由有限测时点插值，跨河、围墙与出入口附近仍需逐点核验。",
+    "部分边界仍采用较粗采样，未超过本次加密预算。"
+  ],
+  "usage": {
+    "requests": 242,
+    "routePairs": 236,
+    "searchRequests": 6,
+    "cacheHits": 0,
+    "retries": 0
+  },
+  "elapsedMs": 271157,
+  "parameters": {
+    "radiusMeters": 1600,
+    "coarseStepMeters": 400,
+    "refinedStepMeters": 100,
+    "refinementPoints": 96,
+    "meshVersion": "shared-edge-two-pass-v2",
+    "searchRadiusMeters": 3263,
+    "gapDistanceMeters": 1000,
+    "gapDistanceDefinition": "局部平面直线距离，非步行距离；仅检查15分钟可达采样点"
+  },
+  "quality": {
+    "knownSamples": 177,
+    "totalSamples": 177,
+    "unknownFacilities": 0,
+    "skippedTriangles": 0
+  }
+}

@@ -6,6 +6,12 @@
 
 参赛方向：2026 上海开源软件应用创新大赛，百度地图“15 分钟生活圈”企业赛题。
 
+参赛赛道：**开源 AI 工具赛道**。企业赛题：**【开源 AI 工具赛道】百度地图赛题：基于地图开放能力的“15 分钟生活圈”智能体检与规划助手**。
+
+负责人：**韩庭轩**；单位/学校：**南京大学**；其他团队成员：**姜可**。
+
+本仓库已于2026-10-16公开。最新材料：[6页作品介绍](materials/yike-yanhuo-baidu-v3.pdf)、[真实API演示视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v3-20261016/yike-yanhuo-baidu-v3.mp4)、[版本与运行索引](docs/submission-v3-guide.md)。
+
 ## 开发状态
 
 已完成模拟与百度接口体检、真实底图回放、覆盖图表、灰色核查网格、结果保存与报告导出。上海市杨浦区四平路街道抚顺路社区睦邻中心候选点已完成133点原分析、177点局部加密和两组各24点的API对照；实际出入口仍需现场核验。
@@ -70,15 +76,16 @@ npm run dev
 
 ## 材料导航
 
-2026-10-16新版按任务书的**功能正确性与覆盖率40%、API深度调用与工程优化30%、产品交互与用户体验15%、开源工程规范15%**组织证据。18页PDF和26分镜有声视频覆盖功能基线`e28efa0`，包括[连续覆盖分区](docs/coverage-area.md)、定向补查、补点、多条件取舍、绕行核查及抽点复核；244项业务测试与44项浏览器流程通过。详见[新版运行与材料索引](docs/submission-v2-guide.md)。
+2026-10-16当前提交版聚焦背景、架构、场景和创新，**6页PDF＋约3分27秒有声字幕视频**，封面与片头包含参赛团队信息。上海社区片段实际调用百度接口，路线236条、检索6次；构造演练与微信静帧另行标注。按百度任务书40/30/15/15对应实现，244项业务测试与44项浏览器流程通过。详见[当前材料与运行索引](docs/submission-v3-guide.md)。
 
 补点、补查、多条件与抽点均可导出依据并独立复算。构造、历史API回放与重复接口核对分别标记，不能合并成总体准确率。旧版标签与附件保留，不与本版混用校验值。
 
 “一句话安排”支持基础AI、自用API和离线手工条件确认；已接入两端办事、购物及步行目标表单。模型接口由后端统一鉴权并保管密钥；开发环境已完成Qwen3-8B真实接口联调，新部署仍需独立配置服务。本机免费模式每次调用前核对指定模型零元价格，不能据此保证其他模型或未来价格。配置步骤、免费测试渠道与数据边界见[规划助手接入](docs/planning-assistant.md)。
 
-- [新版作品介绍 PDF · 18页](materials/yike-yanhuo-baidu-v2.pdf) · [可编辑文稿](docs/submission-v2-brief.md)
-- [新版中文配音与字幕视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v2-20261016/yike-yanhuo-baidu-v2.mp4) · [字幕](materials/yike-yanhuo-baidu-v2.srt) · [旁白与章节](docs/submission-v2-transcript.md)
-- [新版完整材料与源码包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v2-20261016) · [运行与验收](docs/submission-v2-guide.md)
+- [当前作品介绍 PDF · 6页](materials/yike-yanhuo-baidu-v3.pdf) · [可编辑文稿](docs/submission-v3-brief.md)
+- [当前真实API有声字幕视频](https://github.com/TingxuanHan/yike-yanhuo/releases/download/os2026-baidu-v3-20261016/yike-yanhuo-baidu-v3.mp4) · [字幕](materials/yike-yanhuo-baidu-v3.srt) · [旁白与章节](docs/submission-v3-transcript.md)
+- [当前完整材料与源码包](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v3-20261016) · [运行](docs/submission-v3-guide.md) · [验收](docs/submission-v3-validation.md)
+- [历史v2：18页介绍与26章视频](docs/submission-v2-guide.md)
 - [历史百度修订PDF · 16页](materials/yike-yanhuo-baidu-submission.pdf) · [可编辑文稿](docs/submission-baidu-brief.md)
 - [历史v1作品介绍 PDF · 14页](materials/yike-yanhuo-submission.pdf)（原评分主线已由百度修订版更正，固定发布附件保留）
 - [实走校准补充说明 PDF · 2页](materials/yike-yanhuo-calibration-addendum.pdf) · [固定构造对照](docs/experiments/walk-calibration-simulation.md)（功能基线541d9cf的增强；v1视频保持原版本内容）
@@ -105,7 +112,7 @@ npm run dev
 - [微信小程序联调说明](miniprogram/README.md)
 - [开发记录](CHANGELOG.md)
 
-开发仓库暂为私有；提交参赛材料前需落实评审可访问方式和开源发布。
+开发仓库已公开，评审无需登录即可访问源码；真实密钥和私人数据不包含在仓库中。
 
 治理与参与：[贡献指南](CONTRIBUTING.md)、[维护与决策](GOVERNANCE.md)、[安全说明](SECURITY.md)、[第三方许可清单](THIRD_PARTY_NOTICES.md)。
 
