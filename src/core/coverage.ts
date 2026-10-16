@@ -1,6 +1,7 @@
 import polygonClipping from "polygon-clipping";
 import { distance, pointKey } from "./geo.js";
 import { usableFacility } from "../shared/facility-review.js";
+import { searchAtPoint } from "./search-evidence.js";
 import type { AnalysisResult, Gap, MultiPolygon, XY } from "../shared/types.js";
 
 export const GAP_CATEGORIES = ["market", "pharmacy", "school"] as const;
@@ -46,25 +47,23 @@ export function coveragePoints(
       const near =
         nearest !== null &&
         nearest.meters <= result.parameters.gapDistanceMeters;
-      const inSearchArea =
-        distance(sample.point, result.center.point) +
-          result.parameters.gapDistanceMeters <=
-        result.parameters.searchRadiusMeters;
+      const search = searchAtPoint(result, category, sample.point);
+      const inSearchArea = search.inSearchArea;
       const status: CoverageStatus = near
         ? "covered"
-        : result.complete[category] && inSearchArea
+        : search.complete
           ? "missing"
           : "unknown";
       const reasons: string[] = [];
       if (near) reasons.push("核查距离内已找到至少一处可用于统计的同类设施。");
       else {
-        if (!result.complete[category])
+        if (!result.complete[category] && !search.complete)
           reasons.push("该类别检索结果未取全或含无效条目，可能仍有遗漏。");
         if (!inSearchArea)
           reasons.push("该点周围的完整核查范围超出了本次检索范围。");
         if (status === "missing")
           reasons.push(
-            "本次同类检索已取完，且覆盖该点完整核查范围，但未找到同类设施。",
+            "本次同类检索或局部补查已取完，且覆盖该点完整核查范围，但未找到同类设施。",
           );
       }
       return {
@@ -75,7 +74,7 @@ export function coveragePoints(
         seconds: sample.travel.status === "ok" ? sample.travel.seconds : 0,
         nearest,
         inSearchArea,
-        complete: result.complete[category],
+        complete: result.complete[category] || search.complete,
         label: COVERAGE_LABELS[status],
         reasons,
       };

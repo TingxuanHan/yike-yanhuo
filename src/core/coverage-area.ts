@@ -2,6 +2,7 @@ import clip from "polygon-clipping";
 import { polygonArea } from "./contours.js";
 import { GAP_CATEGORIES, type GapCategory } from "./coverage.js";
 import { usableFacility } from "../shared/facility-review.js";
+import { searchWindows } from "./search-evidence.js";
 import {
   CATEGORIES,
   type AnalysisResult,
@@ -162,9 +163,13 @@ export function coverageArea(
   const covered = intersect(domain, inner);
   const possible = intersect(domain, outer);
   const unobserved = subtract(domain, possible);
-  const searchCore = circle(result.center.point, searchCoreRadius);
+  const windows = searchWindows(result, category);
+  const core = (w: (typeof windows)[number]) =>
+    circle(w.center, Math.max(0, w.radiusMeters - d - PAD));
+  const searchCore = union(windows.map(core));
+  const completeCore = union(windows.filter((w) => w.complete).map(core));
   const insideSearch = intersect(unobserved, searchCore);
-  const missing = result.complete[category] ? insideSearch : [];
+  const missing = intersect(unobserved, completeCore);
   const unknown = subtract(subtract(domain, covered), missing);
   output.regions = { covered, missing, unknown };
   for (const state of AREA_STATES)
@@ -173,7 +178,7 @@ export function coverageArea(
   output.unknownReasons = {
     distanceBand: polygonArea(subtract(possible, covered)),
     searchEdge: polygonArea(subtract(unobserved, searchCore)),
-    incomplete: result.complete[category] ? 0 : polygonArea(insideSearch),
+    incomplete: polygonArea(subtract(insideSearch, missing)),
   };
   return output;
 }

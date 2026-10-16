@@ -70,7 +70,11 @@ export function applyEvidenceFile(
 }
 
 export function reconcileEvidence(result: AnalysisResult): AnalysisResult {
-  if (!result.scenario && !result.facilities.some((f) => f.evidence?.length))
+  if (
+    !result.scenario &&
+    !result.localSearches?.length &&
+    !result.facilities.some((f) => f.evidence?.length)
+  )
     return result;
   const complete = { ...result.complete };
   for (const f of result.facilities)
@@ -91,6 +95,7 @@ export function reconcileEvidence(result: AnalysisResult): AnalysisResult {
       result.facilities,
       complete,
       result.parameters.searchRadiusMeters,
+      result.localSearches,
     ),
   };
 }

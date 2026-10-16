@@ -214,6 +214,43 @@ export function parseResultFile(raw: string): AnalysisResult {
     "skippedTriangles",
   ])
     if (!Number.isInteger(r.quality[key]) || r.quality[key] < 0) return fail();
+  if (
+    r.localSearches !== undefined &&
+    (!list(r.localSearches, 12) ||
+      r.localSearches.some(
+        (w: any) =>
+          !object(w) ||
+          !categories.has(w.category) ||
+          !point(w.center) ||
+          !finite(w.radiusMeters, 20_000) ||
+          w.radiusMeters <= 0 ||
+          typeof w.complete !== "boolean" ||
+          !text(w.readAt, 50) ||
+          !Number.isFinite(Date.parse(w.readAt)),
+      ))
+  )
+    return fail();
+  if (
+    r.verification !== undefined &&
+    (!object(r.verification) ||
+      r.verification.version !== "targeted-verification-v1" ||
+      !text(r.verification.sourceId, 100) ||
+      !r.verification.sourceId ||
+      !text(r.verification.sourceGeneratedAt, 50) ||
+      !Number.isFinite(Date.parse(r.verification.sourceGeneratedAt)) ||
+      !text(r.verification.completedAt, 50) ||
+      !Number.isFinite(Date.parse(r.verification.completedAt)) ||
+      !list(r.verification.receipts, 3) ||
+      !r.verification.receipts.length ||
+      r.verification.receipts.some(
+        (v: any) =>
+          !object(v) ||
+          !text(v.taskId, 200) ||
+          !["updated", "unchanged"].includes(v.outcome) ||
+          !text(v.message, 500),
+      ))
+  )
+    return fail();
   return reconcileEvidence({
     schemaVersion: 1,
     id: r.id,
@@ -259,6 +296,32 @@ export function parseResultFile(raw: string): AnalysisResult {
     })),
     warnings: r.warnings,
     elapsedMs: r.elapsedMs,
+    ...(r.localSearches
+      ? {
+          localSearches: r.localSearches.map((w: any) => ({
+            category: w.category,
+            center: w.center,
+            radiusMeters: w.radiusMeters,
+            complete: w.complete,
+            readAt: w.readAt,
+          })),
+        }
+      : {}),
+    ...(r.verification
+      ? {
+          verification: {
+            version: r.verification.version,
+            sourceId: r.verification.sourceId,
+            sourceGeneratedAt: r.verification.sourceGeneratedAt,
+            completedAt: r.verification.completedAt,
+            receipts: r.verification.receipts.map((v: any) => ({
+              taskId: v.taskId,
+              outcome: v.outcome,
+              message: v.message,
+            })),
+          },
+        }
+      : {}),
     ...(scenario ? { scenario } : {}),
     ...(r.derivedFrom
       ? {

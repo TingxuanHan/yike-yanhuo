@@ -6,6 +6,7 @@ import {
   completeCategories,
   emptyUsage,
   type Facility,
+  type Category,
   type LngLat,
   type Provider,
   type SearchResult,
@@ -86,7 +87,7 @@ export class BaiduGateway {
   private next = new Map<string, number>();
   private queue: Promise<unknown> = Promise.resolve();
   private blocked?: ServiceError;
-  private ledger: QuotaLedger;
+  readonly ledger: QuotaLedger;
   private cache = new Map<string, { expires: number; value: Reply }>();
   constructor(private options: BaiduOptions) {
     this.routeQps = Math.max(1, Math.min(2, Math.floor(options.routeQps ?? 1)));
@@ -375,12 +376,15 @@ export class BaiduProvider implements Provider {
     center: XY,
     radius: number,
     signal?: AbortSignal,
+    categories: Category[] = CATEGORIES.map((c) => c.id),
   ): Promise<SearchResult> {
     const complete = completeCategories(false);
     const warnings: string[] = [];
     const facilities: Facility[] = [];
     const geo = toGeo(center, this.origin);
-    for (const category of CATEGORIES) {
+    for (const category of CATEGORIES.filter((c) =>
+      categories.includes(c.id),
+    )) {
       let rawCount = 0;
       let invalidCount = 0;
       let total: number | undefined;

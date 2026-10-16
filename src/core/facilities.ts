@@ -6,6 +6,7 @@ import type {
   Facility,
   Gap,
   XY,
+  LocalSearch,
 } from "../shared/types.js";
 
 export function deduplicate(facilities: Facility[]): Facility[] {
@@ -35,6 +36,7 @@ export function findGaps(
   facilities: Facility[],
   complete: Completeness,
   searchRadius: number,
+  localSearches: LocalSearch[] = [],
 ): Gap[] {
   const gaps: Gap[] = [];
   const usable = facilities.filter(usableFacility);
@@ -47,7 +49,20 @@ export function findGaps(
       )
         continue;
       const fullySearched =
-        complete[category] && distance(point, center) + 1000 <= searchRadius;
+        (complete[category] &&
+          distance(point, center) + 1000 <= searchRadius) ||
+        localSearches.some(
+          (w) =>
+            w.category === category &&
+            w.complete &&
+            distance(point, w.center) + 1000 <= w.radiusMeters &&
+            !facilities.some(
+              (f) =>
+                f.category === category &&
+                !usableFacility(f) &&
+                distance(f.point, w.center) <= w.radiusMeters + 5,
+            ),
+        );
       gaps.push({
         point,
         category,

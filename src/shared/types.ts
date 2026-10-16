@@ -100,6 +100,7 @@ export interface Provider {
     center: XY,
     radius: number,
     signal?: AbortSignal,
+    categories?: Category[],
   ): Promise<SearchResult>;
   route(
     origin: XY,
@@ -142,6 +143,18 @@ export interface AnalysisResult {
   warnings: string[];
   usage: Usage;
   elapsedMs: number;
+  localSearches?: LocalSearch[];
+  verification?: {
+    version: "targeted-verification-v1";
+    sourceId: string;
+    sourceGeneratedAt: string;
+    completedAt: string;
+    receipts: {
+      taskId: string;
+      outcome: "updated" | "unchanged";
+      message: string;
+    }[];
+  };
   scenario?: {
     preferences: JourneyPreferences;
     sourceId: string;
@@ -169,6 +182,13 @@ export interface AnalysisResult {
     unknownFacilities: number;
     skippedTriangles: number;
   };
+}
+export interface LocalSearch {
+  category: Category;
+  center: XY;
+  radiusMeters: number;
+  complete: boolean;
+  readAt: string;
 }
 export interface Job {
   id: string;

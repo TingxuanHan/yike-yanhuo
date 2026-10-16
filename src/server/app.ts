@@ -8,6 +8,7 @@ import { stat } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
 import { randomUUID } from "node:crypto";
 import { analyze } from "../core/analyze.js";
+import { verificationPlan, executeVerification } from "../core/verification.js";
 import { DemoProvider, DEMO_CENTERS } from "../core/demo.js";
 import { validGeo } from "../core/geo.js";
 import { BaiduGateway, BaiduProvider, ServiceError } from "./baidu.js";
@@ -173,15 +174,17 @@ export function createApp(
     mapConfigured: Boolean(browserAk),
     version: "0.1.0",
   };
-  const quota = new QuotaLedger(
-    {
-      route: integer(env.BAIDU_DAILY_ROUTE_LIMIT, 500, 1, 1200),
-      search: integer(env.BAIDU_DAILY_SEARCH_LIMIT, 12, 1, 80),
-      other: 50,
-      map: 500,
-    },
-    serverAk || browserAk ? resolve(".cache/baidu-quota.json") : undefined,
-  );
+  const quota =
+    gatewayOverride?.ledger ??
+    new QuotaLedger(
+      {
+        route: integer(env.BAIDU_DAILY_ROUTE_LIMIT, 500, 1, 1200),
+        search: integer(env.BAIDU_DAILY_SEARCH_LIMIT, 12, 1, 80),
+        other: 50,
+        map: 500,
+      },
+      serverAk || browserAk ? resolve(".cache/baidu-quota.json") : undefined,
+    );
   const proxyMap = createMapProxy(browserAk, serverAk, quota);
   const gateway =
     gatewayOverride ??
@@ -209,6 +212,8 @@ export function createApp(
       owner: string;
       controller: AbortController;
       expires: number;
+      verificationKey?: string;
+      verificationFingerprint?: string;
     }
   >();
   const clientRoot = resolve("dist/client");
@@ -597,6 +602,153 @@ export function createApp(
         if (!allowedOrigins.has(origin))
           throw new ServiceError("地图请求来源不受支持。", 403);
         return await proxyMap(req, res, url, origin);
+      }
+      if (
+        method === "POST" &&
+        ["/api/verification/preview", "/api/verification"].includes(
+          url.pathname,
+        )
+      ) {
+        rate("verification:" + owner + ":" + peer, 30);
+        const body = await readJson(req, 2_100_000);
+        let result: ReturnType<typeof parseResultFile>;
+        let plan: ReturnType<typeof verificationPlan>;
+        try {
+          result = parseResultFile(JSON.stringify(body.result));
+          plan = verificationPlan(
+            result,
+            body.category as any,
+            body.minutes as number,
+            body.taskIds as string[],
+            gateway.maxSearchPages,
+          );
+        } catch (error) {
+          throw new ServiceError((error as Error).message, 400);
+        }
+        const fingerprint = createHash("sha256")
+          .update(JSON.stringify(result))
+          .digest("hex");
+        if (url.pathname.endsWith("/preview"))
+          return json(res, 200, { fingerprint, plan });
+        if (
+          body.confirmed !== true ||
+          body.fingerprint !== fingerprint ||
+          typeof body.requestId !== "string" ||
+          !/^[a-zA-Z0-9_-]{8,80}$/.test(body.requestId)
+        )
+          throw new ServiceError(
+            "请先预览当前报告的补查用量，再明确确认。",
+            400,
+          );
+        const requestFingerprint = createHash("sha256")
+          .update(
+            JSON.stringify({
+              fingerprint,
+              category: plan.category,
+              minutes: plan.minutes,
+              ids: plan.tasks.map((t) => t.id),
+            }),
+          )
+          .digest("hex");
+        const previous = [...jobs.values()].find(
+          (v) => v.owner === owner && v.verificationKey === body.requestId,
+        );
+        if (previous) {
+          if (previous.verificationFingerprint !== requestFingerprint)
+            throw new ServiceError(
+              "同一补查编号对应的内容已变化，请重新预览。",
+              409,
+            );
+          return json(res, 202, { id: previous.job.id });
+        }
+        if (result.mode === "baidu") {
+          if (!config.baiduConfigured)
+            throw new ServiceError("尚未配置百度服务，原报告可继续查看。", 503);
+          const budget = await quota.snapshot();
+          if (
+            budget.limits.route - budget.used.route < plan.maxRouteUnits ||
+            budget.limits.search - budget.used.search < plan.maxSearchUnits
+          )
+            throw new ServiceError(
+              "本地剩余预算不足以预留本次补查及一次重试，原报告已保留。",
+              429,
+            );
+        }
+        const raced = [...jobs.values()].find(
+          (v) => v.owner === owner && v.verificationKey === body.requestId,
+        );
+        if (raced) {
+          if (raced.verificationFingerprint !== requestFingerprint)
+            throw new ServiceError(
+              "同一补查编号对应的内容已变化，请重新预览。",
+              409,
+            );
+          return json(res, 202, { id: raced.job.id });
+        }
+        if (
+          [...jobs.values()].filter((v) => v.job.status === "running").length >=
+            2 ||
+          (result.mode === "baidu" &&
+            [...jobs.values()].some(
+              (v) => v.mode === "baidu" && v.job.status === "running",
+            ))
+        )
+          throw new ServiceError(
+            "已有地图任务正在进行，请完成或取消后再补查。",
+            429,
+          );
+        while (jobs.size >= 8) {
+          const old = [...jobs].find(([, v]) => v.job.status !== "running");
+          if (!old) break;
+          jobs.delete(old[0]);
+        }
+        const job: Job = {
+          id: randomUUID(),
+          status: "running",
+          progress: {
+            stage: "准备定向补查",
+            done: 0,
+            total: plan.tasks.length,
+          },
+        };
+        const controller = new AbortController();
+        jobs.set(job.id, {
+          job,
+          mode: result.mode,
+          owner,
+          controller,
+          expires: Date.now() + 10 * 60_000,
+          verificationKey: body.requestId,
+          verificationFingerprint: requestFingerprint,
+        });
+        const provider =
+          result.mode === "demo"
+            ? new DemoProvider()
+            : new BaiduProvider(gateway, result.center.geo!);
+        void executeVerification(
+          result,
+          plan,
+          provider,
+          { id: randomUUID() },
+          controller.signal,
+          (done, total) => {
+            job.progress = { stage: "补查所选任务", done, total };
+          },
+        )
+          .then((updated) => {
+            if (controller.signal.aborted) return;
+            job.result = parseResultFile(JSON.stringify(updated));
+            job.status = "done";
+          })
+          .catch((error) => {
+            job.status = controller.signal.aborted ? "cancelled" : "error";
+            job.error = controller.signal.aborted
+              ? "本次补查已取消，原报告保留。"
+              : error instanceof ServiceError
+                ? error.message
+                : "补查未能完成，原报告保留；请核对后重试。";
+          });
+        return json(res, 202, { id: job.id });
       }
       if (method === "POST" && url.pathname === "/api/analyses") {
         const input = validateInput(await readJson(req));

@@ -80,10 +80,18 @@ export class DemoProvider implements Provider {
       }
     }
   }
-  async search(center: XY, radius: number) {
+  async search(
+    center: XY,
+    radius: number,
+    signal?: AbortSignal,
+    categories?: import("../shared/types.js").Category[],
+  ) {
+    signal?.throwIfAborted();
     return {
       facilities: demoFacilities().filter(
-        (p) => distance(p.point, center) <= radius,
+        (p) =>
+          distance(p.point, center) <= radius &&
+          (!categories || categories.includes(p.category)),
       ),
       complete: completeCategories(true),
       warnings: [],
