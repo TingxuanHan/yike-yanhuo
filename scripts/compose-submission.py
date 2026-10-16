@@ -2,6 +2,7 @@
 from pathlib import Path
 import json
 import math
+import os
 import subprocess
 import wave
 
@@ -30,8 +31,11 @@ def wrap_line(text, maximum=43):
 
 
 def main():
-    manifest = json.loads((ROOT / "materials/submission-timeline.json").read_text(encoding="utf-8"))
-    voices = {v["id"]: v for v in json.loads((ROOT / ".cache/submission-voice/manifest.json").read_text(encoding="utf-8-sig"))}
+    v2 = os.environ.get("SUBMISSION_VARIANT") == "v2"
+    prefix = "submission-v2" if v2 else "submission"
+    name = "yike-yanhuo-baidu-v2" if v2 else "yike-yanhuo-submission"
+    manifest = json.loads((ROOT / f"materials/{prefix}-timeline.json").read_text(encoding="utf-8"))
+    voices = {v["id"]: v for v in json.loads((ROOT / f".cache/{prefix}-voice/manifest.json").read_text(encoding="utf-8-sig"))}
     scenes = manifest["scenes"]
     assert manifest["blockedRequests"] == 0 and manifest["browserErrors"] == 0
     duration = scenes[-1]["end"] / 1000 + 0.5
@@ -63,18 +67,18 @@ def main():
             coverage.append({"scene": scene["id"], "start": round(cursor, 3), "end": round(cursor + span, 3), "text": segment["text"]})
             transcript.append(segment["text"] + "\n")
             cursor += span + 0.2
-    with wave.open(str(ROOT / ".cache/submission-narration.wav"), "wb") as wav:
+    with wave.open(str(ROOT / f".cache/{prefix}-narration.wav"), "wb") as wav:
         wav.setnchannels(1)
         wav.setsampwidth(2)
         wav.setframerate(sample_rate)
         wav.writeframes(audio)
-    (ROOT / "materials/yike-yanhuo-submission.srt").write_text("\n".join(subtitles), encoding="utf-8")
-    (ROOT / ".cache/submission.ass").write_text("\n".join(ass) + "\n", encoding="utf-8-sig")
-    (ROOT / "docs/submission-transcript.md").write_text("\n".join(transcript), encoding="utf-8")
-    (ROOT / "materials/submission-caption-timing.json").write_text(json.dumps(coverage, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    run(["ffmpeg", "-hide_banner", "-loglevel", "warning", "-y", "-i", manifest["video"], "-i", ".cache/submission-narration.wav", "-vf", "pad=1600:900:0:0:color=0x123e38,ass=.cache/submission.ass", "-af", "loudnorm=I=-16:TP=-1.5:LRA=7", "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", "25", "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2", "-t", str(duration), "-movflags", "+faststart", "-metadata", "title=一刻烟火：从社区体检，到一趟安心出门", "-metadata", "artist=TingxuanHan", "materials/yike-yanhuo-submission.mp4"])
-    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", "materials/yike-yanhuo-submission.mp4", "-ss", "4", "-frames:v", "1", "materials/yike-yanhuo-submission-cover.png"])
-    print(json.dumps({"duration": duration, "scenes": len(scenes), "spokenCaptions": len(coverage), "video": "materials/yike-yanhuo-submission.mp4"}))
+    (ROOT / f"materials/{name}.srt").write_text("\n".join(subtitles), encoding="utf-8")
+    (ROOT / f".cache/{prefix}.ass").write_text("\n".join(ass) + "\n", encoding="utf-8-sig")
+    (ROOT / f"docs/{prefix}-transcript.md").write_text("\n".join(transcript), encoding="utf-8")
+    (ROOT / f"materials/{prefix}-caption-timing.json").write_text(json.dumps(coverage, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    run(["ffmpeg", "-hide_banner", "-loglevel", "warning", "-y", "-i", manifest["video"], "-i", f".cache/{prefix}-narration.wav", "-vf", f"pad=1600:900:0:0:color=0x123e38,ass=.cache/{prefix}.ass", "-af", "loudnorm=I=-16:TP=-1.5:LRA=7", "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", "25", "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2", "-t", str(duration), "-movflags", "+faststart", "-metadata", "title=一刻烟火：沿道路看见生活，让判断可以核对" if v2 else "title=一刻烟火：从社区体检，到一趟安心出门", "-metadata", "artist=TingxuanHan", f"materials/{name}.mp4"])
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", f"materials/{name}.mp4", "-ss", "4", "-frames:v", "1", f"materials/{name}-cover.png"])
+    print(json.dumps({"duration": duration, "scenes": len(scenes), "spokenCaptions": len(coverage), "video": f"materials/{name}.mp4"}))
 
 
 if __name__ == "__main__":

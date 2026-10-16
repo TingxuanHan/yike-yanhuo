@@ -1,9 +1,11 @@
-param([string]$Voice = 'Huihui', [int]$Rate = 0)
+param([string]$Voice = 'Huihui', [int]$Rate = 0, [ValidateSet('v1', 'v2')][string]$Variant = 'v1')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$voiceRoot = Join-Path $projectRoot '.cache/submission-voice'
+$voiceName = if ($Variant -eq 'v2') { 'submission-v2-voice' } else { 'submission-voice' }
+$storyName = if ($Variant -eq 'v2') { 'docs/submission-video-v2.json' } else { 'docs/submission-video.json' }
+$voiceRoot = Join-Path $projectRoot ('.cache/' + $voiceName)
 New-Item -ItemType Directory -Path $voiceRoot -Force | Out-Null
-$story = Get-Content -LiteralPath (Join-Path $projectRoot 'docs/submission-video.json') -Raw | ConvertFrom-Json
+$story = Get-Content -LiteralPath (Join-Path $projectRoot $storyName) -Raw | ConvertFrom-Json
 $speaker = New-Object -ComObject SAPI.SpVoice
 $selected = New-Object -ComObject SAPI.SpObjectToken
 $selected.SetId(('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens\MSTTS_V110_zhCN_' + $Voice + 'M'), '', $false)
@@ -26,7 +28,7 @@ foreach ($scene in $story.scenes) {
         $durationText = & ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 $outputPath
         if ($LASTEXITCODE -ne 0) { throw 'Failed to inspect narration duration.' }
         $duration = [double]::Parse(($durationText | Out-String).Trim(), [Globalization.CultureInfo]::InvariantCulture)
-        $segments += @{text=$line; file=('.cache/submission-voice/'+$fileName); duration=$duration}
+        $segments += @{text=$line; file=('.cache/' + $voiceName + '/' + $fileName); duration=$duration}
         $index++
     }
     $manifest += @{id=$scene.id; title=$scene.title; segments=$segments; duration=(($segments | Measure-Object duration -Sum).Sum + 1.4)}

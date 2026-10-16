@@ -7,7 +7,13 @@ import { resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 process.env.PLAYWRIGHT_BROWSERS_PATH ??= resolve(".cache/playwright");
 const { chromium } = await import("@playwright/test");
-const file = resolve("materials/yike-yanhuo-submission.mp4");
+const v2 = process.env.SUBMISSION_VARIANT === "v2";
+const prefix = v2 ? "submission-v2" : "submission";
+const file = resolve(
+  v2
+    ? "materials/yike-yanhuo-baidu-v2.mp4"
+    : "materials/yike-yanhuo-submission.mp4",
+);
 const { size } = await stat(file);
 const metadata = JSON.parse(
   execFileSync(
@@ -26,18 +32,27 @@ execFileSync("ffmpeg", ["-v", "error", "-i", file, "-f", "null", "-"], {
   stdio: "pipe",
 });
 const timeline = JSON.parse(
-  await readFile("materials/submission-timeline.json", "utf8"),
+  await readFile(`materials/${prefix}-timeline.json`, "utf8"),
 );
 const subtitles = JSON.parse(
-  await readFile("materials/submission-caption-timing.json", "utf8"),
+  await readFile(`materials/${prefix}-caption-timing.json`, "utf8"),
 );
-assert.equal(timeline.scenes.length, 20);
-assert.equal(subtitles.length, 40);
+const story = JSON.parse(
+  await readFile(
+    v2 ? "docs/submission-video-v2.json" : "docs/submission-video.json",
+    "utf8",
+  ),
+);
+assert.equal(timeline.scenes.length, story.scenes.length);
+assert.equal(
+  subtitles.length,
+  story.scenes.reduce((n, s) => n + s.lines.length, 0),
+);
 for (const [i, sub] of subtitles.entries()) {
   assert.ok(sub.start < sub.end && sub.end < +v.duration);
   if (i) assert.ok(subtitles[i - 1].end <= sub.start);
 }
-await mkdir(".cache/submission-final-frames", { recursive: true });
+await mkdir(`.cache/${prefix}-final-frames`, { recursive: true });
 for (const scene of timeline.scenes) {
   const sub = subtitles.find((s) => s.scene === scene.id);
   const at = Math.min(scene.end / 1000 - 1, sub.start + 3);
@@ -51,7 +66,7 @@ for (const scene of timeline.scenes) {
     file,
     "-frames:v",
     "1",
-    `.cache/submission-final-frames/${scene.id}.png`,
+    `.cache/${prefix}-final-frames/${scene.id}.png`,
   ]);
 }
 const server = createServer((req, res) => {
@@ -89,7 +104,7 @@ try {
     () => document.querySelector("video").currentTime > 1.2,
   );
   const playback = [];
-  for (const at of [2, 165, 325]) {
+  for (const at of [2, +v.duration / 2, +v.duration - 5]) {
     await page.locator("video").evaluate((video, at) => {
       video.currentTime = at;
     }, at);
@@ -135,7 +150,7 @@ try {
     playback,
   };
   await writeFile(
-    "docs/validation/submission-video.json",
+    `docs/validation/${prefix}-video.json`,
     JSON.stringify(result, null, 2) + "\n",
   );
   console.log(JSON.stringify(result));

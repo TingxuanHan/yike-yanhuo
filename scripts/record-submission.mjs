@@ -8,9 +8,18 @@ const { chromium } = await import("@playwright/test");
 
 // Isolated, keyless recording. Editorial cards are explicitly labelled.
 const fast = process.env.REHEARSAL_FAST === "1";
-const story = JSON.parse(await readFile("docs/submission-video.json", "utf8"));
+const v2 = process.env.SUBMISSION_VARIANT === "v2";
+const prefix = v2 ? "submission-v2" : "submission";
+const cacheDir = `.cache/${prefix}-video`;
+const assetDir = `materials/${prefix}-assets`;
+const story = JSON.parse(
+  await readFile(
+    v2 ? "docs/submission-video-v2.json" : "docs/submission-video.json",
+    "utf8",
+  ),
+);
 const voice = JSON.parse(
-  (await readFile(".cache/submission-voice/manifest.json", "utf8")).replace(
+  (await readFile(`.cache/${prefix}-voice/manifest.json`, "utf8")).replace(
     /^\uFEFF/,
     "",
   ),
@@ -19,15 +28,15 @@ const app = createApp({
   HOST: "127.0.0.1",
   PORT: "8790",
   PERSONAL_DATA_PATH: ":memory:",
-  AI_DATA_PATH: ".cache/submission-ai.sqlite",
+  AI_DATA_PATH: `.cache/${prefix}-ai.sqlite`,
   BAIDU_SERVER_AK: "",
   BAIDU_BROWSER_AK: "",
 });
 app.listen(8790, "127.0.0.1");
 await once(app, "listening");
 const base = "http://127.0.0.1:8790";
-await mkdir(".cache/submission-video", { recursive: true });
-await mkdir("materials/submission-assets", { recursive: true });
+await mkdir(cacheDir, { recursive: true });
+await mkdir(assetDir, { recursive: true });
 const dataImage = async (path) =>
   "data:image/png;base64," + (await readFile(path)).toString("base64");
 const picture = (src, style = "") => `<img src="${src}" style="${style}"/>`;
@@ -40,7 +49,7 @@ try {
   const context = await browser.newContext({
     viewport: { width: 1600, height: 800 },
     recordVideo: {
-      dir: ".cache/submission-video",
+      dir: cacheDir,
       size: { width: 1600, height: 800 },
     },
     locale: "zh-CN",
@@ -96,7 +105,7 @@ try {
     await sleep(Math.max(500, speech.duration * 1000 - elapsed));
     const end = Date.now() - started;
     timeline.push({ id, title: entry.title, start, end });
-    await page.screenshot({ path: `.cache/submission-video/${id}.png` });
+    await page.screenshot({ path: `${cacheDir}/${id}.png` });
     console.log(
       `Recorded ${timeline.length}/${story.scenes.length}: ${id} (${((end - start) / 1000).toFixed(1)}s)`,
     );
@@ -143,7 +152,169 @@ try {
     await page.locator("#coverage-inspector").scrollIntoViewIfNeeded();
     await sleep(3500);
     await page.getByLabel("核查类别", { exact: true }).selectOption("pharmacy");
+    if (v2) {
+      await page
+        .getByRole("region", { name: "连续覆盖分区", exact: true })
+        .scrollIntoViewIfNeeded();
+    }
   });
+  if (v2) {
+    await scene("repair", async () => {
+      await page.getByText("补齐缺失数据", { exact: true }).click();
+      const panel = page.getByRole("region", {
+        name: "定向补核查",
+        exact: true,
+      });
+      await panel
+        .getByRole("button", { name: "体验模拟缺测", exact: true })
+        .click();
+      await panel
+        .getByRole("checkbox", { name: /补取步行测时/ })
+        .first()
+        .check();
+      await panel
+        .getByRole("button", { name: "查看补查用量", exact: true })
+        .click();
+      await panel.locator(".verification-plan").scrollIntoViewIfNeeded();
+      await sleep(3500);
+      await panel
+        .getByRole("button", { name: "确认执行所选任务", exact: true })
+        .click();
+      await panel.locator(".verification-diff").waitFor();
+      await panel.locator(".verification-diff").scrollIntoViewIfNeeded();
+      await sleep(7000);
+      const download = page.waitForEvent("download");
+      await panel
+        .getByRole("button", { name: "导出补查前后依据", exact: true })
+        .click();
+      await (await download).saveAs(`${cacheDir}/verification.json`);
+      await panel
+        .getByRole("button", { name: "采用补查结果", exact: true })
+        .click();
+      await panel
+        .getByRole("button", { name: "恢复补查前报告", exact: true })
+        .click();
+      await page.getByText("补齐缺失数据", { exact: true }).click();
+    });
+    await scene("siting", async () => {
+      await page.getByLabel("核查类别", { exact: true }).selectOption("school");
+      await page.getByText("比较设施补点方案", { exact: true }).click();
+      const panel = page.getByRole("region", {
+        name: "设施补点方案比较",
+        exact: true,
+      });
+      for (let slot = 1; slot <= 3; slot++) {
+        await panel
+          .getByLabel(`候选位置${slot}${slot > 1 ? "（选填）" : ""}`, {
+            exact: true,
+          })
+          .selectOption({ index: slot });
+      }
+      await panel
+        .getByRole("button", { name: "比较所选方案", exact: true })
+        .click();
+      await panel.locator(".siting-result").scrollIntoViewIfNeeded();
+      await sleep(5000);
+      await panel.getByRole("button", { name: /方案 A \+ B$/ }).click();
+      await panel.locator(".siting-sketch").scrollIntoViewIfNeeded();
+      const download = page.waitForEvent("download");
+      await panel
+        .getByRole("button", { name: "导出补点比较依据", exact: true })
+        .click();
+      await (await download).saveAs(`${cacheDir}/siting.json`);
+    });
+    await scene("conditions", async () => {
+      const parent = page.getByRole("region", {
+        name: "设施补点方案比较",
+        exact: true,
+      });
+      await parent
+        .getByText("换种走法，方案还合适吗？", { exact: true })
+        .click();
+      const panel = page.getByRole("region", {
+        name: "补点多条件检查",
+        exact: true,
+      });
+      await panel
+        .getByRole("button", { name: "检查三种条件", exact: true })
+        .click();
+      await panel
+        .getByRole("button", { name: "检查方案 A + B", exact: true })
+        .click();
+      await panel.locator(".siting-sketch").scrollIntoViewIfNeeded();
+      const download = page.waitForEvent("download");
+      await panel
+        .getByRole("button", { name: "导出多条件检查依据", exact: true })
+        .click();
+      await (await download).saveAs(`${cacheDir}/conditions.json`);
+    });
+    await scene("detour", async () => {
+      await page.getByText("比较设施补点方案", { exact: true }).click();
+      await page
+        .getByText("看起来很近，为什么要走更远？", { exact: true })
+        .click();
+      const panel = page.getByRole("region", {
+        name: "绕行代价诊断",
+        exact: true,
+      });
+      await panel.scrollIntoViewIfNeeded();
+      await panel.getByText("带去现场核查", { exact: true }).first().click();
+      await panel.locator("article").first().scrollIntoViewIfNeeded();
+      const download = page.waitForEvent("download");
+      await panel
+        .getByRole("button", { name: "导出绕行核查依据", exact: true })
+        .click();
+      await (await download).saveAs(`${cacheDir}/detour.json`);
+    });
+    await scene("audit", async () => {
+      await page
+        .getByText("看起来很近，为什么要走更远？", { exact: true })
+        .click();
+      await page
+        .getByText("抽点复核：这个范围和测时一致吗？", { exact: true })
+        .click();
+      const panel = page.getByRole("region", {
+        name: "等时圈抽点复核",
+        exact: true,
+      });
+      await panel
+        .getByRole("button", { name: "预览固定点与用量", exact: true })
+        .click();
+      await panel.locator(".audit-plan").scrollIntoViewIfNeeded();
+      await sleep(4000);
+      await panel
+        .getByRole("button", { name: "开始本机复核", exact: true })
+        .click();
+      await panel.locator(".audit-result").waitFor();
+      await panel.locator(".audit-result").scrollIntoViewIfNeeded();
+      await sleep(5500);
+      await page
+        .getByRole("group", { name: "查看步行时长" })
+        .getByRole("button", { name: "5 分钟", exact: true })
+        .click();
+      if (
+        (await page.locator(".contour-audit-panel").getAttribute("open")) ===
+        null
+      ) {
+        await page
+          .getByText("抽点复核：这个范围和测时一致吗？", { exact: true })
+          .click();
+      }
+      await panel
+        .getByRole("button", { name: "预览固定点与用量", exact: true })
+        .click();
+      await panel
+        .getByRole("button", { name: "开始本机复核", exact: true })
+        .click();
+      await panel.locator(".audit-result").waitFor();
+      await panel.locator(".audit-result").scrollIntoViewIfNeeded();
+      const download = page.waitForEvent("download");
+      await panel
+        .getByRole("button", { name: "导出抽点复核依据", exact: true })
+        .click();
+      await (await download).saveAs(`${cacheDir}/audit.json`);
+    });
+  }
   await scene("report", async () => {
     await page
       .getByRole("button", { name: "3. 阅读与导出报告", exact: true })
@@ -152,7 +323,7 @@ try {
     await sleep(5500);
     const download = page.waitForEvent("download");
     await page.getByRole("button", { name: "导出数据", exact: true }).click();
-    await (await download).saveAs(".cache/submission-video/demo-report.json");
+    await (await download).saveAs(`${cacheDir}/demo-report.json`);
   });
   await scene("algorithm", async () => {
     await card(
@@ -328,7 +499,13 @@ try {
     await page
       .getByRole("button", { name: "下载离线出门卡", exact: true })
       .click();
-    await (await download).saveAs("materials/demo-departure-card.html");
+    await (
+      await download
+    ).saveAs(
+      v2
+        ? "materials/demo-departure-card-v2.html"
+        : "materials/demo-departure-card.html",
+    );
   });
   await scene("family", async () => {
     await page
@@ -361,16 +538,22 @@ try {
     await helperContext.close();
   });
   await scene("wechat", async () => {
-    const paths = [
-      "docs/images/simple-home-mini.png",
-      "docs/images/trip-alternative-mini-entry.png",
-      "docs/images/walking-steps-mini.png",
-    ];
+    const paths = v2
+      ? [
+          "docs/images/simple-home-mini.png",
+          "docs/images/planning-conditions-mini-large.png",
+          "docs/images/contour-audit-mini-standard.png",
+        ]
+      : [
+          "docs/images/simple-home-mini.png",
+          "docs/images/trip-alternative-mini-entry.png",
+          "docs/images/walking-steps-mini.png",
+        ];
     const images = await Promise.all(paths.map(dataImage));
     await card(
       "微信开发者工具 · 原生页面实际静帧",
       "一套规则，两个入口",
-      `<div style="display:flex;justify-content:center;gap:55px">${images.map((src) => picture(src, "height:490px;width:auto;border:1px solid #cbdcd3;border-radius:20px")).join("")}<div style="width:280px;padding-top:50px"><p>简易首页<br>下一站备选<br>步行指引</p><p style="font-size:22px;color:#657b79">共享核心逻辑与接口<br>配对后同步数据<br>手机新增流程待验收</p></div></div>`,
+      `<div style="display:flex;justify-content:center;gap:40px">${images.map((src) => picture(src, "height:490px;max-width:340px;object-fit:contain;border:1px solid #cbdcd3;border-radius:20px")).join("")}<div style="width:280px;padding-top:50px"><p>${v2 ? "简易首页<br>多条件比较<br>抽点复核" : "简易首页<br>下一站备选<br>步行指引"}</p><p style="font-size:22px;color:#657b79">共享核心逻辑与接口<br>配对后同步数据<br>手机新增流程待验收</p></div></div>`,
       "原首页手机预览已由使用者确认；本段不是手机录像，不代表正式上线或全部真机验收通过。",
     );
   });
@@ -397,6 +580,15 @@ try {
     await page.getByText("查看整段步骤", { exact: true }).click();
   });
   await scene("validation", async () => {
+    if (v2) {
+      await card(
+        "上海API参照 · 历史实验与2026.10.16重复核对",
+        "保留完整计数，不合并成总体准确率",
+        `<div style="display:flex;gap:34px"><div style="flex:1;background:#edf4ef;border-radius:12px;padding:30px"><h2 style="font-size:29px;margin-top:0">历史固定24点</h2><p>15分钟：<br>直线圆16 / 24<br>粗网格22 / 24<br>133点轮廓23 / 24</p><p style="font-size:21px;color:#657b79">5分钟未全面改善。<br>另一组固定24点：20 → 21。</p></div><div style="flex:1;background:#edf4ef;border-radius:12px;padding:30px"><h2 style="font-size:29px;margin-top:0">六点重复接口核对</h2><p>当前轮廓6 / 6<br>粗网格6 / 6<br>直线圆4 / 6</p><p style="font-size:21px;color:#657b79">消耗6条路线；串行，零重试。<br>同一批极坐标点，非新独立测试集。</p></div></div><p style="font-size:23px">构造反例：5分钟轮廓9 / 12，粗网格12 / 12。失败情况照样保留。</p>`,
+        "以上均非实地步行真值。原始来源、时间、分母、误判与漏判见18页作品介绍及仓库实验记录。",
+      );
+      return;
+    }
     await card(
       "上海固定点对照 · 同一百度步行接口作参考",
       "15分钟：23 / 24 点判断正确",
@@ -415,13 +607,36 @@ try {
       "第一组：直线圆、81点粗网格、133点加密；第二组预先固定近端测试点，177点训练轮廓另行验证。完整计数见作品文档。",
     );
   });
+  if (v2)
+    await scene("governance", async () => {
+      await card(
+        "百度地图企业赛题 · 评价对应",
+        "四项指标，都能找到实现与证据",
+        `<div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">${[
+          ["40%", "功能正确性与覆盖率", "等时圈、六类设施、缺口、补查与复核"],
+          [
+            "30%",
+            "API深度调用与工程优化",
+            "共享边加密、串行、缓存、预算与复算",
+          ],
+          ["15%", "产品交互与用户体验", "地图联动、简易大字、双端与确认恢复"],
+          ["15%", "开源工程规范", "MIT、依赖、贡献、CI与维护安排"],
+        ]
+          .map(
+            ([n, t, s]) =>
+              `<div style="padding:25px;background:#edf4ef;border-radius:12px"><strong style="font-size:42px;color:#176c60">${n}</strong><div style="font-size:27px">${t}</div><div style="font-size:21px;color:#657b79;margin-top:8px">${s}</div></div>`,
+          )
+          .join("")}</div>`,
+        "这是一份证据索引，不是自评分。开发仓库仍私有，正式提交前需落实外部评审访问与公开开源方式。",
+      );
+    });
   await scene("closing", async () => {
     await card(
       "可运行 · 可复核 · 可持续完善",
       "让附近的生活，更容易抵达",
       `<div style="display:flex;gap:28px;margin:35px 0">${[
-        ["184", "业务 / 接口 / 小程序测试"],
-        ["34", "浏览器流程测试"],
+        [v2 ? "244" : "184", "业务 / 接口 / 小程序测试"],
+        [v2 ? "44" : "34", "浏览器流程测试"],
         ["MIT", "代码许可与贡献规范"],
       ]
         .map(
@@ -431,7 +646,7 @@ try {
         .join(
           "",
         )}</div><p style="font-size:28px">下一步：实走验证 → 小范围试用 → 完善维护与治理</p><p style="font-size:24px;color:#176c60">github.com/TingxuanHan/yike-yanhuo</p><p style="font-size:21px;color:#657b79">完整源码 · 作品PDF · 运行说明 · 测试与实验记录</p>`,
-      "测试与功能基线：09b3027。当前仓库仍按所有者原要求私有，公开或评审访问授权需在提交前落实。",
+      `测试与功能基线：${v2 ? "e28efa0" : "09b3027"}。当前仓库仍按所有者原要求私有，公开或评审访问授权需在提交前落实。`,
     );
   });
   assert.equal(timeline.length, story.scenes.length);
@@ -443,13 +658,11 @@ try {
   assert.deepEqual(errors, []);
   const video = page.video();
   await context.close();
-  const output = fast
-    ? ".cache/submission-fast.webm"
-    : ".cache/submission-raw.webm";
+  const output = `.cache/${prefix}-${fast ? "fast" : "raw"}.webm`;
   await video.saveAs(output);
   const manifest = {
     createdAt: new Date().toISOString(),
-    functionalBaseline: "09b3027",
+    functionalBaseline: v2 ? "e28efa0" : "09b3027",
     source:
       "Headless actual UI recording with explicitly labelled editorial cards",
     blockedRequests,
@@ -459,8 +672,8 @@ try {
   };
   await writeFile(
     fast
-      ? ".cache/submission-fast-timeline.json"
-      : "materials/submission-timeline.json",
+      ? `.cache/${prefix}-fast-timeline.json`
+      : `materials/${prefix}-timeline.json`,
     JSON.stringify(manifest, null, 2) + "\n",
   );
   console.log(
