@@ -19,7 +19,7 @@ export function searchWindows(
       center: result.center.point,
       radiusMeters: result.parameters.searchRadiusMeters,
       complete: result.complete[category],
-      readAt: result.generatedAt,
+      readAt: result.baseGeneratedAt ?? result.generatedAt,
     },
     ...(result.localSearches ?? [])
       .filter((w) => w.category === category)

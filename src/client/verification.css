@@ -1,0 +1,97 @@
+.verification-panel {
+  margin: 16px 0;
+  border-block: 1px solid #cbded4;
+  overflow-wrap: anywhere;
+}
+.verification-panel summary {
+  padding: 14px 0;
+  min-height: 44px;
+  cursor: pointer;
+  color: #146c5d;
+  font-weight: 650;
+}
+.verification-panel section {
+  padding-bottom: 16px;
+}
+.verification-panel p {
+  line-height: 1.65;
+}
+.verification-tasks {
+  border: 0;
+  padding: 0;
+  margin: 16px 0;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+.verification-tasks legend {
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+.verification-tasks label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #cbded4;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.verification-tasks input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+.verification-tasks span {
+  min-width: 0;
+}
+.verification-tasks strong,
+.verification-tasks small {
+  display: block;
+}
+.verification-tasks small {
+  font-weight: 400;
+  color: #52675e;
+  margin-top: 5px;
+  line-height: 1.55;
+}
+.verification-plan {
+  border-left: 4px solid #146c5d;
+  padding: 12px 14px;
+  background: #eaf3ee;
+  margin: 16px 0;
+}
+.verification-diff {
+  margin-top: 20px;
+}
+.verification-panel .verification-diff dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-bottom: 1px solid #dde6e1;
+}
+.verification-diff dd {
+  margin: 0;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.verification-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.verification-fields {
+  margin-top: 16px;
+}
+@media (max-width: 620px) {
+  .verification-panel .verification-diff dl > div {
+    flex-direction: column;
+  }
+  .verification-actions > button {
+    width: 100%;
+  }
+}

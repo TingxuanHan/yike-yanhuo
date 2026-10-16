@@ -235,6 +235,11 @@ export function coverageAreaView(
     totalArea: areaLabel(value.totalSquareMeters),
     empty: value.totalSquareMeters === 0,
     clipped: value.clipped,
+    localSearches: (result.localSearches ?? [])
+      .filter((w) => w.category === category)
+      .map((w, index) => ({
+        label: `局部补查${index + 1} · ${w.complete ? "返回已取完" : "仍不完整"} · ${new Date(Date.parse(w.readAt) + 8 * 3600_000).toISOString().slice(0, 19).replace("T", " ")}（北京时间）`,
+      })),
     complete: value.complete,
     rows: AREA_STATES.map((state) => ({
       state,

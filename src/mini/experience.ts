@@ -2,6 +2,20 @@ import { personalize } from "../core/personalize.js";
 import { walkingTimeBands } from "../core/time-bands.js";
 export { coverageAreaView } from "../core/coverage-area.js";
 export {
+  verificationTasks,
+  verificationPlan,
+  verificationDiff,
+  verificationDrill,
+  verificationEvidence,
+  parseVerificationEvidence,
+  VERIFICATION_BACKUP_KEY,
+} from "../core/verification.js";
+import {
+  executeVerification,
+  type VerificationPlan,
+} from "../core/verification.js";
+import { DemoProvider } from "../core/demo.js";
+export {
   sitingOptions,
   compareSelectedSites,
   sitingView,
@@ -22,6 +36,15 @@ import {
   type XY,
 } from "../shared/types.js";
 import type { PersonalPlace, PlacePosition } from "../shared/life.js";
+export function demoVerification(
+  source: AnalysisResult,
+  plan: VerificationPlan,
+) {
+  if (source.mode !== "demo") throw new Error("仅模拟街区可在本机补查。");
+  return executeVerification(source, plan, new DemoProvider(), {
+    id: `mini-verification-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  });
+}
 export { parseResultFile } from "../shared/result-file.js";
 export { shanghaiStudy } from "../presentation/case-study.js";
 export { reviewReminders } from "../shared/facility-review.js";
@@ -251,6 +274,10 @@ export function reportView(
       to: b.to,
     })),
     generatedLabel: result.generatedAt.slice(0, 10),
+    baseGeneratedLabel: (result.baseGeneratedAt ?? result.generatedAt).slice(
+      0,
+      10,
+    ),
     mapHasHoles: bands.some((b) => b.polygons.some((p) => p.length > 1)),
   };
 }

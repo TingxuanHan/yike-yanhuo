@@ -214,11 +214,53 @@
           <button class="quiet" bindtap="coverageBasisToggle">{{showCoverageBasis?'收起':'查看'}}待核查原因</button>
           <view wx:if="{{showCoverageBasis}}">
             <text wx:for="{{coverageArea.reasons}}" wx:key="label" class="coverage-line">{{item.label}}：约{{item.area}} km²</text>
-            <text class="muted">距离圆内外边界间最宽约{{coverageArea.boundaryBand}}米归入待核查；不含地图坐标与路网插值误差。类别检索不全或核查范围超出检索边界，不判为缺口。</text>
+            <text class="muted">距离圆内外边界间最宽约{{coverageArea.boundaryBand}}米归入待核查；不含地图坐标与路网插值误差。没有完整覆盖该点核查范围的检索依据时，不判为缺口。</text>
+            <text wx:for="{{coverageArea.localSearches}}" wx:key="label" class="muted">{{item.label}}。仅用于完整覆盖的局部范围，原类别完整性未提升。</text>
           </view>
           <button class="quiet" bindtap="copyCoverageArea">复制分区摘要</button>
         </view>
         <text wx:if="{{coverageAreaError}}" class="error">{{coverageAreaError}}</text>
+        <view class="verification-panel">
+          <button class="disclosure" bindtap="verificationToggle">{{showVerification?'收起补查任务':'补齐缺失数据'}}</button>
+          <view wx:if="{{showVerification}}">
+            <text class="heading">这次先核实哪里？</text>
+            <text>选择最多3项，只补取缺失测时或局部设施，原报告保留。</text>
+            <button wx:if="{{result.mode==='demo'}}" class="secondary" disabled="{{busy}}" bindtap="verificationDrill">体验模拟缺测</button>
+            <button class="quiet" disabled="{{busy}}" bindtap="verificationReopen">打开最近补查记录</button>
+            <button wx:if="{{verificationCanRestore}}" class="quiet" disabled="{{busy}}" bindtap="verificationRestore">恢复上一份报告</button>
+            <text wx:if="{{verificationError}}" class="error">{{verificationError}}</text>
+            <text wx:if="{{!verificationTasks.length}}" class="notice">当前范围没有可执行的接口补查任务，仍可核实入口和营业情况。</text>
+            <block wx:for="{{verificationTasks}}" wx:key="id">
+              <button wx:if="{{index<3||verificationMore}}" class="verification-task {{item.checked?'selected':''}}" data-id="{{item.id}}" bindtap="verificationChoose" disabled="{{busy}}" aria-label="{{item.title}}，{{item.checked?'已选':'未选'}}">
+                <text class="place-name">{{item.checked?'已选 · ':''}}{{item.title}}</text><text class="muted">{{item.reason}}</text><text class="muted">{{item.influence}}</text>
+              </button>
+            </block>
+            <button wx:if="{{verificationTasks.length>3}}" class="quiet" bindtap="verificationMore">{{verificationMore?'收起其他任务':'查看全部任务'}}</button>
+            <button wx:if="{{verificationTasks.length&&!verificationPlan}}" class="primary" disabled="{{!verificationSelected||busy}}" bindtap="verificationPreview">查看补查用量</button>
+            <view wx:if="{{verificationPlan}}" class="verification-plan">
+              <text class="heading">{{result.mode==='demo'?'模拟演练，不消耗百度额度':'本次调用上限'}}</text>
+              <text wx:if="{{result.mode!=='demo'}}">测时{{verificationPlan.maxRouteUnits}}条 · 检索{{verificationPlan.maxSearchUnits}}次，已含一次重试余量。实际用量可能更低，全站日额度和串行队列继续生效。</text>
+              <text wx:else>使用人工构造道路与设施，仅演示补查流程。</text>
+              <button class="primary" disabled="{{busy}}" bindtap="verificationRun">确认执行所选任务</button>
+            </view>
+            <button wx:if="{{verificationBusy}}" class="secondary" bindtap="verificationStop">停止本次补查</button>
+            <text wx:if="{{verificationStatus}}" class="notice">{{verificationStatus}}</text>
+            <view wx:if="{{verificationDiff}}" class="verification-diff">
+              <text class="eyebrow">{{result.mode==='demo'?'模拟缺测演练 · 非真实社区':'历史报告与本次补查 · 未现场验证'}}</text>
+              <text class="heading">补查前后有什么变化？</text>
+              <view class="siting-area-row"><text>有效测时点</text><text>{{verificationDiff.knownSamplesBefore}} → {{verificationDiff.knownSamplesAfter}}</text></view>
+              <view class="siting-area-row"><text>新增地图设施</text><text>{{verificationDiff.newFacilities}}处</text></view>
+              <view class="siting-area-row"><text>待核查面积</text><text>{{verificationDiff.unknownBefore}} → {{verificationDiff.unknownAfter}} km²</text></view>
+              <view class="siting-area-row"><text>本次步行范围</text><text>{{verificationDiff.domainBefore}} → {{verificationDiff.domainAfter}} km²</text></view>
+              <text class="muted">{{verificationDiff.note}}</text>
+              <text wx:for="{{verificationReceipts}}" wx:key="taskId" class="muted">{{item.message}}</text>
+              <button class="secondary" bindtap="verificationCopy">复制补查前后摘要</button>
+              <button wx:if="{{verificationReady}}" class="primary" disabled="{{busy}}" bindtap="verificationAdopt">采用补查结果</button>
+            </view>
+            <view wx:if="{{verificationFields.length}}"><text class="place-name">现场核查清单</text><view wx:for="{{verificationFields}}" wx:key="id"><text>{{item.title}}</text><text class="muted">{{item.reason}}</text></view></view>
+            <text class="muted">按关联缺测片区粗排，范围可能重叠，不是收益承诺。局部返回不完整时仍保留待核查；入口和营业需现场确认。采用后保存最近一组前后备份，演练不写入私人记录。</text>
+          </view>
+        </view>
         <view class="siting-panel">
           <button class="disclosure" bindtap="sitingToggle">{{showSiting?'收起':'比较'}}设施补点方案</button>
           <view wx:if="{{showSiting}}">
@@ -235,27 +277,29 @@
             <text wx:if="{{sitingError}}" class="error">{{sitingError}}</text>
             <view wx:if="{{sitingView}}" class="siting-result">
               <text class="eyebrow">{{sitingView.minutes}}分钟范围 · {{sitingView.categoryLabel}} · 规划假设</text>
-              <text class="heading">原候选缺口约{{sitingView.baselineGap}} km²</text>
+              <text class="heading siting-headline">{{sitingView.headline}}</text>
+              <text class="muted">原候选缺口约{{sitingView.baselineGap}} km²。{{sitingView.supporting}}</text>
               <text wx:if="{{sitingView.noProvenGap}}" class="notice">当前资料没有可证实的候选缺口。待核查区假设覆盖不计入改善，也不证明现实没有缺口。</text>
-              <text class="muted">按相同新增数量比较，先显示补足缺口较多的方案。不代表最优选址，小面积差异仍需现场核实。</text>
-              <view wx:for="{{sitingView.candidates}}" wx:key="id" class="siting-candidate"><text>{{item.letter}} · {{item.name}}</text><text class="muted">{{item.coordinates}}</text></view>
+              <text wx:if="{{!sitingView.before}}" class="siting-conclusion">{{sitingView.additional}}</text>
               <view wx:for="{{sitingView.groups}}" wx:for-item="group" wx:key="count" class="siting-group">
                 <text class="place-name">{{group.label}}</text>
                 <button wx:for="{{group.plans}}" wx:key="id" data-id="{{item.id}}" bindtap="sitingPlan" class="siting-plan {{sitingView.currentId===item.id?'selected':''}}">
                   <text>方案 {{item.label}}{{sitingView.currentId===item.id?' · 已选':''}}</text>
-                  <text>补足原缺口约{{item.gapGain}} km²</text>
-                  <text class="muted">待核查区假设覆盖约{{item.unknownAssumption}} km²</text>
                 </button>
               </view>
               <view class="siting-switch"><button class="{{sitingView.before?'primary':'secondary'}}" data-before="true" bindtap="sitingBefore">补点前</button><button class="{{sitingView.before?'secondary':'primary'}}" data-before="false" bindtap="sitingBefore">假设补点后</button></view>
               <text class="place-name">{{sitingView.title}}</text>
               <canvas canvas-id="siting-sketch" id="siting-sketch" class="coverage-area-sketch" />
               <text class="muted">设施直线覆盖示意，不作导航。字母对应候选位置。{{sitingView.hasHoles?'含空洞分区只画边线。':''}}</text>
-              <view wx:for="{{sitingView.rows}}" wx:key="state" class="siting-area-row"><text><text style="color:{{item.color}}">■ </text>{{item.label}}</text><text>约{{item.area}} km²</text></view>
+              <view wx:for="{{sitingView.mainRows}}" wx:key="state" class="siting-area-row"><text><text style="color:{{item.color}}">■ </text>{{item.label}}</text><text>约{{item.area}} km²</text></view>
               <text wx:if="{{!sitingView.before}}" class="muted">组合计算已扣除重复计入的原缺口约{{sitingView.duplicateGap}} km²。待核查区假设覆盖单列，不计入已证实的缺口改善。</text>
               <text wx:if="{{sitingView.clipped}}" class="notice">步行范围可能截断，只比较当前已生成的部分。</text>
-              <text class="muted">按周边{{sitingView.distanceMeters}}米直线距离计算，距离边界保守保留。“未计入补足”不等于证明新增设施无法覆盖；面积不是受益人数或到店步行距离。</text>
-              <text class="muted">{{result.mode==='demo'?'人工构造数据':'百度API及已有核查记录，未现场验证'}} · 原始记录{{generatedLabel}}。原报告和公共设施未被改动。</text>
+              <button class="quiet" bindtap="sitingBasisToggle">{{showSitingBasis?'收起':'查看'}}比较依据与限制</button>
+              <view wx:if="{{showSitingBasis}}"><view wx:for="{{sitingView.candidates}}" wx:key="id" class="siting-candidate"><text>{{item.letter}} · {{item.name}}</text><text class="muted">{{item.coordinates}}</text></view>
+                <view wx:for="{{sitingView.rows}}" wx:key="state" class="siting-area-row"><text>{{item.label}}</text><text>约{{item.area}} km²</text></view>
+                <text class="muted">按周边{{sitingView.distanceMeters}}米直线距离计算，距离边界保守保留。“未计入补足”不等于证明新增设施无法覆盖；面积不是受益人数或到店步行距离。</text>
+                <text class="muted">{{result.mode==='demo'?'人工构造数据':'百度API及已有核查记录，未现场验证'}} · 基础记录{{baseGeneratedLabel}}。原报告和公共设施未被改动。</text>
+              </view>
               <button class="secondary" bindtap="copySiting">复制补点比较摘要</button>
               <text wx:if="{{sitingNotice}}" class="notice">{{sitingNotice}}</text>
             </view>
@@ -282,10 +326,10 @@
             >最近的已检索设施：{{coverageSelected.nearestLabel}}</text
           >
           <text class="coverage-line"
-            >返回结果：{{coverageSelected.complete?'已取完':'不完整'}}；核查范围：{{coverageSelected.inSearchArea?'全部在检索范围内':'部分超出检索范围'}}</text
+            >此点检索依据：{{coverageSelected.complete&&coverageSelected.inSearchArea?'已取完并覆盖核查范围':'仍需局部补齐'}}；核查范围：{{coverageSelected.inSearchArea?'全部在检索范围内':'部分超出检索范围'}}</text
           >
           <text class="muted"
-            >原始记录：{{generatedLabel}} ·
+            >基础记录：{{baseGeneratedLabel}} ·
             {{result.mode==='demo'?'模拟街区':'百度检索及已有核查记录'}}</text
           >
           <text class="muted"
@@ -313,7 +357,7 @@
         <button class="primary" bindtap="compareJourney">比较这两种条件</button>
         <text wx:if="{{comparisonError}}" class="error" role="alert">{{comparisonError}}</text>
         <view wx:if="{{comparison}}" class="comparison-result">
-          <text class="muted">{{result.mode==='demo'?'模拟社区':'已有路线条件试算'}} · {{result.center.label}} · {{minutes}}分钟 · 原记录 {{generatedLabel}}</text>
+          <text class="muted">{{result.mode==='demo'?'模拟社区':'已有路线条件试算'}} · {{result.center.label}} · {{minutes}}分钟 · 基础记录 {{baseGeneratedLabel}}</text>
           <view class="comparison-score"><view><text>原条件 · {{comparison.baselineSpeed}}米/秒</text><text class="heading">{{comparison.baselineCount}}处设施</text><text>约{{comparison.baselineArea}} km²</text></view><view><text>对比 · {{comparison.candidateSpeed}}米/秒</text><text class="heading">{{comparison.candidateCount}}处设施</text><text>约{{comparison.candidateArea}} km²</text></view></view>
           <canvas id="comparison-sketch" canvas-id="comparison-sketch" class="sketch" disable-scroll="{{true}}" />
           <text class="muted">范围差异示意，不含道路底图；带空洞的区域仅画边线。</text>
@@ -396,7 +440,7 @@
         {{showReportDetails?'收起':'查看'}}范围与数据说明</button
       ><view wx:if="{{showReportDetails}}"
         ><text class="muted"
-          >数据日期：{{generatedLabel}}。范围来自已有步行路线，调整时间和步速使用本机试算。</text
+          >报告生成日期：{{generatedLabel}}；基础资料：{{baseGeneratedLabel}}。范围来自已有步行路线，调整时间和步速使用本机试算。</text
         ><text wx:if="{{mapNative}}" class="muted"
           >底图为微信原生地图。百度坐标仅作本地近似转换用于展示，原始坐标与来源保留。</text
         ><view wx:for="{{areas}}" wx:key="minutes" class="range"

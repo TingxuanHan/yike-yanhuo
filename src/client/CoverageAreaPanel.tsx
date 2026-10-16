@@ -82,7 +82,7 @@ export function CoverageAreaPanel({
               ))}
             </ul>
             <p className="caption">
-              排除已停用和存在冲突的同类设施。返回结果不完整、核查范围超出检索边界时，不判为缺口。距离圆使用内外边界，最宽约
+              排除已停用和存在冲突的同类设施。没有完整覆盖该点核查范围的检索依据时，不判为缺口。距离圆使用内外边界，最宽约
               {view.boundaryBand}
               米的绘图保留带归入待核查；此数不包含地图坐标或路网插值误差。
             </p>
@@ -90,9 +90,17 @@ export function CoverageAreaPanel({
               {result.mode === "demo"
                 ? "人工构造数据"
                 : "百度API数据及已有核查记录"}{" "}
-              · 原始记录 {new Date(result.generatedAt).toLocaleString("zh-CN")}
+              · 基础记录{" "}
+              {new Date(
+                result.baseGeneratedAt ?? result.generatedAt,
+              ).toLocaleString("zh-CN")}
               。本地重算不调用地图接口。
             </p>
+            {view.localSearches.map((w) => (
+              <p className="caption" key={w.label}>
+                {w.label}。仅用于本次完整覆盖的局部范围，原类别完整性未提升。
+              </p>
+            ))}
           </details>
           <button
             className="secondary no-print"

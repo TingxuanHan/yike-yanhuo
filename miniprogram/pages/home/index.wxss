@@ -252,3 +252,46 @@
 .siting-result {
   margin-top: 20px;
 }
+.verification-panel {
+  margin: 24rpx 0;
+  border-top: 1px solid #cbded4;
+  border-bottom: 1px solid #cbded4;
+}
+.verification-task {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #cbded4;
+  padding: 20rpx;
+  margin: 12rpx 0;
+}
+.verification-task.selected {
+  border-color: #146c5d;
+  background: #eaf3ee;
+}
+.verification-plan,
+.siting-conclusion {
+  padding: 18rpx 20rpx;
+  background: #eaf3ee;
+  border-left: 6rpx solid #146c5d;
+  margin: 20rpx 0;
+}
+.siting-headline {
+  color: #146c5d;
+}
+.siting-conclusion {
+  display: block;
+  line-height: 1.65;
+}
+.siting-group > .place-name {
+  display: block;
+  width: 100%;
+  margin-bottom: 8rpx;
+}
+.siting-group .siting-plan {
+  display: inline-block;
+  width: auto;
+  margin-right: 12rpx;
+  min-height: 88rpx;
+}

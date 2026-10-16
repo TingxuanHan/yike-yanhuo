@@ -251,7 +251,33 @@ export function sitingView(
         remainingUnknown: base.regions.unknown,
       }
     : current.regions;
+  const singles = comparison.scenarios.filter((s) => s.siteCount === 1);
+  const bestSingle = singles[0];
+  const closeSingles = singles.filter(
+    (s) => bestSingle.squareMeters.gapGain - s.squareMeters.gapGain < 1000,
+  );
+  const headline =
+    base.squareMeters.missing === 0
+      ? "现有资料没有可证实的原缺口"
+      : closeSingles.length > 1
+        ? "多个单点方案的补足面积接近"
+        : singles.length > 1
+          ? `只增加一处，方案 ${bestSingle.label} 补足原缺口较多`
+          : `方案 ${bestSingle.label} 可作为进一步核实的候选`;
+  const previousBest = comparison.scenarios.find(
+    (s) => s.siteCount === current.siteCount - 1,
+  );
+  const extra = previousBest
+    ? current.squareMeters.gapGain - previousBest.squareMeters.gapGain
+    : 0;
+  const additional = previousBest
+    ? `方案 ${current.label} 比当前最佳${current.siteCount === 2 ? "单点" : "两点"}方案${extra < 0 ? "少" : "额外"}补足原缺口约${areaLabel(Math.abs(extra))} km²。`
+    : `方案 ${current.label} 假设补足原缺口约${areaLabel(current.squareMeters.gapGain)} km²。`;
   return {
+    headline,
+    additional,
+    supporting:
+      "只比较所选位置与相同新增数量；面积相近不代表现实选址等价，入口和用地仍需核实。",
     title: before ? "补点前" : `假设补点后 · ${current.label}`,
     currentId: current.id,
     categoryLabel: CATEGORIES.find((c) => c.id === comparison.category)!.label,
@@ -279,6 +305,14 @@ export function sitingView(
           })),
       })),
     rows: SITING_STATES.map((state) => ({
+      state,
+      label: SITING_LABELS[state],
+      color: SITING_COLORS[state],
+      area: areaLabel(polygonArea(regions[state])),
+    })),
+    mainRows: (
+      ["gapGain", "remainingGap", "unknownAssumption"] as SitingState[]
+    ).map((state) => ({
       state,
       label: SITING_LABELS[state],
       color: SITING_COLORS[state],
@@ -351,6 +385,6 @@ export function sitingSummary(
         `${s.label}：假设补足原缺口约${areaLabel(s.squareMeters.gapGain)}km²；待核查区假设覆盖约${areaLabel(s.squareMeters.unknownAssumption)}km²；原缺口未计入补足约${areaLabel(s.squareMeters.remainingGap)}km²。`,
     ),
     "组合方案已扣除重复覆盖。待核查区的假设覆盖不计入缺口改善；面积不代表受益人数或到店步行距离。",
-    `原始报告：${result.generatedAt}；${comparison.version}`,
+    `报告生成：${result.generatedAt}；基础记录：${result.baseGeneratedAt ?? result.generatedAt}；${comparison.version}`,
   ].join("\n");
 }

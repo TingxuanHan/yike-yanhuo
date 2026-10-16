@@ -14,13 +14,14 @@ import { contoursFromTriangles, polygonArea } from "./contours.js";
 import { distance, pointKey } from "./geo.js";
 import { usableFacility } from "../shared/facility-review.js";
 import { estimateJourney } from "../shared/journey.js";
+import { parseResultFile } from "../shared/result-file.js";
+import { utf8Bytes } from "../shared/life.js";
 import type {
   AnalysisResult,
   Provider,
   XY,
   Triangle,
   Travel,
-  Usage,
 } from "../shared/types.js";
 
 export interface VerificationTask {
@@ -42,6 +43,9 @@ export interface VerificationPlan {
   maxRouteUnits: number;
   maxSearchUnits: number;
 }
+export const VERIFICATION_BACKUP_KEY = "yike-last-verification";
+// Reports contain JSON values only; this copy works in WeChat's JS runtime too.
+const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
 export function reportTriangles(result: AnalysisResult): Triangle[] {
   const { radiusMeters: radius, coarseStepMeters: step } = result.parameters;
@@ -96,9 +100,20 @@ export function verificationTasks(
     if (!f.travel || f.travel.status === "unknown")
       destinations.set(pointKey(f.point), f.point);
   for (const [key, point] of destinations) {
+    const dx = Math.round(point[0] - result.center.point[0]),
+      dy = Math.round(point[1] - result.center.point[1]);
+    const direction =
+      [
+        dx ? `${dx < 0 ? "西" : "东"}${Math.abs(dx)}米` : "",
+        dy ? `${dy < 0 ? "南" : "北"}${Math.abs(dy)}米` : "",
+      ]
+        .filter(Boolean)
+        .join("、") || "出发点";
     const affected = triangles.filter(
       (t) =>
-        t.some((s) => pointKey(s.point) === key) &&
+        t.some(
+          (s) => s.travel.status === "unknown" && pointKey(s.point) === key,
+        ) &&
         t.some(
           (s) => s.travel.status === "ok" && s.travel.seconds <= minutes * 60,
         ),
@@ -117,7 +132,7 @@ export function verificationTasks(
       id: `route:${key}`,
       kind: "route",
       point: [...point],
-      title: `补取步行测时 · ${Math.round(point[0] - result.center.point[0])}, ${Math.round(point[1] - result.center.point[1])}米`,
+      title: `补取步行测时 · ${direction}`,
       reason: knownAt(result, point)
         ? "同一位置已有有效测时，可直接复用。"
         : "该位置缺少有效步行测时，只读取这一个目的地。",
@@ -231,6 +246,23 @@ export function verificationPlan(
     12
   )
     throw new Error("局部补查记录最多12处，请保留报告后重新体检。");
+  if (
+    result.warnings.length > 97 ||
+    result.facilities.length +
+      10 * searchPages * tasks.filter((t) => t.kind === "search").length >
+      1000
+  )
+    throw new Error("当前报告容量不足以预留本次补查结果，请先导出并重新体检。");
+  if (
+    result.facilities.some(
+      (f) =>
+        (f.evidence?.length ?? 0) +
+          tasks.filter((t) => t.kind === "search" && t.category === f.category)
+            .length >
+        30,
+    )
+  )
+    throw new Error("本次范围内有设施达到核查记录容量，请先备份整理后再补查。");
   return {
     category,
     minutes,
@@ -288,8 +320,8 @@ export async function executeVerification(
   signal?: AbortSignal,
   progress?: (done: number, total: number) => void,
 ): Promise<AnalysisResult> {
-  const original = structuredClone(source);
-  const result = structuredClone(source);
+  const original = copy(source);
+  const result = copy(source);
   if (provider.mode !== source.mode)
     throw new Error("补查服务与报告来源不一致。");
   const receipts: NonNullable<AnalysisResult["verification"]>["receipts"] = [];
@@ -317,13 +349,13 @@ export async function executeVerification(
       const key = pointKey(task.point);
       for (const s of result.samples)
         if (pointKey(s.point) === key && s.travel.status === "unknown")
-          s.travel = structuredClone(value);
+          s.travel = copy(value);
       for (const f of result.facilities)
         if (
           pointKey(f.point) === key &&
           (!f.travel || f.travel.status === "unknown")
         )
-          f.travel = structuredClone(value);
+          f.travel = copy(value);
       receipts.push({
         taskId: task.id,
         outcome: value.status === "ok" ? "updated" : "unchanged",
@@ -341,7 +373,31 @@ export async function executeVerification(
       );
       signal?.throwIfAborted();
       let count = 0,
+        disputes = 0,
         consistent = true;
+      const flagged = new Set<string>();
+      const flagPosition = (
+        existing: (typeof result.facilities)[number],
+        point: XY,
+      ) => {
+        if (distance(existing.point, point) <= 5) return;
+        consistent = false;
+        if (flagged.has(existing.id)) return;
+        flagged.add(existing.id);
+        disputes++;
+        existing.evidence ??= [];
+        existing.evidence.push({
+          source: source.mode === "demo" ? "模拟局部检索" : "百度地图局部检索",
+          recordId: task.id,
+          checkedAt: identity.completedAt ?? new Date().toISOString(),
+          status: "uncertain",
+          basis: `本次返回坐标与历史记录相差约${Math.round(distance(existing.point, point))}米；保留原坐标，需核实来源误差或入口变动。5米仅为复核触发阈值。`,
+        });
+        result.complete[existing.category] = false;
+        warn(
+          "局部补查：发现设施位置差异，保留历史坐标并增加待核实记录；未经核实不参与覆盖统计。",
+        );
+      };
       for (const p of found.facilities.filter(
         (f) => f.category === task.category,
       )) {
@@ -355,22 +411,18 @@ export async function executeVerification(
             (f.id === p.id || (f.uid && p.uid && f.uid === p.uid)),
         );
         if (same) {
-          if (distance(same.point, p.point) > 5) {
-            consistent = false;
-            warn(
-              "局部补查：同一设施的位置发生变化，保留历史位置并将本次检索完整性降为待核实。",
-            );
-          }
+          flagPosition(same, p.point);
           continue;
         }
         const near = result.facilities.find(
           (f) =>
             f.category === p.category &&
+            (!f.uid || !p.uid) &&
             f.name === p.name &&
             distance(f.point, p.point) <= 30,
         );
         if (near) {
-          if (distance(near.point, p.point) > 5) consistent = false;
+          flagPosition(near, p.point);
           continue;
         }
         if (result.facilities.some((f) => f.id === p.id))
@@ -395,14 +447,18 @@ export async function executeVerification(
       const complete = result.localSearches.at(-1)!.complete;
       receipts.push({
         taskId: task.id,
-        outcome: count || complete ? "updated" : "unchanged",
-        message: `新增${count}处设施；${complete ? "本次局部返回已取完，仅完整覆盖的核查范围可用于缺口判断。" : "本次局部返回仍不完整，空白继续保留待核查。"}`,
+        outcome: count || complete || disputes ? "updated" : "unchanged",
+        message: `新增${count}处设施；${disputes ? `${disputes}处位置差异待核实；` : ""}${complete ? "本次局部返回已取完，仅完整覆盖的核查范围可用于缺口判断。" : "本次局部返回仍不完整，空白继续保留待核查。"}`,
       });
     } else throw new Error("现场核实任务不能由地图接口自动完成。");
   }
   signal?.throwIfAborted();
   const completedAt = identity.completedAt ?? new Date().toISOString();
   result.id = identity.id;
+  result.baseGeneratedAt =
+    source.baseGeneratedAt ??
+    source.derivedFrom?.sourceGeneratedAt ??
+    source.generatedAt;
   result.generatedAt = completedAt;
   result.usage = { ...provider.usage };
   result.elapsedMs = 0;
@@ -471,12 +527,62 @@ export function verificationDiff(
   };
 }
 
+export function verificationEvidence(
+  before: AnalysisResult,
+  after: AnalysisResult,
+  category: GapCategory,
+  minutes: number,
+) {
+  if (
+    before.id === after.id ||
+    after.verification?.sourceId !== before.id ||
+    after.verification.sourceGeneratedAt !== before.generatedAt
+  )
+    throw new Error("补查结果与原报告不匹配，请保留各自报告后核对。");
+  return {
+    schema: "yike-targeted-verification-v1",
+    evidence:
+      before.mode === "demo" ? "simulation" : "api-and-historical-report",
+    before,
+    after,
+    diff: verificationDiff(before, after, category, minutes),
+    limitations: [
+      "只更新明确选择的任务，其余资料保留原时间与来源。",
+      "局部检索完整不等于整个类别完整，也不等于现场没有未收录设施。",
+      "新设施本轮不自动追加步行测时。",
+      "两个范围面积可能不同；面积变化不是实地精度或受益人数。",
+    ],
+  };
+}
+
+export function parseVerificationEvidence(raw: string) {
+  if (utf8Bytes(raw) > 4_100_000)
+    throw new Error("补查备份超过容量，请分别打开原始报告。");
+  const value = JSON.parse(raw);
+  if (value?.schema !== "yike-targeted-verification-v1" || !value.diff)
+    throw new Error("补查备份格式无效。");
+  const before = parseResultFile(JSON.stringify(value.before)),
+    after = parseResultFile(JSON.stringify(value.after));
+  if (
+    !GAP_CATEGORIES.includes(value.diff.category) ||
+    !before.contours.some((c) => c.minutes === value.diff.minutes) ||
+    !after.contours.some((c) => c.minutes === value.diff.minutes)
+  )
+    throw new Error("补查备份类别或时长无效。");
+  return verificationEvidence(
+    before,
+    after,
+    value.diff.category,
+    value.diff.minutes,
+  );
+}
+
 export function verificationDrill(
   source: AnalysisResult,
   category: GapCategory,
 ): AnalysisResult {
   if (source.mode !== "demo") throw new Error("缺测演练只适用于模拟街区。");
-  const result = structuredClone(source);
+  const result = copy(source);
   const target = result.samples
     .filter(
       (s) =>

@@ -59,7 +59,7 @@
 }
 .siting-plans {
   padding: 0;
-  margin: 18px 0;
+  margin: 10px 0;
   border: 0;
   min-width: 0;
 }
@@ -68,17 +68,26 @@
   margin-bottom: 8px;
 }
 .siting-plan {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 6px 12px;
+  display: inline-block;
+  min-height: 44px;
   text-align: left;
   border: 1px solid #cbded4;
   background: #fff;
   color: #243f48;
   padding: 12px;
-  margin: 6px 0;
+  margin: 4px 8px 4px 0;
   border-radius: 8px;
+}
+.siting-headline {
+  color: #146c5d;
+  font-size: 1.16rem;
+  line-height: 1.5;
+}
+.siting-conclusion {
+  padding: 10px 12px;
+  background: #eaf3ee;
+  border-left: 4px solid #146c5d;
+  font-weight: 600;
 }
 .siting-plan[aria-pressed="true"] {
   border-color: #146c5d;

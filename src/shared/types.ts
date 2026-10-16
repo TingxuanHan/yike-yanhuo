@@ -134,6 +134,7 @@ export interface AnalysisResult {
   id: string;
   mode: Mode;
   generatedAt: string;
+  baseGeneratedAt?: string;
   center: Center;
   contours: Contour[];
   samples: Sample[];

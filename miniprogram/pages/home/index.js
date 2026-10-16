@@ -12,6 +12,7 @@ const { cleanJourney } = require("../../shared/journey.js");
 const experience = require("../../shared/experience.js");
 const example = require("../../shared/demo.js");
 const config = require("../../config.js");
+const verificationController = require("../../services/verification.js");
 const blankForm = () => ({
   name: "",
   address: "",
@@ -70,6 +71,20 @@ Page({
     coverageAreaError: "",
     showCoverageBasis: false,
     showSiting: false,
+    showSitingBasis: false,
+    showVerification: false,
+    verificationMore: false,
+    verificationBusy: false,
+    verificationTasks: [],
+    verificationFields: [],
+    verificationSelected: 0,
+    verificationPlan: null,
+    verificationReady: false,
+    verificationCanRestore: false,
+    verificationDiff: null,
+    verificationReceipts: [],
+    verificationError: "",
+    verificationStatus: "",
     sitingOptions: [],
     sitingSelections: [0, 0, 0],
     sitingView: null,
@@ -102,6 +117,7 @@ Page({
   },
   onLoad() {
     this.alive = true;
+    this.verification = verificationController(this);
     let book = emptyBook(),
       error = "";
     try {
@@ -174,6 +190,7 @@ Page({
     this.releasePrivacy = platform.watchPrivacy?.(this);
   },
   onHide() {
+    if (this.data.verificationBusy) this.verification?.stop(true);
     this.releasePrivacy?.();
     this.releasePrivacy = null;
   },
@@ -191,6 +208,7 @@ Page({
     }
   },
   onUnload() {
+    this.verification?.dispose();
     this.releasePrivacy?.();
     this.alive = false;
     clearTimeout(this.pollTimer);
@@ -491,6 +509,42 @@ Page({
     this.updateSitingOptions();
     this.drawSiting();
   },
+  sitingBasisToggle() {
+    this.setData({ showSitingBasis: !this.data.showSitingBasis });
+  },
+  verificationToggle() {
+    this.verification?.toggle();
+  },
+  verificationChoose(e) {
+    this.verification?.choose(e);
+  },
+  verificationMore() {
+    this.setData({ verificationMore: !this.data.verificationMore });
+  },
+  verificationDrill() {
+    this.verification?.drill();
+  },
+  verificationPreview() {
+    return this.verification?.preview();
+  },
+  verificationRun() {
+    return this.verification?.run();
+  },
+  verificationStop() {
+    this.verification?.stop(true);
+  },
+  verificationAdopt() {
+    this.verification?.adopt();
+  },
+  verificationRestore() {
+    this.verification?.restore();
+  },
+  verificationReopen() {
+    this.verification?.reopen();
+  },
+  verificationCopy() {
+    return this.verification?.copy();
+  },
   updateSitingOptions() {
     const context = `${this.data.coverageCategory}:${this.data.minutes}`;
     if (
@@ -748,6 +802,7 @@ Page({
     if (point) this.setData({ coverageIndex: index, coverageSelected: point });
   },
   updateCoverage() {
+    if (this.data.result) this.verification?.sync();
     if (!this.data.result || !this.data.showCoverage) return;
     this.updateSitingOptions();
     const view = experience.coverageView(
@@ -811,7 +866,8 @@ Page({
             : "百度API及已有核查记录，未现场验证。",
           ...a.rows.map((r) => `${r.label}：约${r.area}km²（${r.percent}%）`),
           "面积不是人口覆盖率或到店步行距离；候选缺口需现场核查。",
-          `原始记录：${this.data.result.generatedAt}`,
+          `报告生成：${this.data.result.generatedAt}；基础记录：${this.data.result.baseGeneratedAt ?? this.data.result.generatedAt}`,
+          ...(a.localSearches ?? []).map((w) => w.label),
         ].join("\n"),
       );
       this.setData({ status: "分区摘要已复制，包含数据来源与核查口径。" });
@@ -1286,6 +1342,7 @@ Page({
     }
   },
   cancelAnalysis() {
+    if (this.data.verificationBusy) return this.verification?.stop(true);
     if (this.jobId)
       void api
         .request(`/api/analyses/${this.jobId}`, "DELETE")

@@ -135,26 +135,16 @@ export function FacilitySitingPanel({
             <p className="eyebrow">
               {view.minutes}分钟范围 · {view.categoryLabel} · 规划假设
             </p>
-            <h4>原候选缺口约{view.baselineGap} km²</h4>
+            <h4 className="siting-headline">{view.headline}</h4>
+            <p className="caption">
+              原候选缺口约{view.baselineGap} km²。{view.supporting}
+            </p>
             {view.noProvenGap && (
               <p className="notice">
                 当前资料没有可证实的候选缺口。待核查区内的假设覆盖不计入缺口改善，也不证明现实没有缺口。
               </p>
             )}
-            <p className="caption">
-              按相同新增数量比较，优先显示补足原缺口较多的方案。只比较你选的位置，不代表最优选址；小面积差异仍需现场核实。
-            </p>
-            <ul className="siting-candidates">
-              {view.candidates.map((site) => (
-                <li key={site.id}>
-                  <strong>{site.letter}</strong>
-                  <span>
-                    {site.name}
-                    <small>{site.coordinates}</small>
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {!before && <p className="siting-conclusion">{view.additional}</p>}
             {view.groups.map((group) => (
               <fieldset className="siting-plans" key={group.count}>
                 <legend>{group.label}</legend>
@@ -162,6 +152,7 @@ export function FacilitySitingPanel({
                   <button
                     key={plan.id}
                     className="siting-plan"
+                    title={`补足原缺口约${plan.gapGain} km²；待核查区假设覆盖约${plan.unknownAssumption} km²`}
                     aria-pressed={selected === plan.id}
                     onClick={() => {
                       setSelected(plan.id);
@@ -169,12 +160,6 @@ export function FacilitySitingPanel({
                     }}
                   >
                     <strong>方案 {plan.label}</strong>
-                    <span>
-                      补足原缺口 <b>约{plan.gapGain} km²</b>
-                    </span>
-                    <small>
-                      待核查区假设覆盖约{plan.unknownAssumption} km²
-                    </small>
                   </button>
                 ))}
               </fieldset>
@@ -258,7 +243,7 @@ export function FacilitySitingPanel({
               设施直线覆盖示意，不作导航；字母对应所选候选位置。
             </p>
             <dl className="siting-area-rows">
-              {view.rows.map((row) => (
+              {view.mainRows.map((row) => (
                 <div key={row.state}>
                   <dt>
                     <i style={{ background: row.color }} />
@@ -281,6 +266,32 @@ export function FacilitySitingPanel({
             )}
             <details>
               <summary>比较依据与限制</summary>
+              <ul className="siting-candidates">
+                {view.candidates.map((site) => (
+                  <li key={site.id}>
+                    <strong>{site.letter}</strong>
+                    <span>
+                      {site.name}
+                      <small>{site.coordinates}</small>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <dl className="siting-area-rows">
+                {view.rows
+                  .filter(
+                    (r) => !view.mainRows.some((m) => m.state === r.state),
+                  )
+                  .map((row) => (
+                    <div key={row.state}>
+                      <dt>
+                        <i style={{ background: row.color }} />
+                        {row.label}
+                      </dt>
+                      <dd>约{row.area} km²</dd>
+                    </div>
+                  ))}
+              </dl>
               <p>
                 范围与原报告相同，按周边{view.distanceMeters}
                 米直线距离计算。距离边界保守保留；“未计入补足”不等于已证明新增设施无法覆盖。面积不是受益人数或到店步行距离。
@@ -289,7 +300,10 @@ export function FacilitySitingPanel({
                 {result.mode === "demo"
                   ? "人工构造数据"
                   : "百度API及已有核查记录，未现场验证"}{" "}
-                · 原始记录{new Date(result.generatedAt).toLocaleString("zh-CN")}
+                · 基础记录
+                {new Date(
+                  result.baseGeneratedAt ?? result.generatedAt,
+                ).toLocaleString("zh-CN")}
                 。原报告和公共设施未被改动。
               </p>
             </details>

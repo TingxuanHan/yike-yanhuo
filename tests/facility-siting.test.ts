@@ -28,6 +28,31 @@ const sites = [
   { id: "east", name: "东侧假设", point: [1100, 500] as XY },
 ];
 
+test("siting explanations compare equal-count plans, expose marginal gains and refuse a recommendation without proven gaps", () => {
+  const source = structuredClone(cases[0]),
+    comparison = compareFacilitySites(source, "market", 15, sites);
+  const selected = comparison.scenarios.find((s) => s.id === "ABC")!,
+    bestPair = comparison.scenarios.find((s) => s.siteCount === 2)!;
+  const view = sitingView(source, comparison, "ABC");
+  assert.match(view.additional, /最佳两点方案/);
+  assert.equal(view.mainRows.length, 3);
+  const expected =
+    selected.squareMeters.gapGain - bestPair.squareMeters.gapGain;
+  assert.ok(expected >= -0.001);
+  assert.ok(
+    view.additional.includes(
+      expected < 1000 ? "<0.001" : (expected / 1e6).toFixed(3),
+    ) || Math.abs(expected) < 0.001,
+  );
+  source.complete.market = false;
+  const unknown = sitingView(
+    source,
+    compareFacilitySites(source, "market", 15, sites),
+  );
+  assert.match(unknown.headline, /没有可证实/);
+  assert.ok(!unknown.headline.includes("较多"));
+});
+
 test("siting compares all seven bounded plans within equal counts and subtracts overlapping gap gains", () => {
   const source = structuredClone(cases[0]);
   const original = JSON.stringify(source);

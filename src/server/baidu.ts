@@ -415,15 +415,21 @@ export class BaiduProvider implements Provider {
             }[])
           : [];
         if (!Array.isArray(reply.results)) invalidCount++;
+        if (results.length > 10) invalidCount++;
         total =
           typeof reply.total === "number" &&
-          Number.isFinite(reply.total) &&
+          Number.isInteger(reply.total) &&
           reply.total >= 0
             ? reply.total
             : undefined;
         rawCount += results.length;
-        for (const p of results) {
-          if (!p.name || !validGeo(p.location)) {
+        for (const p of results.slice(0, 10)) {
+          if (
+            typeof p.name !== "string" ||
+            !p.name.trim() ||
+            p.name.length > 200 ||
+            !validGeo(p.location)
+          ) {
             invalidCount++;
             continue;
           }

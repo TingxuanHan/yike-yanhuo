@@ -24,7 +24,8 @@
     "benchmark:demo": "node --import tsx scripts/benchmark.ts --demo",
     "benchmark:walk": "node --import tsx scripts/benchmark-walk-calibration.ts",
     "benchmark:coverage": "node --import tsx scripts/benchmark-coverage-area.ts",
-    "benchmark:siting": "node --import tsx scripts/benchmark-facility-siting.ts"
+    "benchmark:siting": "node --import tsx scripts/benchmark-facility-siting.ts",
+    "verify:repair": "node --import tsx scripts/replay-verification.ts"
   },
   "dependencies": {
     "react": "19.3.0",

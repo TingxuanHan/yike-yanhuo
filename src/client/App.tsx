@@ -78,6 +78,8 @@ export function App() {
     );
   };
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [verificationBefore, setVerificationBefore] =
+    useState<AnalysisResult | null>(null);
   const [replay, setReplay] = useState(false);
   const [liveMap, setLiveMap] = useState(false);
   const [selected, setSelected] = useState<Facility | null>(null);
@@ -121,6 +123,7 @@ export function App() {
   }, [view]);
   const clearResult = () => {
     setResult(null);
+    setVerificationBefore(null);
     setReplay(false);
     setLiveMap(false);
     setSelected(null);
@@ -129,6 +132,7 @@ export function App() {
     setShowGaps(false);
   };
   const openResult = (value: AnalysisResult) => {
+    setVerificationBefore(null);
     setResult(value);
     setMode(value.mode);
     setPoint(value.center.point);
@@ -1083,12 +1087,29 @@ export function App() {
                       / ? 仍可查看采样点依据。
                     </p>
                     <CoverageInspector
-                      key={`${result.id}:${gapCategory}:${minutes}`}
+                      key={`${gapCategory}:${minutes}`}
                       result={result}
                       category={gapCategory}
                       minutes={minutes}
                       selected={gapPoint}
                       onSelect={setGapPoint}
+                      previous={verificationBefore}
+                      onVerification={(next, before) => {
+                        setVerificationBefore(before);
+                        setResult(next);
+                        setReplay(true);
+                        setSelected(null);
+                        setGapPoint(null);
+                        setMode(next.mode);
+                        setPoint(next.center.point);
+                        setGeo(next.center.geo ?? null);
+                        setLabel(next.center.label);
+                        setMinutes((value) =>
+                          next.contours.some((c) => c.minutes === value)
+                            ? value
+                            : (next.scenario?.preferences.minutes ?? 15),
+                        );
+                      }}
                     />
                     <details className="coverage-reminders">
                       <summary>核查资料的复核提醒</summary>

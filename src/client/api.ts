@@ -18,7 +18,10 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
       throw new Error(
         path === "/api/outings/walking-guide"
           ? "步行指引读取超时，已保存的步骤仍可查看，请稍后再试。"
-          : "协助连接超时，本机安排已保留，请刷新后重试。",
+          : path.startsWith("/api/verification") ||
+              path.startsWith("/api/analyses/")
+            ? "补查或体检状态读取超时，当前报告已保留，请核对任务状态后重试。"
+            : "协助连接超时，本机安排已保留，请刷新后重试。",
       );
     throw new Error("暂时无法连接服务，请检查服务是否启动后重试。");
   }

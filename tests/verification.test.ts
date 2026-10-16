@@ -13,6 +13,8 @@ import {
   verificationTasks,
   verificationPlan,
   executeVerification,
+  verificationEvidence,
+  parseVerificationEvidence,
 } from "../src/core/verification.js";
 import { parseResultFile } from "../src/shared/result-file.js";
 import { personalize } from "../src/core/personalize.js";
@@ -21,6 +23,7 @@ import { estimateJourney } from "../src/shared/journey.js";
 import { createApp } from "../src/server/app.js";
 import { BaiduGateway } from "../src/server/baidu.js";
 import { QuotaLedger } from "../src/server/quota.js";
+import { usableFacility } from "../src/shared/facility-review.js";
 import type { AnalysisResult, Provider, Job } from "../src/shared/types.js";
 
 const originalPromise = analyze(new DemoProvider(), DEMO_CENTERS[0]);
@@ -29,6 +32,63 @@ const identity = {
   id: "verification-fixture",
   completedAt: "2026-10-16T05:00:00.000Z",
 };
+
+test("position disagreements remain unusable, base timestamps survive later repair, and backups reject unrelated reports", async () => {
+  const source = verificationDrill(await base(), "school"),
+    task = verificationTasks(source, "school", 15).find(
+      (t) => t.kind === "search",
+    )!;
+  const original = JSON.stringify(source),
+    facility = source.facilities.find((f) => f.category === "school")!,
+    provider = new DemoProvider();
+  const originalSearch = provider.search.bind(provider);
+  provider.search = async (...args) => {
+    const result = await originalSearch(...args);
+    return {
+      ...result,
+      facilities: [{ ...facility, point: [task.point[0] + 10, task.point[1]] }],
+    };
+  };
+  const next = await executeVerification(
+    source,
+    verificationPlan(source, "school", 15, [task.id]),
+    provider,
+    identity,
+  );
+  assert.equal(next.localSearches?.[0].complete, false);
+  assert.equal(next.baseGeneratedAt, source.generatedAt);
+  assert.equal(
+    usableFacility(next.facilities.find((f) => f.id === facility.id)!),
+    false,
+  );
+  assert.equal(JSON.stringify(source), original);
+  const saved = verificationEvidence(source, next, "school", 15);
+  const tampered = { ...saved, diff: { ...saved.diff, newFacilities: 999 } };
+  assert.notEqual(
+    parseVerificationEvidence(JSON.stringify(tampered)).diff.newFacilities,
+    999,
+  );
+  assert.throws(
+    () =>
+      parseVerificationEvidence(
+        JSON.stringify({ ...saved, before: { ...source, id: "foreign" } }),
+      ),
+    /不匹配/,
+  );
+  const further = verificationTasks(next, "school", 15).find(
+    (t) => t.kind === "search",
+  )!;
+  const last = await executeVerification(
+    next,
+    verificationPlan(next, "school", 15, [further.id]),
+    new DemoProvider(),
+    { ...identity, id: "second-repair" },
+  );
+  assert.equal(last.baseGeneratedAt, source.generatedAt);
+  const full = structuredClone(source);
+  full.warnings = Array(98).fill("constructed");
+  assert.throws(() => verificationPlan(full, "school", 15, [task.id]), /容量/);
+});
 
 test("local negative evidence is bounded by a complete individual search disk, preserves unknown and has an independent distance oracle", async () => {
   const source = await base();
@@ -122,6 +182,7 @@ test("selected repair uses one route and only the selected category, retains pre
   assert.equal(next.complete.school, false);
   assert.equal(next.localSearches?.length, 1);
   assert.equal(next.verification?.sourceId, source.id);
+  assert.equal(next.baseGeneratedAt, source.generatedAt);
   assert.equal(next.verification?.receipts.length, 2);
   assert.equal(JSON.stringify(source), original);
   assert.deepEqual(
@@ -192,6 +253,7 @@ test("repair applies personal distance time once, reuses valid same-point travel
     (t) => t.kind === "route" && t.point.join() === point.join(),
   )!;
   assert.equal(task.routeUnits, 0);
+  assert.equal(task.potentialSquareMeters, 0);
   const provider = new DemoProvider();
   provider.route = async () => {
     throw new Error("must reuse");
@@ -296,6 +358,114 @@ async function finished(
   throw new Error("job did not finish");
 }
 
+test("public repair jobs require a session and remain isolated between paired spaces", async (t) => {
+  const invite = "constructed-verification-invite-only",
+    server = await app(t, {
+      PUBLIC_ORIGIN: "https://verify.example.invalid",
+      SPACE_INVITE_CODE: invite,
+    });
+  const source = verificationDrill(await base(), "school"),
+    id = verificationTasks(source, "school", 15).find(
+      (t) => t.kind === "route",
+    )!.id;
+  const body = {
+    result: source,
+    taskIds: [id],
+    category: "school",
+    minutes: 15,
+  };
+  assert.equal(
+    (await server.post("/api/verification/preview", body)).status,
+    401,
+  );
+  const first = await (
+      await server.post("/api/life/create", { invite, client: "mini" })
+    ).json(),
+    second = await (
+      await server.post("/api/life/create", { invite, client: "mini" })
+    ).json();
+  const a = { Authorization: `Bearer ${first.token}` },
+    b = { Authorization: `Bearer ${second.token}` };
+  const preview = await (
+    await server.post("/api/verification/preview", body, a)
+  ).json();
+  const started = await (
+    await server.post(
+      "/api/verification",
+      {
+        ...body,
+        fingerprint: preview.fingerprint,
+        requestId: "private-verify-0001",
+        confirmed: true,
+      },
+      a,
+    )
+  ).json();
+  assert.equal(
+    (await server.get(`/api/analyses/${started.id}`, b)).status,
+    404,
+  );
+  assert.equal((await finished(server, started.id, a)).status, "done");
+});
+
+test("cancelled HTTP jobs discard an upstream response that arrives after cancellation", async (t) => {
+  let release: (() => void) | undefined;
+  const gateway = new BaiduGateway({
+    ak: "test-only",
+    wait: async () => {},
+    ledger: new QuotaLedger({ route: 10, search: 10, other: 1, map: 1 }),
+    fetcher: () =>
+      new Promise<Response>((resolve) => {
+        release = () =>
+          resolve(
+            new Response(JSON.stringify({ status: 0, total: 0, results: [] })),
+          );
+      }),
+  });
+  const server = await app(t, { BAIDU_SERVER_AK: "test-only" }, gateway),
+    source = verificationDrill(await base(), "school");
+  source.mode = "baidu";
+  source.center.geo = { lng: 121.5, lat: 31.2 };
+  const task = verificationTasks(source, "school", 15).find(
+      (v) => v.kind === "search",
+    )!,
+    body = {
+      result: source,
+      taskIds: [task.id],
+      category: "school",
+      minutes: 15,
+    };
+  const preview = await (
+      await server.post("/api/verification/preview", body)
+    ).json(),
+    start = await (
+      await server.post("/api/verification", {
+        ...body,
+        fingerprint: preview.fingerprint,
+        confirmed: true,
+        requestId: "cancel-verification-001",
+      })
+    ).json();
+  for (let i = 0; i < 20 && !release; i++)
+    await new Promise((r) => setTimeout(r, 5));
+  assert.ok(release);
+  const jobPath = `/api/analyses/${start.id}`;
+  // DELETE belongs to the same session as GET; no partial report is published.
+  const serverBase = (await server.get("/api/health")).url.replace(
+    "/api/health",
+    "",
+  );
+  assert.equal(
+    (await fetch(serverBase + jobPath, { method: "DELETE" })).status,
+    200,
+  );
+  release!();
+  await new Promise((r) => setTimeout(r, 10));
+  const cancelled = await (await server.get(jobPath)).json();
+  assert.equal(cancelled.status, "cancelled");
+  assert.equal(cancelled.result, undefined);
+});
+
 test("HTTP preview is free, confirmation and source hash are required, and request retries are idempotent", async (t) => {
   const server = await app(t),
     source = verificationDrill(await base(), "school");
@@ -342,7 +512,7 @@ test("live-mode repair reads only one category, shares cache and quota guards, a
   const gateway = new BaiduGateway({
     ak: "test-only",
     wait: async () => {},
-    ledger: new QuotaLedger({ route: 10, search: 2, other: 1, map: 1 }),
+    ledger: new QuotaLedger({ route: 10, search: 10, other: 1, map: 1 }),
     fetcher: async (input) => {
       calls++;
       const url = new URL(String(input));
@@ -386,6 +556,17 @@ test("live-mode repair reads only one category, shares cache and quota guards, a
   assert.equal(done.status, "done");
   assert.equal(calls, 1);
   assert.equal(done.result?.complete.school, false);
+  const cachedStart = await (
+    await server.post("/api/verification", {
+      ...request,
+      requestId: "verify-live-cached",
+    })
+  ).json();
+  const cached = await finished(server, cachedStart.id);
+  assert.equal(cached.status, "done");
+  assert.equal(calls, 1);
+  assert.equal(cached.result?.usage.cacheHits, 1);
+  assert.equal(cached.result?.usage.requests, 0);
   const shortage = new BaiduGateway({
     ak: "test-only",
     ledger: new QuotaLedger({ route: 10, search: 1, other: 1, map: 1 }),

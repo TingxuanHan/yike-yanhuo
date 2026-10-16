@@ -72,6 +72,12 @@ export function parseResultFile(raw: string): AnalysisResult {
   )
     return fail();
   let vertices = 0;
+  if (
+    r.baseGeneratedAt !== undefined &&
+    (!text(r.baseGeneratedAt, 50) ||
+      !Number.isFinite(Date.parse(r.baseGeneratedAt)))
+  )
+    return fail();
   let scenario: AnalysisResult["scenario"];
   if (r.scenario !== undefined) {
     if (
@@ -256,6 +262,7 @@ export function parseResultFile(raw: string): AnalysisResult {
     id: r.id,
     mode: r.mode,
     generatedAt: r.generatedAt,
+    ...(r.baseGeneratedAt ? { baseGeneratedAt: r.baseGeneratedAt } : {}),
     center: {
       label: r.center.label,
       point: r.center.point,

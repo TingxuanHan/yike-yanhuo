@@ -26,7 +26,7 @@ test("coverage points explain evidence without changing the center or calling ma
     name!.match(/点\d+/)![0],
   );
   await expect(page.locator("#coverage-inspector")).toContainText(
-    "已取完返回结果",
+    "已取完并覆盖核查范围",
   );
   await expect(page.locator("#coverage-inspector")).toContainText("模拟街区");
   await page.getByLabel("核查类别", { exact: true }).selectOption("pharmacy");

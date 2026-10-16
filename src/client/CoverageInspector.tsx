@@ -2,6 +2,7 @@ import { coveragePoints, type GapCategory } from "../core/coverage.js";
 import { CATEGORIES, type AnalysisResult } from "../shared/types.js";
 import { CoverageAreaPanel } from "./CoverageAreaPanel.js";
 import { FacilitySitingPanel } from "./FacilitySitingPanel.js";
+import { VerificationPanel } from "./VerificationPanel.js";
 
 export function CoverageInspector({
   result,
@@ -9,12 +10,16 @@ export function CoverageInspector({
   minutes,
   selected,
   onSelect,
+  onVerification,
+  previous,
 }: {
   result: AnalysisResult;
   category: GapCategory;
   minutes: number;
   selected: string | null;
   onSelect: (id: string) => void;
+  onVerification: (value: AnalysisResult, before: AnalysisResult) => void;
+  previous?: AnalysisResult | null;
 }) {
   const points = coveragePoints(result, category, minutes);
   const active =
@@ -33,6 +38,13 @@ export function CoverageInspector({
         result={result}
         category={category}
         minutes={minutes}
+      />
+      <VerificationPanel
+        result={result}
+        category={category}
+        minutes={minutes}
+        onApply={onVerification}
+        previous={previous}
       />
       <FacilitySitingPanel
         result={result}
@@ -81,8 +93,12 @@ export function CoverageInspector({
               </dd>
             </div>
             <div>
-              <dt>本次类别结果</dt>
-              <dd>{active.complete ? "已取完返回结果" : "不完整"}</dd>
+              <dt>此点检索依据</dt>
+              <dd>
+                {active.complete && active.inSearchArea
+                  ? "已取完并覆盖核查范围"
+                  : "仍需局部补齐"}
+              </dd>
             </div>
             <div>
               <dt>周边核查范围</dt>
@@ -93,7 +109,9 @@ export function CoverageInspector({
             <div>
               <dt>原始记录时间</dt>
               <dd>
-                {new Date(result.generatedAt).toLocaleString("zh-CN", {
+                {new Date(
+                  result.baseGeneratedAt ?? result.generatedAt,
+                ).toLocaleString("zh-CN", {
                   hour12: false,
                 })}
               </dd>
