@@ -9,6 +9,7 @@ import {
 import type { GapCategory } from "../core/coverage.js";
 import type { AnalysisResult } from "../shared/types.js";
 import { downloadJson } from "./api.js";
+import { SitingConditionsPanel } from "./SitingConditionsPanel.js";
 import "./facility-siting.css";
 
 export function FacilitySitingPanel({
@@ -264,6 +265,7 @@ export function FacilitySitingPanel({
                 步行范围可能截断，只比较当前已生成的部分。
               </p>
             )}
+            <SitingConditionsPanel result={result} comparison={comparison} />
             <details>
               <summary>比较依据与限制</summary>
               <ul className="siting-candidates">

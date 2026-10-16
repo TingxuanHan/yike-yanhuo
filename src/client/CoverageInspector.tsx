@@ -3,6 +3,7 @@ import { CATEGORIES, type AnalysisResult } from "../shared/types.js";
 import { CoverageAreaPanel } from "./CoverageAreaPanel.js";
 import { FacilitySitingPanel } from "./FacilitySitingPanel.js";
 import { VerificationPanel } from "./VerificationPanel.js";
+import { DetourPanel } from "./DetourPanel.js";
 
 export function CoverageInspector({
   result,
@@ -46,6 +47,7 @@ export function CoverageInspector({
         onApply={onVerification}
         previous={previous}
       />
+      <DetourPanel result={result} minutes={minutes} />
       <FacilitySitingPanel
         result={result}
         category={category}

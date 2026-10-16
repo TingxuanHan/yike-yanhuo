@@ -13,6 +13,7 @@ const experience = require("../../shared/experience.js");
 const example = require("../../shared/demo.js");
 const config = require("../../config.js");
 const verificationController = require("../../services/verification.js");
+const sitingConditionsController = require("../../services/siting-conditions.js");
 const blankForm = () => ({
   name: "",
   address: "",
@@ -90,6 +91,24 @@ Page({
     sitingView: null,
     sitingError: "",
     sitingNotice: "",
+    conditionsOpen: false,
+    detourOpen: false,
+    detourBasis: false,
+    detourMore: false,
+    detourView: null,
+    detourError: "",
+    detourNotice: "",
+    conditionsMore: false,
+    conditionsBasis: false,
+    conditionsView: null,
+    conditionsError: "",
+    conditionsNotice: "",
+    conditionsFields: {
+      speedMps: "0.9",
+      departure: "09:00",
+      waitSeconds: "30",
+      crossingsPerKm: "2",
+    },
     selectedFacility: null,
     nearby: [],
     minutes: 15,
@@ -118,6 +137,7 @@ Page({
   onLoad() {
     this.alive = true;
     this.verification = verificationController(this);
+    this.sitingConditions = sitingConditionsController(this);
     let book = emptyBook(),
       error = "";
     try {
@@ -512,6 +532,62 @@ Page({
   sitingBasisToggle() {
     this.setData({ showSitingBasis: !this.data.showSitingBasis });
   },
+  conditionsToggle() {
+    this.sitingConditions?.toggle();
+  },
+  detourToggle() {
+    this.setData({ detourOpen: !this.data.detourOpen });
+    this.updateDetour();
+  },
+  detourBasisToggle() {
+    this.setData({ detourBasis: !this.data.detourBasis });
+  },
+  detourMoreToggle() {
+    this.setData({ detourMore: !this.data.detourMore });
+  },
+  updateDetour() {
+    if (!this.data.result) return;
+    try {
+      this.setData({
+        detourView: this.data.detourOpen
+          ? experience.detourView(this.data.result, this.data.minutes)
+          : null,
+        detourError: "",
+        detourNotice: "",
+      });
+    } catch (e) {
+      this.setData({ detourView: null, detourError: e.message });
+    }
+  },
+  detourCopy() {
+    return this.action(async () => {
+      this.updateDetour();
+      if (!this.data.detourView)
+        throw new Error("请先打开当前报告的绕行诊断。");
+      await platform.clipboard(
+        experience.detourSummary(this.data.result, this.data.minutes),
+      );
+      this.setData({ detourNotice: "已复制前8处线索、坐标、来源及核查口径。" });
+    });
+  },
+  conditionsMoreToggle() {
+    this.setData({ conditionsMore: !this.data.conditionsMore });
+  },
+  conditionsBasisToggle() {
+    this.setData({ conditionsBasis: !this.data.conditionsBasis });
+  },
+  conditionsField(e) {
+    this.sitingConditions?.field(e);
+  },
+  conditionsCompare() {
+    this.sitingConditions?.compare();
+  },
+  conditionsSelect(e) {
+    this.sitingConditions?.select(e);
+  },
+  conditionsCopy() {
+    return this.sitingConditions?.copy();
+  },
   verificationToggle() {
     this.verification?.toggle();
   },
@@ -555,6 +631,7 @@ Page({
     this.sitingReport = this.data.result;
     this.sitingContext = context;
     this.sitingComparison = null;
+    this.sitingConditions?.reset(true);
     try {
       const options = experience.sitingOptions(
         this.data.result,
@@ -597,8 +674,10 @@ Page({
       sitingError: "",
       sitingNotice: "",
     });
+    this.sitingConditions?.reset();
   },
   compareSites() {
+    this.sitingConditions?.reset();
     try {
       this.updateSitingOptions();
       const ids = this.data.sitingSelections.map(
@@ -658,6 +737,7 @@ Page({
       );
   },
   drawSiting() {
+    this.sitingConditions?.draw();
     if (
       this.data.tab === "nearby" &&
       !this.data.simpleMode &&
@@ -802,6 +882,7 @@ Page({
     if (point) this.setData({ coverageIndex: index, coverageSelected: point });
   },
   updateCoverage() {
+    this.updateDetour();
     if (this.data.result) this.verification?.sync();
     if (!this.data.result || !this.data.showCoverage) return;
     this.updateSitingOptions();

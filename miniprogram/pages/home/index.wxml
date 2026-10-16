@@ -261,6 +261,7 @@
             <text class="muted">按关联缺测片区粗排，范围可能重叠，不是收益承诺。局部返回不完整时仍保留待核查；入口和营业需现场确认。采用后保存最近一组前后备份，演练不写入私人记录。</text>
           </view>
         </view>
+        <include src="./detour.wxml" />
         <view class="siting-panel">
           <button class="disclosure" bindtap="sitingToggle">{{showSiting?'收起':'比较'}}设施补点方案</button>
           <view wx:if="{{showSiting}}">
@@ -294,6 +295,7 @@
               <view wx:for="{{sitingView.mainRows}}" wx:key="state" class="siting-area-row"><text><text style="color:{{item.color}}">■ </text>{{item.label}}</text><text>约{{item.area}} km²</text></view>
               <text wx:if="{{!sitingView.before}}" class="muted">组合计算已扣除重复计入的原缺口约{{sitingView.duplicateGap}} km²。待核查区假设覆盖单列，不计入已证实的缺口改善。</text>
               <text wx:if="{{sitingView.clipped}}" class="notice">步行范围可能截断，只比较当前已生成的部分。</text>
+              <include src="./siting-conditions.wxml" />
               <button class="quiet" bindtap="sitingBasisToggle">{{showSitingBasis?'收起':'查看'}}比较依据与限制</button>
               <view wx:if="{{showSitingBasis}}"><view wx:for="{{sitingView.candidates}}" wx:key="id" class="siting-candidate"><text>{{item.letter}} · {{item.name}}</text><text class="muted">{{item.coordinates}}</text></view>
                 <view wx:for="{{sitingView.rows}}" wx:key="state" class="siting-area-row"><text>{{item.label}}</text><text>约{{item.area}} km²</text></view>

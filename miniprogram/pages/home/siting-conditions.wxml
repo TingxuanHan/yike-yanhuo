@@ -1,0 +1,50 @@
+<view class="siting-conditions">
+  <button class="disclosure" bindtap="conditionsToggle">{{conditionsOpen?'收起':'换种走法，'}}方案多条件检查</button>
+  <view wx:if="{{conditionsOpen}}">
+    <text class="muted">保留相同候选位置，查看三种条件下的收益和落后幅度。</text>
+    <text class="muted">原条件、{{conditionsFields.speedMps}}米/秒与{{conditionsFields.departure}}、再假设每公里{{conditionsFields.crossingsPerKm}}处各等{{conditionsFields.waitSeconds}}秒。三组都按已有路线距离重算。</text>
+    <button class="quiet" bindtap="conditionsMoreToggle">{{conditionsMore?'收起':'调整'}}比较条件</button>
+    <view wx:if="{{conditionsMore}}">
+      <label>检查用步速（米/秒）<input type="digit" value="{{conditionsFields.speedMps}}" data-key="speedMps" bindinput="conditionsField" /></label>
+      <label>检查用出发时间<picker mode="time" value="{{conditionsFields.departure}}" data-key="departure" bindchange="conditionsField"><view class="picker">{{conditionsFields.departure}}</view></picker></label>
+      <label>检查用每公里路口数<input type="digit" value="{{conditionsFields.crossingsPerKm}}" data-key="crossingsPerKm" bindinput="conditionsField" /></label>
+      <label>检查用每处等待（秒）<input type="number" value="{{conditionsFields.waitSeconds}}" data-key="waitSeconds" bindinput="conditionsField" /></label>
+      <text class="muted">等灯为手动假设。对照时段沿用原峰谷规则；第三组改为固定等待。未启用等灯时，仅改时段不会改变范围。</text>
+    </view>
+    <button class="secondary" bindtap="conditionsCompare">检查三种条件</button>
+    <text wx:if="{{conditionsError}}" class="error">{{conditionsError}}</text>
+    <view wx:if="{{conditionsView}}" class="siting-conditions-result">
+      <text class="eyebrow">{{conditionsView.sourceLabel}}</text>
+      <text class="heading siting-headline">{{conditionsView.headline}}</text>
+      <text class="muted">最大落后面积：在各条件内先与同数量最好方案比较，再看差距最大的一次。数值越小，表示这几组条件下的取舍越小。</text>
+      <text wx:if="{{conditionsView.changedWinner}}" class="notice">首选随条件改变，单看一组可能遗漏取舍。</text>
+      <view wx:for="{{conditionsView.groups}}" wx:for-item="group" wx:key="count" class="siting-group">
+        <text class="place-name">{{group.label}}</text>
+        <button wx:for="{{group.plans}}" wx:key="id" data-id="{{item.id}}" bindtap="conditionsSelect" class="siting-plan {{conditionsView.currentId===item.id?'selected':''}}">检查方案 {{item.label}}{{conditionsView.currentId===item.id?' · 已选':''}}</button>
+      </view>
+      <text class="siting-conclusion">方案 {{conditionsView.label}}：三组都补足约{{conditionsView.stableGain}} km²；最大落后约{{conditionsView.maxRegret}} km²。</text>
+      <canvas canvas-id="conditions-sketch" id="conditions-sketch" class="coverage-area-sketch" />
+      <text class="muted">蓝色：三组都计入；橙色：部分条件计入；灰底：三组范围并集。不是导航路线。{{conditionsView.hasHoles?'含空洞分区只画边线。':''}}</text>
+      <view class="siting-area-row"><text>三组都补足的同一片区域</text><text>约{{conditionsView.stableGain}} km²</text></view>
+      <view class="siting-area-row"><text>仅部分条件计入补足</text><text>约{{conditionsView.variableGain}} km²</text></view>
+      <view class="siting-area-row"><text>单组最少补足</text><text>约{{conditionsView.worstGain}} km²</text></view>
+      <text class="muted">最大落后发生在：{{conditionsView.worstConditions}}。</text>
+      <text wx:if="{{conditionsView.clipped}}" class="notice">部分条件触及采样边界，只比较现有数据覆盖的部分。</text>
+      <text wx:if="{{conditionsView.emptyConditions}}" class="notice">{{conditionsView.emptyConditions}}没有可比较范围，该组收益记为0。</text>
+      <text wx:if="{{conditionsView.distinctConditions < 3}}" class="muted">有设置重复，实际只有{{conditionsView.distinctConditions}}组不同参数；重复条件不加权。</text>
+      <button class="quiet" bindtap="conditionsBasisToggle">{{conditionsBasis?'收起':'查看'}}逐组数值与计算口径</button>
+      <view wx:if="{{conditionsBasis}}">
+        <view wx:for="{{conditionsView.conditions}}" wx:key="id" class="siting-condition-row">
+          <text class="place-name">{{item.label}}</text><text class="muted">{{item.description}}</text>
+          <text>补足约{{item.gain}} km² · 落后约{{item.regret}} km²</text>
+          <text class="muted">分析范围{{item.range}} km²；原缺口{{item.gap}} km²；待核查{{item.unknown}} km²。未知区假设覆盖{{item.unknownGain}} km²，不计收益。</text>
+        </view>
+        <text class="muted">只在所选位置、同一新增数量内比较；不是全局最优。三组都补足取空间交集，未采样区不外推。</text>
+        <text class="muted">三种手动假设，不是概率、实时信号或通行保证。设施仍按直线距离核查；步速仅改变从出发点可达的分析范围，未计算每位居民到店的路程。</text>
+        <text class="muted">相差不足0.001 km²时提示接近，不代表现场精度或统计等价。入口、用地与营业仍需核实。原报告和私人偏好不变。</text>
+      </view>
+      <button class="secondary" bindtap="conditionsCopy">复制多条件检查摘要</button>
+      <text wx:if="{{conditionsNotice}}" class="notice">{{conditionsNotice}}</text>
+    </view>
+  </view>
+</view>

@@ -1,4 +1,11 @@
 import { personalize } from "../core/personalize.js";
+export { detourView, detourSummary } from "../core/detour-audit.js";
+export {
+  compareSitingConditions,
+  sitingConditionDefaults,
+  sitingConditionsView,
+  sitingConditionsSummary,
+} from "../core/siting-conditions.js";
 import { walkingTimeBands } from "../core/time-bands.js";
 export { coverageAreaView } from "../core/coverage-area.js";
 export {

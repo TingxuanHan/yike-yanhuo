@@ -148,6 +148,12 @@ test("recorded browser audio is held locally until send, then editable text is c
           dest = audio.createMediaStreamDestination();
         osc.connect(dest);
         osc.start();
+        await audio.resume();
+        (window as any).recordingFixture = {
+          audio,
+          osc,
+          startedAt: audio.currentTime,
+        };
         return dest.stream;
       },
     });
@@ -158,11 +164,23 @@ test("recorded browser audio is held locally until send, then editable text is c
   await expect(
     page.getByRole("button", { name: "结束录音", exact: true }),
   ).toBeVisible();
-  await page.waitForTimeout(400);
+  // Wait for rendered audio, not wall time: a delayed/suspended audio clock
+  // can otherwise produce an empty recording on a busy test worker.
+  await page.waitForFunction(() => {
+    const f = (window as any).recordingFixture;
+    return (
+      f?.audio.state === "running" && f.audio.currentTime - f.startedAt >= 0.4
+    );
+  });
   await page.getByRole("button", { name: "结束录音", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "发送录音识别", exact: true }),
   ).toBeVisible();
+  await page.evaluate(async () => {
+    const f = (window as any).recordingFixture;
+    f.osc.stop();
+    await f.audio.close();
+  });
   expect(posted).toBe(0);
   await page.getByRole("button", { name: "发送录音识别", exact: true }).click();
   await expect(page.getByLabel("语音识别文字", { exact: true })).toHaveValue(

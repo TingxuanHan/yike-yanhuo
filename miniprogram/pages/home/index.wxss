@@ -295,3 +295,25 @@
   margin-right: 12rpx;
   min-height: 88rpx;
 }
+.siting-conditions {
+  border-top: 1px solid #cbded4;
+  margin: 20px 0;
+}
+.siting-conditions-result {
+  margin-top: 20px;
+}
+.siting-conditions text {
+  overflow-wrap: anywhere;
+}
+.siting-conditions-result > text,
+.siting-condition-row > text {
+  display: block;
+}
+.siting-condition-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #dde6e1;
+}
+.detour-panel text {
+  display: block;
+  overflow-wrap: anywhere;
+}

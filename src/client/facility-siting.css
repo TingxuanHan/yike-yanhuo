@@ -150,6 +150,25 @@
   margin: 0;
   font-variant-numeric: tabular-nums;
 }
+.siting-conditions {
+  border-top: 1px solid #cbded4;
+  margin: 20px 0;
+}
+.siting-conditions-result {
+  margin-top: 20px;
+}
+.siting-condition-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #dde6e1;
+}
+.siting-condition-row p {
+  margin: 6px 0;
+}
+.siting-conditions input {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
 @media (max-width: 620px) {
   .siting-plan {
     grid-template-columns: 1fr;
