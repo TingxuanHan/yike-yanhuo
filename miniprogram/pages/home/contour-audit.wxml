@@ -1,0 +1,32 @@
+<view class="contour-audit-panel">
+  <button class="disclosure" bindtap="auditToggle">{{auditOpen?'收起抽点复核':'抽点复核：这个范围和测时一致吗？'}}</button>
+  <view wx:if="{{auditOpen}}">
+    <text class="heading">先固定预测，再读取路线</text>
+    <text class="muted">核对{{minutes}}分钟原测时范围。位置与原采样及设施点至少相隔10米，结果不改原轮廓。</text>
+    <view class="row"><button data-count="6" bindtap="auditCountChange" disabled="{{busy}}" class="{{auditCount===6?'active':''}}">6个固定点</button><button data-count="12" bindtap="auditCountChange" disabled="{{busy}}" class="{{auditCount===12?'active':''}}">12个固定点</button></view>
+    <button class="secondary" disabled="{{busy}}" bindtap="auditPreview">预览固定点与用量</button>
+    <view wx:if="{{auditState.plan}}">
+      <text class="place-name">已固定{{auditState.plan.count}}个位置及原判断</text>
+      <text wx:if="{{result.mode==='demo'}}">本机模拟演练，零外部请求。</text>
+      <text wx:else>读取{{auditState.plan.count}}个位置，最多预留{{auditState.plan.maxRouteUnits}}条路线（含一次重试），不检索设施。</text>
+      <text class="muted">250、600、1000米三个半径的对向点。读取后保留全部结果，缓存命中按实际记账。</text>
+      <button class="quiet" bindtap="auditPlanToggle">{{auditPlanMore?'收起':'查看'}}固定位置</button>
+      <view wx:if="{{auditPlanMore}}"><text wx:for="{{auditState.plan.points}}" wx:key="number" class="muted">点{{item.number}} · 报告坐标{{item.point[0]}}, {{item.point[1]}}米 · 当前{{item.predictions.current===null?'资料不足':item.predictions.current?'圈内':'圈外'}}</text></view>
+      <button wx:if="{{auditState.prepared}}" disabled="{{busy}}" bindtap="auditRun">{{result.mode==='demo'?'开始本机复核':'确认读取固定点'}}</button>
+    </view>
+    <button wx:if="{{auditState.busy}}" class="quiet" bindtap="auditStop">停止抽点复核</button>
+    <text wx:if="{{auditState.status}}" class="muted">{{auditState.status}}</text>
+    <text wx:if="{{auditState.error}}" class="error">{{auditState.error}}</text>
+    <view wx:if="{{auditState.view}}" class="audit-result">
+      <text class="eyebrow">{{auditState.view.sourceLabel}}</text><text class="heading">{{auditState.view.headline}}</text>
+      <text class="muted">固定样本一致数不代表社区整体准确率。原报告未改动。</text>
+      <view wx:for="{{auditState.view.metrics}}" wx:key="model" class="audit-observation"><text class="place-name">{{item.label}}</text><text>一致{{item.agreement}}/{{item.evaluated}} · 误判{{item.falseReachable}} · 漏判{{item.missedReachable}}</text><text class="muted">测时缺失{{item.observationUnknown}} · 预测不足{{item.predictionUnknown}}</text></view>
+      <text class="notice">共同可比较{{auditState.view.paired.evaluated}}点：当前一致{{auditState.view.paired.currentAgreement}}，直线圆一致{{auditState.view.paired.circleAgreement}}。</text>
+      <button class="quiet" bindtap="auditDetailsToggle">{{auditDetails?'收起':'查看'}}逐点结果</button>
+      <view wx:if="{{auditDetails}}"><view wx:for="{{auditState.view.rows}}" wx:key="number" class="audit-observation"><text class="place-name">点{{item.number}} · {{item.verdict}}</text><text>当前{{item.current}} · 规则网格{{item.coarse}} · 直线圆{{item.circle}}</text><text>读取{{item.observed}} {{item.reason}}</text><text class="muted">{{item.coordinates}} · {{item.readAt}}</text></view></view>
+      <button class="quiet" bindtap="auditBasisToggle">{{auditBasis?'收起':'查看'}}比较口径与用量</button>
+      <view wx:if="{{auditBasis}}"><text class="muted">预定义位置，不是随机抽样。未知预测与测时缺失不算不可达；比较前核对各自有效样本数。误判为预测可达、测时超限或未连接；漏判反之。</text><text class="muted">真实模式为同一百度接口的留出点对照，不是现场真值，不自动调整模型或剔除不利结果。</text><text class="muted">冻结{{auditState.view.plannedAt}}；完成{{auditState.view.completedAt}}。路线计数{{auditState.view.usage.routePairs}}，缓存{{auditState.view.usage.cacheHits}}，重试{{auditState.view.usage.retries}}。</text></view>
+      <button class="secondary" bindtap="auditCopy">复制抽点复核摘要</button><text wx:if="{{auditNotice}}" class="notice">{{auditNotice}}</text>
+    </view>
+  </view>
+</view>

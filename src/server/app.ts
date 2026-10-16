@@ -9,6 +9,10 @@ import { resolve, extname, sep } from "node:path";
 import { randomUUID } from "node:crypto";
 import { analyze } from "../core/analyze.js";
 import { verificationPlan, executeVerification } from "../core/verification.js";
+import {
+  contourAuditPlan,
+  executeContourAudit,
+} from "../core/contour-audit.js";
 import { DemoProvider, DEMO_CENTERS } from "../core/demo.js";
 import { validGeo } from "../core/geo.js";
 import { BaiduGateway, BaiduProvider, ServiceError } from "./baidu.js";
@@ -214,6 +218,8 @@ export function createApp(
       expires: number;
       verificationKey?: string;
       verificationFingerprint?: string;
+      auditKey?: string;
+      auditFingerprint?: string;
     }
   >();
   const clientRoot = resolve("dist/client");
@@ -750,6 +756,131 @@ export function createApp(
           });
         return json(res, 202, { id: job.id });
       }
+      if (
+        method === "POST" &&
+        ["/api/contour-audit/preview", "/api/contour-audit"].includes(
+          url.pathname,
+        )
+      ) {
+        rate("contour-audit:" + owner + ":" + peer, 30);
+        const body = await readJson(req, 2_100_000);
+        let result: ReturnType<typeof parseResultFile>,
+          plan: ReturnType<typeof contourAuditPlan>;
+        try {
+          result = parseResultFile(JSON.stringify(body.result));
+          plan = contourAuditPlan(
+            result,
+            body.minutes as number,
+            body.count as number,
+          );
+        } catch (e) {
+          throw new ServiceError((e as Error).message, 400);
+        }
+        const fingerprint = createHash("sha256")
+          .update(JSON.stringify({ result, plan }))
+          .digest("hex");
+        if (url.pathname.endsWith("/preview"))
+          return json(res, 200, { fingerprint, plan });
+        if (
+          body.confirmed !== true ||
+          body.fingerprint !== fingerprint ||
+          typeof body.requestId !== "string" ||
+          !/^[a-zA-Z0-9_-]{8,80}$/.test(body.requestId)
+        )
+          throw new ServiceError("请先预览固定复核点和用量，再明确确认。", 400);
+        const repeated = () =>
+          [...jobs.values()].find(
+            (v) => v.owner === owner && v.auditKey === body.requestId,
+          );
+        const previous = repeated();
+        if (previous) {
+          if (previous.auditFingerprint !== fingerprint)
+            throw new ServiceError(
+              "同一复核编号的方案已变化，请重新预览。",
+              409,
+            );
+          return json(res, 202, { id: previous.job.id });
+        }
+        if (result.mode === "baidu") {
+          if (!config.baiduConfigured)
+            throw new ServiceError("尚未配置百度服务，原报告仍可查看。", 503);
+          const budget = await quota.snapshot();
+          if (budget.limits.route - budget.used.route < plan.maxRouteUnits)
+            throw new ServiceError(
+              "剩余路线预算不足以预留抽点复核及一次重试，未开始读取。",
+              429,
+            );
+        }
+        const raced = repeated();
+        if (raced) {
+          if (raced.auditFingerprint !== fingerprint)
+            throw new ServiceError(
+              "同一复核编号的方案已变化，请重新预览。",
+              409,
+            );
+          return json(res, 202, { id: raced.job.id });
+        }
+        if (
+          [...jobs.values()].filter((v) => v.job.status === "running").length >=
+            2 ||
+          (result.mode === "baidu" &&
+            [...jobs.values()].some(
+              (v) => v.mode === "baidu" && v.job.status === "running",
+            ))
+        )
+          throw new ServiceError(
+            "已有地图任务正在进行，请完成或取消后再复核。",
+            429,
+          );
+        while (jobs.size >= 8) {
+          const old = [...jobs].find(([, v]) => v.job.status !== "running");
+          if (!old) break;
+          jobs.delete(old[0]);
+        }
+        const job: Job = {
+          id: randomUUID(),
+          status: "running",
+          progress: { stage: "冻结抽点预测", done: 0, total: plan.count },
+        };
+        const controller = new AbortController();
+        jobs.set(job.id, {
+          job,
+          mode: result.mode,
+          owner,
+          controller,
+          expires: Date.now() + 10 * 60_000,
+          auditKey: body.requestId,
+          auditFingerprint: fingerprint,
+        });
+        const provider =
+          result.mode === "demo"
+            ? new DemoProvider()
+            : new BaiduProvider(gateway, result.center.geo!);
+        void executeContourAudit(
+          result,
+          plan,
+          provider,
+          controller.signal,
+          (done, total) => {
+            job.progress = { stage: "读取固定复核点", done, total };
+          },
+        )
+          .then((audit) => {
+            if (!controller.signal.aborted) {
+              job.contourAudit = audit;
+              job.status = "done";
+            }
+          })
+          .catch((e) => {
+            job.status = controller.signal.aborted ? "cancelled" : "error";
+            job.error = controller.signal.aborted
+              ? "抽点复核已停止，原报告保留。"
+              : e instanceof ServiceError
+                ? e.message
+                : "本轮复核未完成，原报告保留，请核对后重试。";
+          });
+        return json(res, 202, { id: job.id });
+      }
       if (method === "POST" && url.pathname === "/api/analyses") {
         const input = validateInput(await readJson(req));
         if (input.mode === "baidu" && !config.baiduConfigured)
@@ -841,6 +972,7 @@ export function createApp(
           item.controller.abort();
           item.job.status = "cancelled";
           delete item.job.result;
+          delete item.job.contourAudit;
         }
         return json(res, 200, item.job);
       }

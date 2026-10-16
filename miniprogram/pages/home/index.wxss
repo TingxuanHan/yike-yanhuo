@@ -317,3 +317,17 @@
   display: block;
   overflow-wrap: anywhere;
 }
+.contour-audit-panel {
+  margin: 24rpx 0;
+  padding: 16rpx 0;
+  border-top: 1rpx solid #d7e4df;
+  border-bottom: 1rpx solid #d7e4df;
+}
+.audit-observation {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #d7e4df;
+}
+.contour-audit-panel text {
+  display: block;
+  overflow-wrap: anywhere;
+}

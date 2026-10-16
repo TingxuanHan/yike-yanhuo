@@ -1,0 +1,57 @@
+.contour-audit-panel {
+  margin: 16px 0;
+  border-block: 1px solid var(--line, #d7e4df);
+  padding: 12px 0;
+}
+.contour-audit-panel > summary {
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 44px;
+  display: list-item;
+  align-content: center;
+}
+.contour-audit-panel section > label {
+  display: block;
+  margin: 12px 0;
+}
+.audit-plan,
+.audit-result {
+  margin-top: 16px;
+}
+.audit-metrics article,
+.audit-observation {
+  border-bottom: 1px solid var(--line, #d7e4df);
+  padding: 12px 0;
+}
+.audit-metrics p {
+  margin-block: 6px;
+}
+.audit-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 0 20px;
+}
+.audit-metrics b {
+  font-variant-numeric: tabular-nums;
+}
+.contour-audit-panel details {
+  margin-block: 12px;
+}
+.contour-audit-panel details > summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+}
+.contour-audit-panel .caption,
+.audit-observation {
+  overflow-wrap: anywhere;
+}
+.audit-result:focus {
+  outline: 2px solid #146c5d;
+  outline-offset: 4px;
+}
+@media print {
+  .contour-audit-panel {
+    display: none;
+  }
+}

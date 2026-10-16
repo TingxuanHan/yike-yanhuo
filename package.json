@@ -27,7 +27,9 @@
     "benchmark:siting": "node --import tsx scripts/benchmark-facility-siting.ts",
     "verify:repair": "node --import tsx scripts/replay-verification.ts",
     "verify:planning": "node --import tsx scripts/replay-planning-evidence.ts",
-    "benchmark:planning": "node --import tsx scripts/benchmark-planning-evidence.ts"
+    "benchmark:planning": "node --import tsx scripts/benchmark-planning-evidence.ts",
+    "verify:contour": "node --import tsx scripts/replay-contour-audit.ts",
+    "benchmark:contour": "node --import tsx scripts/benchmark-contour-audit.ts"
   },
   "dependencies": {
     "react": "19.3.0",

@@ -14,6 +14,7 @@ const example = require("../../shared/demo.js");
 const config = require("../../config.js");
 const verificationController = require("../../services/verification.js");
 const sitingConditionsController = require("../../services/siting-conditions.js");
+const contourAuditController = require("../../services/contour-audit.js");
 const blankForm = () => ({
   name: "",
   address: "",
@@ -92,6 +93,20 @@ Page({
     sitingError: "",
     sitingNotice: "",
     conditionsOpen: false,
+    auditOpen: false,
+    auditCount: 6,
+    auditPlanMore: false,
+    auditDetails: false,
+    auditBasis: false,
+    auditNotice: "",
+    auditState: {
+      busy: false,
+      prepared: false,
+      error: "",
+      status: "",
+      plan: null,
+      view: null,
+    },
     detourOpen: false,
     detourBasis: false,
     detourMore: false,
@@ -138,6 +153,7 @@ Page({
     this.alive = true;
     this.verification = verificationController(this);
     this.sitingConditions = sitingConditionsController(this);
+    this.contourAudit = contourAuditController(this);
     let book = emptyBook(),
       error = "";
     try {
@@ -210,6 +226,7 @@ Page({
     this.releasePrivacy = platform.watchPrivacy?.(this);
   },
   onHide() {
+    if (this.data.auditState.busy) this.contourAudit?.stop();
     if (this.data.verificationBusy) this.verification?.stop(true);
     this.releasePrivacy?.();
     this.releasePrivacy = null;
@@ -228,6 +245,7 @@ Page({
     }
   },
   onUnload() {
+    this.contourAudit?.dispose();
     this.verification?.dispose();
     this.releasePrivacy?.();
     this.alive = false;
@@ -534,6 +552,35 @@ Page({
   },
   conditionsToggle() {
     this.sitingConditions?.toggle();
+  },
+  auditToggle() {
+    this.contourAudit?.toggle();
+  },
+  auditCountChange(e) {
+    this.setData({ auditNotice: "" });
+    this.contourAudit?.count(e);
+  },
+  auditPreview() {
+    this.setData({ auditNotice: "" });
+    return this.contourAudit?.preview();
+  },
+  auditRun() {
+    return this.contourAudit?.run();
+  },
+  auditStop() {
+    this.contourAudit?.stop();
+  },
+  auditCopy() {
+    return this.contourAudit?.copy();
+  },
+  auditPlanToggle() {
+    this.setData({ auditPlanMore: !this.data.auditPlanMore });
+  },
+  auditDetailsToggle() {
+    this.setData({ auditDetails: !this.data.auditDetails });
+  },
+  auditBasisToggle() {
+    this.setData({ auditBasis: !this.data.auditBasis });
   },
   detourToggle() {
     this.setData({ detourOpen: !this.data.detourOpen });
@@ -882,6 +929,7 @@ Page({
     if (point) this.setData({ coverageIndex: index, coverageSelected: point });
   },
   updateCoverage() {
+    this.contourAudit?.sync();
     this.updateDetour();
     if (this.data.result) this.verification?.sync();
     if (!this.data.result || !this.data.showCoverage) return;

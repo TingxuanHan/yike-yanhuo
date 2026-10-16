@@ -1,0 +1,59 @@
+{
+  "evidence": "api-holdout",
+  "sourceSha256": "ac40bb720148b62c430c86510df4300a0d3b03a172528a23cf992293195f4ebd",
+  "baseGeneratedAt": "2026-10-05T04:00:19.002Z",
+  "plannedAt": "2026-10-16T13:08:03.319Z",
+  "completedAt": "2026-10-16T13:08:08.937Z",
+  "minutes": 15,
+  "count": 6,
+  "metrics": [
+    {
+      "model": "current",
+      "label": "当前轮廓",
+      "evaluated": 6,
+      "agreement": 6,
+      "falseReachable": 0,
+      "missedReachable": 0,
+      "observationUnknown": 0,
+      "predictionUnknown": 0
+    },
+    {
+      "model": "coarse",
+      "label": "原规则网格",
+      "evaluated": 6,
+      "agreement": 6,
+      "falseReachable": 0,
+      "missedReachable": 0,
+      "observationUnknown": 0,
+      "predictionUnknown": 0
+    },
+    {
+      "model": "circle",
+      "label": "直线圆（1.2米/秒）",
+      "evaluated": 6,
+      "agreement": 4,
+      "falseReachable": 2,
+      "missedReachable": 0,
+      "observationUnknown": 0,
+      "predictionUnknown": 0
+    }
+  ],
+  "paired": {
+    "evaluated": 6,
+    "currentAgreement": 6,
+    "circleAgreement": 4
+  },
+  "usage": {
+    "requests": 6,
+    "routePairs": 6,
+    "searchRequests": 0,
+    "cacheHits": 0,
+    "retries": 0
+  },
+  "quotaRouteDelta": 6,
+  "rate": {
+    "minimumStartIntervalMs": 1104,
+    "maximumStartsInOneSecond": 1
+  },
+  "fieldValidated": false
+}

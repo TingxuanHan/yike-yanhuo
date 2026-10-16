@@ -1,4 +1,6 @@
 import { personalize } from "../core/personalize.js";
+export { ContourAuditSession } from "./contour-audit.js";
+export { contourAuditSummary } from "../core/contour-audit.js";
 export { detourView, detourSummary } from "../core/detour-audit.js";
 export {
   compareSitingConditions,

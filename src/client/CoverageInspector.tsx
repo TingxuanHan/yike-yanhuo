@@ -4,6 +4,7 @@ import { CoverageAreaPanel } from "./CoverageAreaPanel.js";
 import { FacilitySitingPanel } from "./FacilitySitingPanel.js";
 import { VerificationPanel } from "./VerificationPanel.js";
 import { DetourPanel } from "./DetourPanel.js";
+import { ContourAuditPanel } from "./ContourAuditPanel.js";
 
 export function CoverageInspector({
   result,
@@ -48,6 +49,7 @@ export function CoverageInspector({
         previous={previous}
       />
       <DetourPanel result={result} minutes={minutes} />
+      <ContourAuditPanel result={result} minutes={minutes} />
       <FacilitySitingPanel
         result={result}
         category={category}

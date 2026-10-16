@@ -196,6 +196,7 @@ export interface Job {
   status: "running" | "done" | "error" | "cancelled";
   progress: Progress;
   result?: AnalysisResult;
+  contourAudit?: import("./contour-audit.js").ContourAuditResult;
   error?: string;
 }
 export interface PublicConfig {

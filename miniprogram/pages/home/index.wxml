@@ -262,6 +262,7 @@
           </view>
         </view>
         <include src="./detour.wxml" />
+        <include src="./contour-audit.wxml" />
         <view class="siting-panel">
           <button class="disclosure" bindtap="sitingToggle">{{showSiting?'收起':'比较'}}设施补点方案</button>
           <view wx:if="{{showSiting}}">
