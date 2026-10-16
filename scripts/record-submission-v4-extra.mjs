@@ -132,13 +132,11 @@ try {
       },
     ];
     await p.locator(".result-library summary").click();
-    await p
-      .locator("#result-import")
-      .setInputFiles({
-        name: "构造核查报告.json",
-        mimeType: "application/json",
-        buffer: Buffer.from(JSON.stringify(report)),
-      });
+    await p.locator("#result-import").setInputFiles({
+      name: "构造核查报告.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(report)),
+    });
     await p.getByRole("button", { name: "体检报告", exact: true }).click();
     await p.getByText("记录或导入核查", { exact: true }).click();
     const panel = p.getByRole("region", { name: "设施核查", exact: true });
@@ -152,13 +150,11 @@ try {
     await full();
     await p.locator(".result-library summary").click();
     const report = await analyze(new DemoProvider(), DEMO_CENTERS[0]);
-    await p
-      .locator("#result-import")
-      .setInputFiles({
-        name: "构造街区.json",
-        mimeType: "application/json",
-        buffer: Buffer.from(JSON.stringify(report)),
-      });
+    await p.locator("#result-import").setInputFiles({
+      name: "构造街区.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(report)),
+    });
     await p.getByRole("button", { name: "我的日常", exact: true }).click();
     await p.getByLabel("地点名称", { exact: true }).fill("巷口修鞋铺（构造）");
     await p.getByLabel("详细地址", { exact: true }).fill("示例街12号");
