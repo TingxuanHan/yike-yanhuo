@@ -14,7 +14,7 @@
 
 [新版发布页与全部附件](https://github.com/TingxuanHan/yike-yanhuo/releases/tag/os2026-baidu-v2-20261016)提供源码ZIP、材料ZIP、SHA-256清单与机器检查记录。发布页上的材料版本和源码提交由`submission-v2-manifest.json`对应；视频和PDF标注的是功能基线，不把材料整理误写成业务功能改动。
 
-**版本说明：此为历史v2材料。** 仓库和Release已于2026-10-16经所有者授权公开；最新精简文档及真实API演示见[v3材料](submission-v3-guide.md)。没有代发参赛邮件。
+**版本说明：此为历史v2材料。** 仓库和Release已于2026-10-16经所有者授权公开；当前完整功能文档及真实API演示见[v4材料](submission-v4-guide.md)，另保留[v3简版](submission-v3-guide.md)。没有代发参赛邮件。
 
 ## 本版更新
 

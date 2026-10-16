@@ -1,0 +1,499 @@
+{
+  "video": "materials/yike-yanhuo-baidu-v4.mp4",
+  "scenes": [
+    {
+      "id": "title",
+      "title": "一刻烟火 · 从家门口，走进好生活",
+      "start": 0,
+      "end": 16960
+    },
+    {
+      "id": "simple",
+      "title": "简易首页 · 复杂条件按需展开",
+      "start": 16960,
+      "end": 29120
+    },
+    {
+      "id": "locate",
+      "title": "真实上海社区 · 地址定位",
+      "start": 29120,
+      "end": 43320
+    },
+    {
+      "id": "analyze",
+      "title": "实际API检索与测时 · 中间等待已剪短",
+      "start": 43320,
+      "end": 63400
+    },
+    {
+      "id": "range",
+      "title": "道路上的5、10、15分钟范围",
+      "start": 63400,
+      "end": 78720
+    },
+    {
+      "id": "places",
+      "title": "六类设施 · 地图与清单联动",
+      "start": 78720,
+      "end": 94000
+    },
+    {
+      "id": "algorithm",
+      "title": "创新一：预算内共享边加密",
+      "start": 94000,
+      "end": 110160
+    },
+    {
+      "id": "coverage",
+      "title": "创新二：把资料不足与候选缺口分开",
+      "start": 110160,
+      "end": 127360
+    },
+    {
+      "id": "review",
+      "title": "设施核查台账与到期提醒 · 构造演练",
+      "start": 127360,
+      "end": 138440
+    },
+    {
+      "id": "repair",
+      "title": "定向补查 · 先预览，采用后可恢复 · 构造演练",
+      "start": 138440,
+      "end": 155080
+    },
+    {
+      "id": "siting",
+      "title": "创新三：单点与组合补点 · 构造演练",
+      "start": 155080,
+      "end": 170120
+    },
+    {
+      "id": "conditions",
+      "title": "多条件取舍与共同收益 · 构造演练",
+      "start": 170120,
+      "end": 186400
+    },
+    {
+      "id": "detour",
+      "title": "绕行核查线索 · 构造演练",
+      "start": 186400,
+      "end": 202760
+    },
+    {
+      "id": "audit",
+      "title": "创新四：冻结预测与分离抽点 · 构造演练",
+      "start": 202760,
+      "end": 222080
+    },
+    {
+      "id": "report",
+      "title": "保存、回放、打印与独立复算 · 构造演练",
+      "start": 222080,
+      "end": 236440
+    },
+    {
+      "id": "personal",
+      "title": "个人步速、时长与峰谷等灯假设",
+      "start": 236440,
+      "end": 254440
+    },
+    {
+      "id": "placebook",
+      "title": "记住地图外的小店 · 构造演练",
+      "start": 254440,
+      "end": 267360
+    },
+    {
+      "id": "calibration",
+      "title": "创新五：事先预测，再用记录校准 · 构造数据",
+      "start": 267360,
+      "end": 281160
+    },
+    {
+      "id": "daily",
+      "title": "一趟办事、购物与返程 · 构造演练",
+      "start": 281160,
+      "end": 299160
+    },
+    {
+      "id": "familiar",
+      "title": "熟路照片与分段歇脚 · 原生页面留档",
+      "start": 299160,
+      "end": 312320
+    },
+    {
+      "id": "shopping",
+      "title": "私人价格记忆与购物预算 · 构造演练",
+      "start": 312320,
+      "end": 326040
+    },
+    {
+      "id": "movement",
+      "title": "顺路动一动 · 构造演练",
+      "start": 326040,
+      "end": 339240
+    },
+    {
+      "id": "ai_settings",
+      "title": "基础AI、自定义API与确认式规划",
+      "start": 339240,
+      "end": 351960
+    },
+    {
+      "id": "voice",
+      "title": "语音转文字与条件确认 · 历史真实接口留档",
+      "start": 351960,
+      "end": 371160
+    },
+    {
+      "id": "notice",
+      "title": "创新六：具体到入口的邻里提醒 · 构造演练",
+      "start": 371160,
+      "end": 386440
+    },
+    {
+      "id": "conflict",
+      "title": "可信依据、时效与反馈分歧 · 构造演练",
+      "start": 386440,
+      "end": 401480
+    },
+    {
+      "id": "alternative",
+      "title": "下一站备选 · 比较后由本人替换 · 构造演练",
+      "start": 401480,
+      "end": 416080
+    },
+    {
+      "id": "entrance",
+      "title": "同店另一入口 · 私人记录与明确确认 · 构造演练",
+      "start": 416080,
+      "end": 429200
+    },
+    {
+      "id": "walking",
+      "title": "逐段文字指引 · 上海历史API路线留档",
+      "start": 429200,
+      "end": 445280
+    },
+    {
+      "id": "card",
+      "title": "离线出门卡、常用方案与恢复 · 构造演练",
+      "start": 445280,
+      "end": 460040
+    },
+    {
+      "id": "family",
+      "title": "家人远程建议与主动结束 · 构造演练",
+      "start": 460040,
+      "end": 480280
+    },
+    {
+      "id": "location",
+      "title": "一键联系家人、带时间的位置线索 · 构造演练",
+      "start": 480280,
+      "end": 493040
+    },
+    {
+      "id": "sync",
+      "title": "Web与微信共用私人空间 · 本机服务演练",
+      "start": 493040,
+      "end": 506120
+    },
+    {
+      "id": "mini",
+      "title": "微信原生双端与共用核心 · 开发者工具留档",
+      "start": 506120,
+      "end": 523880
+    },
+    {
+      "id": "finish",
+      "title": "完整源码公开 · MIT许可与可复现验证",
+      "start": 523880,
+      "end": 541880
+    }
+  ],
+  "edits": [
+    {
+      "id": "title",
+      "sourceVersion": "v3",
+      "sourceScene": "title",
+      "sourceStart": 0.0,
+      "sourceEnd": 16.663,
+      "seconds": 16.96
+    },
+    {
+      "id": "simple",
+      "sourceVersion": "new",
+      "sourceScene": "simple",
+      "sourceStart": 0.003,
+      "sourceEnd": 11.852,
+      "seconds": 12.16
+    },
+    {
+      "id": "locate",
+      "sourceVersion": "v3",
+      "sourceScene": "locate",
+      "sourceStart": 16.663,
+      "sourceEnd": 30.585,
+      "seconds": 14.2
+    },
+    {
+      "id": "analyze",
+      "sourceVersion": "v3",
+      "sourceScene": "analyze",
+      "sourceStart": 30.585,
+      "sourceEnd": 51.329,
+      "seconds": 20.08
+    },
+    {
+      "id": "range",
+      "sourceVersion": "v3",
+      "sourceScene": "range",
+      "sourceStart": 51.329,
+      "sourceEnd": 66.359,
+      "seconds": 15.32
+    },
+    {
+      "id": "places",
+      "sourceVersion": "v3",
+      "sourceScene": "places",
+      "sourceStart": 66.359,
+      "sourceEnd": 81.339,
+      "seconds": 15.28
+    },
+    {
+      "id": "algorithm",
+      "sourceVersion": "v2",
+      "sourceScene": "algorithm",
+      "sourceStart": 177.488,
+      "sourceEnd": 194.752,
+      "seconds": 16.16
+    },
+    {
+      "id": "coverage",
+      "sourceVersion": "v3",
+      "sourceScene": "coverage",
+      "sourceStart": 81.339,
+      "sourceEnd": 98.256,
+      "seconds": 17.2
+    },
+    {
+      "id": "review",
+      "sourceVersion": "new",
+      "sourceScene": "review",
+      "sourceStart": 11.903,
+      "sourceEnd": 22.671,
+      "seconds": 11.08
+    },
+    {
+      "id": "repair",
+      "sourceVersion": "v2",
+      "sourceScene": "repair",
+      "sourceStart": 71.874,
+      "sourceEnd": 89.67,
+      "seconds": 16.64
+    },
+    {
+      "id": "siting",
+      "sourceVersion": "v2",
+      "sourceScene": "siting",
+      "sourceStart": 89.721,
+      "sourceEnd": 106.018,
+      "seconds": 15.04
+    },
+    {
+      "id": "conditions",
+      "sourceVersion": "v2",
+      "sourceScene": "conditions",
+      "sourceStart": 106.071,
+      "sourceEnd": 123.302,
+      "seconds": 16.28
+    },
+    {
+      "id": "detour",
+      "sourceVersion": "v2",
+      "sourceScene": "detour",
+      "sourceStart": 123.353,
+      "sourceEnd": 140.953,
+      "seconds": 16.36
+    },
+    {
+      "id": "audit",
+      "sourceVersion": "v2",
+      "sourceScene": "audit",
+      "sourceStart": 141.009,
+      "sourceEnd": 161.986,
+      "seconds": 19.32
+    },
+    {
+      "id": "report",
+      "sourceVersion": "v2",
+      "sourceScene": "report",
+      "sourceStart": 162.042,
+      "sourceEnd": 177.436,
+      "seconds": 14.36
+    },
+    {
+      "id": "personal",
+      "sourceVersion": "v3",
+      "sourceScene": "personal",
+      "sourceStart": 116.925,
+      "sourceEnd": 134.609,
+      "seconds": 18.0
+    },
+    {
+      "id": "placebook",
+      "sourceVersion": "new",
+      "sourceScene": "placebook",
+      "sourceStart": 22.724,
+      "sourceEnd": 35.353,
+      "seconds": 12.92
+    },
+    {
+      "id": "calibration",
+      "sourceVersion": "new",
+      "sourceScene": "calibration",
+      "sourceStart": 35.405,
+      "sourceEnd": 48.886,
+      "seconds": 13.8
+    },
+    {
+      "id": "daily",
+      "sourceVersion": "v3",
+      "sourceScene": "daily",
+      "sourceStart": 134.609,
+      "sourceEnd": 152.314,
+      "seconds": 18.0
+    },
+    {
+      "id": "familiar",
+      "sourceVersion": "new",
+      "sourceScene": "familiar",
+      "sourceStart": 48.942,
+      "sourceEnd": 61.8,
+      "seconds": 13.16
+    },
+    {
+      "id": "shopping",
+      "sourceVersion": "new",
+      "sourceScene": "shopping",
+      "sourceStart": 61.848,
+      "sourceEnd": 75.268,
+      "seconds": 13.72
+    },
+    {
+      "id": "movement",
+      "sourceVersion": "new",
+      "sourceScene": "movement",
+      "sourceStart": 75.323,
+      "sourceEnd": 88.203,
+      "seconds": 13.2
+    },
+    {
+      "id": "ai_settings",
+      "sourceVersion": "new",
+      "sourceScene": "ai_settings",
+      "sourceStart": 88.256,
+      "sourceEnd": 100.67,
+      "seconds": 12.72
+    },
+    {
+      "id": "voice",
+      "sourceVersion": "v2",
+      "sourceScene": "ai",
+      "sourceStart": 228.608,
+      "sourceEnd": 248.4,
+      "seconds": 19.2
+    },
+    {
+      "id": "notice",
+      "sourceVersion": "v2",
+      "sourceScene": "notice",
+      "sourceStart": 248.434,
+      "sourceEnd": 264.288,
+      "seconds": 15.28
+    },
+    {
+      "id": "conflict",
+      "sourceVersion": "v2",
+      "sourceScene": "conflict",
+      "sourceStart": 264.34,
+      "sourceEnd": 280.203,
+      "seconds": 15.04
+    },
+    {
+      "id": "alternative",
+      "sourceVersion": "v2",
+      "sourceScene": "alternative",
+      "sourceStart": 280.261,
+      "sourceEnd": 296.211,
+      "seconds": 14.6
+    },
+    {
+      "id": "entrance",
+      "sourceVersion": "v2",
+      "sourceScene": "entrance",
+      "sourceStart": 296.251,
+      "sourceEnd": 309.853,
+      "seconds": 13.12
+    },
+    {
+      "id": "walking",
+      "sourceVersion": "v2",
+      "sourceScene": "real",
+      "sourceStart": 359.474,
+      "sourceEnd": 376.305,
+      "seconds": 16.08
+    },
+    {
+      "id": "card",
+      "sourceVersion": "v2",
+      "sourceScene": "card",
+      "sourceStart": 309.908,
+      "sourceEnd": 325.417,
+      "seconds": 14.76
+    },
+    {
+      "id": "family",
+      "sourceVersion": "v3",
+      "sourceScene": "family",
+      "sourceStart": 152.314,
+      "sourceEnd": 172.261,
+      "seconds": 20.24
+    },
+    {
+      "id": "location",
+      "sourceVersion": "new",
+      "sourceScene": "location",
+      "sourceStart": 100.723,
+      "sourceEnd": 113.186,
+      "seconds": 12.76
+    },
+    {
+      "id": "sync",
+      "sourceVersion": "new",
+      "sourceScene": "sync",
+      "sourceStart": 113.238,
+      "sourceEnd": 126.003,
+      "seconds": 13.08
+    },
+    {
+      "id": "mini",
+      "sourceVersion": "v3",
+      "sourceScene": "mini",
+      "sourceStart": 172.261,
+      "sourceEnd": 189.739,
+      "seconds": 17.76
+    },
+    {
+      "id": "finish",
+      "sourceVersion": "v3",
+      "sourceScene": "finish",
+      "sourceStart": 189.739,
+      "sourceEnd": 207.421,
+      "seconds": 18.0
+    }
+  ],
+  "browserErrors": 0,
+  "blockedRequests": 0
+}

@@ -1,0 +1,57 @@
+{
+  "video": ".cache/submission-v4-extra.webm",
+  "scenes": [
+    {
+      "id": "simple",
+      "start": 3,
+      "end": 11852
+    },
+    {
+      "id": "review",
+      "start": 11903,
+      "end": 22671
+    },
+    {
+      "id": "placebook",
+      "start": 22724,
+      "end": 35353
+    },
+    {
+      "id": "calibration",
+      "start": 35405,
+      "end": 48886
+    },
+    {
+      "id": "familiar",
+      "start": 48942,
+      "end": 61800
+    },
+    {
+      "id": "shopping",
+      "start": 61848,
+      "end": 75268
+    },
+    {
+      "id": "movement",
+      "start": 75323,
+      "end": 88203
+    },
+    {
+      "id": "ai_settings",
+      "start": 88256,
+      "end": 100670
+    },
+    {
+      "id": "location",
+      "start": 100723,
+      "end": 113186
+    },
+    {
+      "id": "sync",
+      "start": 113238,
+      "end": 126003
+    }
+  ],
+  "browserErrors": [],
+  "prohibitedRequests": 0
+}
