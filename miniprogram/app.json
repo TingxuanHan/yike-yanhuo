@@ -1,0 +1,28 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/card/index",
+    "pages/outings/index",
+    "pages/shopping/index",
+    "pages/movement/index",
+    "pages/planning/index",
+    "pages/trip/index",
+    "pages/assistance/index",
+    "pages/family/index",
+    "pages/calibration/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "一刻烟火",
+    "navigationBarBackgroundColor": "#146c5d",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f4f8f7"
+  },
+  "permission": {
+    "scope.record": { "desc": "仅在你主动录音时，将出门需求转成可核对的文字" },
+    "scope.userLocation": {
+      "desc": "在你主动记录地点或向家人说明位置时获取一次位置，分享另行确认"
+    }
+  },
+  "requiredPrivateInfos": ["chooseLocation", "getLocation"],
+  "sitemapLocation": "sitemap.json"
+}

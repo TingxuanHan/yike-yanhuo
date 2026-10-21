@@ -1,0 +1,81 @@
+{
+  "version": "distance-brackets-v1",
+  "evidence": "historical-baidu-api-replay",
+  "externalApiCalls": 0,
+  "sourceLabel": "抚顺路社区睦邻中心（待核验入口）",
+  "sourceGeneratedAt": "2026-10-05T02:17:07.891Z",
+  "sourceSha256": "a88229ea7e2bed666db42bb5d8575bfa622ba34e3c12195ae0705e863bc2ac5f",
+  "elapsedMs": 22.238599999999963,
+  "note": "历史数据本地重算，不是新的百度调用或现场核验；原始关键词漏检和路网误差仍保留。",
+  "results": [
+    {
+      "version": "distance-brackets-v1",
+      "category": "market",
+      "minutes": 15,
+      "squareMeters": {
+        "covered": 1760734.6183245005,
+        "missing": 0,
+        "unknown": 0
+      },
+      "totalSquareMeters": 1760734.6183245005,
+      "complete": false,
+      "clipped": false,
+      "distanceMeters": 1000,
+      "boundaryBandMeters": 0.6044533451884035,
+      "searchInsetErrorMeters": 0.6825729893084826,
+      "facilitiesConsidered": 10,
+      "facilitiesUsed": 8,
+      "unknownReasons": {
+        "distanceBand": 0,
+        "searchEdge": 0,
+        "incomplete": 0
+      }
+    },
+    {
+      "version": "distance-brackets-v1",
+      "category": "pharmacy",
+      "minutes": 15,
+      "squareMeters": {
+        "covered": 1760734.6183245005,
+        "missing": 0,
+        "unknown": 0
+      },
+      "totalSquareMeters": 1760734.6183245005,
+      "complete": false,
+      "clipped": false,
+      "distanceMeters": 1000,
+      "boundaryBandMeters": 0.6044533451884035,
+      "searchInsetErrorMeters": 0.6825729893084826,
+      "facilitiesConsidered": 10,
+      "facilitiesUsed": 10,
+      "unknownReasons": {
+        "distanceBand": 0,
+        "searchEdge": 0,
+        "incomplete": 0
+      }
+    },
+    {
+      "version": "distance-brackets-v1",
+      "category": "school",
+      "minutes": 15,
+      "squareMeters": {
+        "covered": 1760734.6183245005,
+        "missing": 0,
+        "unknown": 0
+      },
+      "totalSquareMeters": 1760734.6183245005,
+      "complete": false,
+      "clipped": false,
+      "distanceMeters": 1000,
+      "boundaryBandMeters": 0.6044533451884035,
+      "searchInsetErrorMeters": 0.6825729893084826,
+      "facilitiesConsidered": 10,
+      "facilitiesUsed": 10,
+      "unknownReasons": {
+        "distanceBand": 0,
+        "searchEdge": 0,
+        "incomplete": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+.planning-panel {
+  max-width: 820px;
+}
+.planning-heading {
+  margin: 24px 0;
+}
+.planning-heading h2 {
+  margin: 6px 0 12px;
+}
+.planning-card {
+  background: #fff;
+  border: 1px solid #dce6e2;
+  border-radius: 12px;
+  padding: 22px;
+  margin: 20px 0;
+}
+.planning-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0;
+  min-width: 0;
+}
+.planning-card input,
+.planning-card textarea,
+.planning-card select {
+  min-height: 44px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+.planning-card textarea {
+  resize: vertical;
+  font: inherit;
+  padding: 12px;
+  border: 1px solid #a9bdb5;
+  border-radius: 8px;
+}
+.planning-actions,
+.planning-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+.planning-panel button {
+  min-height: 44px;
+  white-space: normal;
+}
+.planning-settings-toggle {
+  margin: 18px 0 0 12px;
+}
+.planning-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+}
+.planning-review {
+  border-top: 5px solid #146c5d;
+}
+.planning-card fieldset {
+  border: 0;
+  padding: 0;
+  margin: 20px 0;
+}
+.planning-error,
+.planning-status {
+  padding: 16px;
+  border-left: 4px solid #a63724;
+  background: #fff4ef;
+  overflow-wrap: anywhere;
+}
+.planning-status {
+  border-color: #146c5d;
+  background: #edf5ef;
+}
+.planning-card p {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .planning-grid {
+    grid-template-columns: 1fr;
+  }
+  .planning-card {
+    padding: 16px;
+  }
+  .planning-modes > button {
+    flex: 1;
+    padding: 10px 6px;
+  }
+  .planning-settings-toggle {
+    margin-left: 0;
+  }
+}

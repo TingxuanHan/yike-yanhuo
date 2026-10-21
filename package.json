@@ -1,0 +1,51 @@
+{
+  "name": "yike-yanhuo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "15分钟生活圈智能体检与规划助手",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "tsc --noEmit && vite build && tsc -p tsconfig.server.json && npm run build:mini",
+    "build:mini": "node scripts/prepare-mini.mjs && tsc -p tsconfig.mini.json && node --import tsx scripts/build-mini-experience.ts",
+    "check:mini-release": "node scripts/check-mini-release.mjs",
+    "start": "node --env-file-if-exists=.env dist/server/server/index.js",
+    "pretest": "npm run build:mini",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:ui": "playwright test",
+    "test:planning-live": "node --import tsx scripts/test-planning-live.ts",
+    "check": "tsc --noEmit",
+    "format": "prettier --write src tests scripts miniprogram *.json *.ts .github/workflows/*.yml",
+    "format:check": "prettier --check src tests scripts miniprogram *.json *.ts .github/workflows/*.yml",
+    "demo:report": "node --import tsx scripts/demo-report.ts",
+    "benchmark:demo": "node --import tsx scripts/benchmark.ts --demo",
+    "benchmark:walk": "node --import tsx scripts/benchmark-walk-calibration.ts",
+    "benchmark:coverage": "node --import tsx scripts/benchmark-coverage-area.ts",
+    "benchmark:siting": "node --import tsx scripts/benchmark-facility-siting.ts",
+    "verify:repair": "node --import tsx scripts/replay-verification.ts",
+    "verify:planning": "node --import tsx scripts/replay-planning-evidence.ts",
+    "benchmark:planning": "node --import tsx scripts/benchmark-planning-evidence.ts",
+    "verify:contour": "node --import tsx scripts/replay-contour-audit.ts",
+    "benchmark:contour": "node --import tsx scripts/benchmark-contour-audit.ts"
+  },
+  "dependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "polygon-clipping": "0.15.7"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "prettier": "3.9.9",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.2"
+  }
+}

@@ -1,0 +1,51 @@
+<import src="/components/privacy.wxml"/>
+<template is="privacy-dialog" data="{{showPrivacy,privacyError}}"/>
+<view class="trip-page {{careMode || simpleMode ? 'care' : ''}}">
+  <view class="heading"><text class="eyebrow">买好东西，办完事情，从容回来</text><text class="title">一趟出门</text><button wx:if="{{!simpleMode}}" bindtap="care">{{careMode ? '标准字号' : '大字模式'}}</button><text class="note">{{activeDemo ? '模拟社区与示例价格 · 不可据此出行' : '当前报告与私人地点记录'}} · {{active ? active.input.origin.name : origin}}</text></view>
+  <text wx:if="{{error}}" class="error">{{error}}</text><text wx:if="{{status}}" class="status">{{status}}</text>
+  <button bindtap="family">联系家人 · 告诉家人我在哪</button>
+  <button bindtap="mobilityMore">我的通行需要 · {{showMobility ? '收起' : '展开'}}</button><view wx:if="{{showMobility}}" class="card"><view wx:for="{{mobilityOptions}}" wx:key="key" class="check" data-key="{{item.key}}" bindtap="mobilityNeed"><checkbox checked="{{item.checked}}" disabled="{{busy}}"/><text>{{item.label}}</text></view><text class="note">优先展示相关提醒，不代表路线已核验无障碍。需要歇脚时请在已确认地点停留，额外时间另计。</text></view>
+  <view wx:if="{{!active && routines.length}}" class="card"><text class="h3">照着常用安排，再出一趟门</text><text class="note">按当前时间和步速重新核算，先看结果再出发。</text><button wx:for="{{routines}}" wx:key="id" wx:if="{{index < 3 || showRoutines}}" data-id="{{item.id}}" disabled="{{busy}}" bindtap="useRoutine">{{item.origin.position.system === 'demo' ? '模拟 · ' : ''}}{{item.name}} · 重新核算</button><button bindtap="routinesMore">{{showRoutines ? '收起管理' : '全部方案与管理'}}（{{routines.length}}/8）</button><block wx:if="{{showRoutines}}"><button wx:for="{{routines}}" wx:key="id" data-id="{{item.id}}" disabled="{{busy}}" bindtap="removeRoutine">移除{{item.name}}</button></block></view>
+  <button wx:if="{{!active && routineSuggestion}}" bindtap="offerRoutine">把上一趟存为常用方案</button>
+  <view wx:if="{{routineDraft}}" class="card" id="routine-editor"><text class="h3">下次少填一点</text><label><text>常用方案名称</text><input value="{{routineDraft.name}}" maxlength="40" bindinput="routineName"/></label><text class="note">只记住要办的事、候选地点和预算等条件，使用时更新出发时间和步速。</text><button class="primary" bindtap="saveRoutine">保存常用方案</button><button bindtap="cancelRoutine">暂不保存</button></view>
+  <block wx:if="{{ready && !active}}">
+    <view wx:if="{{simpleMode && !showMore}}" class="card"><text class="h3">这次想做什么</text><view class="actions"><button wx:for="{{taskRows}}" wx:key="id" class="{{item.checked ? 'primary' : ''}}" data-id="{{item.id}}" bindtap="task" disabled="{{busy}}">{{item.label}}</button></view><label><text>整趟有多少分钟</text><input type="digit" value="{{form.tripMinutes}}" data-key="tripMinutes" placeholder="45" bindinput="field" disabled="{{busy}}"/></label><text class="note">包含办事、等待和回家。地点沿用已有记录，更多条件可展开修改。</text></view>
+    <view class="trip-summary"><text class="metric">整趟上限{{form.tripMinutes || '45'}}分钟 · {{form.shoppingBudget ? '购物预算 ¥' + form.shoppingBudget : '未设购物预算'}}</text><button class="primary" bindtap="calculate" disabled="{{busy || pending}}">{{busy ? '正在核算…' : '核算整趟行程'}}</button><text class="note">沿用下方条件，可先核算，也可修改后再比较。</text></view>
+    <button wx:if="{{simpleMode}}" bindtap="more">{{showMore ? '收起更多设置' : '更多条件与AI修改'}}</button>
+    <block wx:if="{{!simpleMode || showMore}}">
+    <view class="card"><text class="h3">把这几件事放在一起</text>
+      <label wx:for="{{fields}}" wx:key="key"><text>{{item.label}}</text><input value="{{item.value}}" type="{{item.type === 'number' ? 'digit' : 'text'}}" placeholder="{{item.hint}}" disabled="{{busy}}" data-key="{{item.key}}" bindinput="field"/></label>
+      <text class="note">时间包含购物、办事、等待和返程；未填整趟时间按45分钟核算。</text>
+      <view class="actions"><button wx:for="{{taskRows}}" wx:key="id" class="{{item.checked ? 'primary' : ''}}" disabled="{{busy}}" data-id="{{item.id}}" bindtap="task">{{item.label}}</button></view>
+      <label><text>这一趟要买的商品（顿号分隔）</text><textarea value="{{items}}" maxlength="150" data-key="items" bindinput="field" disabled="{{busy}}" auto-height/></label>
+      <text class="note">已备清单：{{shoppingSummary}}</text><button bindtap="shopping" disabled="{{busy}}">补充商品规格与价格</button>
+      <view class="check" bindtap="returnChange"><checkbox checked="{{returnEasy}}" disabled="{{busy}}"/><text>买完轻松返程</text></view><text class="note">{{movementSummary}}</text>
+      <text wx:if="{{returnInherited}}" class="note">返程节奏沿用已保存的步行偏好。</text>
+    </view>
+    <view class="card"><text class="h3">想调整，就再说一句</text><textarea value="{{text}}" maxlength="600" data-key="text" bindinput="field" disabled="{{busy}}" placeholder="预算改成30元，药先不取了，其余不变。" auto-height/>
+      <voice-input disabled="{{busy}}" bind:transcript="transcript"/>
+      <view class="actions"><button class="{{mode === 'free' ? 'primary' : ''}}" data-mode="free" bindtap="mode" disabled="{{busy}}">基础免费AI</button><button class="{{mode === 'own' ? 'primary' : ''}}" data-mode="own" bindtap="mode" disabled="{{busy}}">我的API</button></view><text class="note">仅发送本次文字及当前条件、任务和商品名称，不发送坐标和价格记录。自用API按服务商计费。</text>
+      <button bindtap="edit" disabled="{{busy || !text}}">整理这次修改</button>
+      <view wx:if="{{pending}}" class="diff"><text class="h3">先核对变化</text><text wx:for="{{changes}}" wx:key="*this" class="note">{{item}}</text><button class="primary" bindtap="accept" disabled="{{busy || !changes.length}}">确认这些修改</button><button bindtap="reject">保留原方案</button></view>
+    </view>
+    <view class="card"><text class="h3">参与比较的地点（最多5个）</text><view wx:for="{{candidates}}" wx:key="id" class="check" data-id="{{item.id}}" bindtap="candidate"><checkbox checked="{{item.checked}}" disabled="{{busy}}"/><text>{{item.name}}{{item.difficult ? ' · 曾标记难走' : ''}} · 停留{{item.stay}}分钟</text></view></view>
+    </block>
+    <view wx:for="{{plans}}" wx:for-item="plan" wx:key="id" class="card trip-result"><text wx:if="{{demo}}" class="note">模拟社区与示例价格 · 不可据此出行</text><text class="eyebrow">{{plan.label}}</text><text class="h3">{{plan.finish}}前后回来</text><text class="metric">整趟{{plan.minutes}}分钟 · 步行{{plan.walking}}分钟</text><text class="metric">{{plan.priceComplete ? '清单估价' : '已知部分'}} ¥{{plan.low}}—{{plan.high}}</text><text class="note">{{plan.budget === 'unknown' ? '价格未齐，不能确认是否在预算内。' : plan.budget === 'over' ? '清单预计超过购物预算。' : '其他未记录消费需另算。'}}{{plan.gap > 0 ? '尚未达到步行目标，差' + plan.gap + '分钟。' : ''}}</text>
+      <text wx:if="{{plan.missed.length}}" class="error">尚未安排：{{plan.missedText}}</text>
+      <view wx:for="{{plan.legs}}" wx:for-item="leg" wx:key="index" class="stop"><text class="time">{{leg.arrival}}</text><view><text class="h3">{{leg.name}}</text><text class="note">本段走{{leg.walking}}分钟 · 停留{{leg.stay}}分钟</text><text class="note">{{leg.phasesText}}</text><text wx:if="{{leg.buy}}">买{{leg.buy}}</text></view></view>
+      <text wx:for="{{plan.notes}}" wx:key="*this" class="note">{{item}}</text><text class="note">报价来自记录，请核实库存；顺序与时间不代表逐路口导航，等灯按手动假设计算。</text><button class="primary" data-id="{{plan.id}}" bindtap="start">按这条安排出门</button><button data-id="{{plan.id}}" bindtap="openGuide">查看步行指引</button><button data-id="{{plan.id}}" bindtap="prepare">准备这趟出门卡</button><button data-id="{{plan.id}}" bindtap="offerRoutine">存为常用方案</button>
+    </view>
+  </block>
+  <view wx:if="{{active}}" class="card active"><text class="eyebrow">{{activeDemo ? '模拟行程演练' : '进行中的行程'}} · 本机保存</text><text class="h3">{{active.phase === 'finished' ? '已经回来啦' : active.phase === 'resting' ? '先歇一歇' : '下一站：' + next}}</text><text class="note">最后确认位置：{{here}}</text><text>预计返程：{{remaining.finish}}</text><text wx:if="{{late > 0}}" class="error">比整趟上限晚约{{late}}分钟</text><text class="note">{{remaining.note}}</text>
+    <block wx:if="{{active.phase === 'at'}}"><button class="primary" data-kind="leave" bindtap="step">前往下一站</button><button data-kind="rest" bindtap="step">在这里歇脚</button><button data-kind="skip" bindtap="step" disabled="{{active.remaining.length < 2}}">取消下一站</button><button data-kind="return" bindtap="step" disabled="{{active.currentId === active.input.origin.id}}">从这里直接返程</button></block>
+    <button wx:if="{{active.phase === 'walking'}}" class="primary" data-kind="arrive" bindtap="step">我到了，确认位置</button><button wx:if="{{active.phase === 'resting'}}" class="primary" data-kind="resume" bindtap="step">歇好了，继续安排</button><button bindtap="refresh">更新预计返程</button>
+    <include src="./alternatives.wxml"/>
+    <include src="./assistance.wxml"/>
+    <button wx:if="{{active.phase !== 'finished'}}" bindtap="openGuide">查看剩余路段指引</button><button bindtap="prepare">准备当前出门卡</button><button bindtap="offerRoutine">存为常用方案</button>
+    <button bindtap="toggleFeedback">结束这趟，记下实际情况</button><view wx:if="{{showFeedback || active.phase === 'finished'}}"><text class="h3">结束这趟，记下实际情况</text><text class="note">纯步行时间排除购物、等灯与歇脚；留空也可保存。</text><label><text>实际纯步行（分钟）</text><input type="digit" value="{{feedback.walking}}" data-key="walking" bindinput="feedback"/></label><label><text>实际花费（元）</text><input type="digit" value="{{feedback.spent}}" data-key="spent" bindinput="feedback"/></label><label><text>这次的提醒</text><textarea value="{{feedback.note}}" maxlength="300" data-key="note" bindinput="feedback" auto-height/></label><text class="note">哪些到过的地点不太好走？</text><view wx:for="{{feedbackPlaces}}" wx:key="id" class="check" data-id="{{item.id}}" bindtap="difficult"><checkbox checked="{{item.checked}}"/><text>{{item.name}}</text></view><button class="primary" bindtap="finish" disabled="{{busy}}">保存行后记录并结束</button></view>
+  </view>
+  <view wx:if="{{pace}}" class="card"><text>根据记录路程与纯步行时间，参考步速{{pace}}米/秒，尚未修改偏好。</text><button bindtap="applyPace">核对并更新舒适步速</button></view>
+  <include src="./walking.wxml"/>
+  <include src="./preparation.wxml"/>
+  <view wx:if="{{recent.length}}" class="card"><text class="h3">最近的出门记录</text><text class="note">随私人地点簿同步，最多保存30趟。</text><text wx:for="{{recent}}" wx:key="id" class="note">{{item.date}} · {{item.mode === 'demo' ? '模拟演练 · ' : ''}}{{item.origin}} · 手动确认{{item.completed.length}}次到达 · {{item.totalMinutes}}分钟{{item.spent !== null ? ' · 实付¥' + item.spent : ''}} {{item.note}}</text></view>
+</view>

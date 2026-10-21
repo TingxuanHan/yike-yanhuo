@@ -1,0 +1,15 @@
+<view wx:if="{{guide.open}}" id="walking-guide" class="card">
+  <text class="h3">这一段怎么走</text><text class="note">先核对自己所在位置；这里从选定起点说明走法，不读取实时定位。</text>
+  <neighborhood-notices id="route-notices" context="{{noticeContext}}" choices="{{noticeChoices}}" large="{{careMode || simpleMode}}" mobility="{{mobility}}" alternatives="{{active.phase === 'at' && active.remaining.length > 1}}" bind:alternative="alternatives"/>
+  <picker range="{{guideLegLabels}}" value="{{guide.selected}}" bindchange="guideSelect" disabled="{{guide.busy}}"><view class="guide-picker">路段：{{guideLegLabels[guide.selected]}} ▾</view></picker>
+  <text wx:if="{{guideDemo}}" class="error">模拟道路步骤 · 不可据此出行</text>
+  <text wx:if="{{guide.error}}" class="error">{{guide.error}}</text><text wx:if="{{guide.status}}" class="status">{{guide.status}}</text>
+  <block wx:if="{{guide.guide}}"><text class="note">{{guide.age}}</text><text class="note">本段约{{guideMeters}}米 · 地图参考{{guideMinutes}}分钟；你的步速、等候和办事用时见行程。</text>
+    <view class="walking-step"><text class="note">第 {{guide.step+1}} / {{guide.guide.steps.length}} 条</text><text class="instruction">{{guide.guide.steps[guide.step].instruction}}</text></view>
+    <view class="actions"><button disabled="{{guide.step === 0}}" data-delta="-1" bindtap="guideTurn">上一条指引</button><button class="primary" disabled="{{guide.step === guide.guide.steps.length-1}}" data-delta="1" bindtap="guideTurn">下一条指引</button></view>
+    <text class="note">翻页只记录阅读进度。是否到达请回到行程中手动确认，过街和通行情况以现场为准。</text>
+    <button bindtap="guideAll">{{showGuideAll ? '收起整段步骤' : '查看整段步骤'}}</button><block wx:if="{{showGuideAll}}"><text wx:for="{{guide.guide.steps}}" wx:key="index" class="note">{{index+1}}. {{item.instruction}}</text></block>
+  </block>
+  <text wx:else class="note">还没有保存这段步骤。获取失败时可继续使用原行程与入口资料。</text>
+  <button bindtap="guideLoad" disabled="{{guide.busy}}">{{guide.busy ? '正在读取这一段…' : guide.guide ? '重新获取这一段' : guideDemo ? '查看模拟步骤' : '获取这一段步行步骤'}}</button><button bindtap="guideClose">收起步行指引</button>
+</view>

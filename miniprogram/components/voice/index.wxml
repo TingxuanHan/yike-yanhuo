@@ -1,0 +1,13 @@
+<view wx:if="{{showPrivacy}}" class="privacy-overlay"><view class="privacy-dialog"><text class="title">语音输入使用说明</text><text class="note">主动录音时使用麦克风。点击发送后，音频通过服务器交给硅基流动识别。本应用不保存音频；文字须经你确认后用于规划。</text><button bindtap="privacyContract">阅读《用户隐私保护指引》</button><text wx:if="{{privacyError}}" class="error">{{privacyError}}</text><button id="privacy-agree" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="privacyAgree">同意并继续</button><button bindtap="privacyDecline">暂不使用，继续打字</button></view></view>
+<view class="voice"><text class="title">用语音说一说</text><text class="note">主动录音，最多45秒。点击发送才将音频交给硅基流动；本应用不保存音频。先核对文字，再应用条件。</text>
+<text wx:if="{{!configured}}" class="note">先在“我的”连接私人空间和基础AI，也可用输入法语音输入。</text>
+<button wx:if="{{stage === 'idle' || stage === 'review' || stage === 'ready'}}" disabled="{{disabled || !configured}}" bindtap="start">开始录音</button>
+<button wx:if="{{stage === 'recording'}}" bindtap="stop">结束录音</button>
+<text wx:if="{{stage === 'recording'}}" class="note">正在录音，结束后可选择是否发送。</text>
+<text wx:if="{{stage === 'requesting'}}" class="note">正在准备录音…</text>
+<text wx:if="{{stage === 'ready'}}" class="note">录音已就绪，尚未上传。</text>
+<button wx:if="{{stage === 'ready'}}" disabled="{{disabled}}" bindtap="transcribe">发送录音识别</button>
+<text wx:if="{{stage === 'transcribing'}}" class="note">正在识别…</text>
+<button wx:if="{{stage !== 'idle'}}" bindtap="cancel">取消语音</button>
+<text wx:if="{{error}}" class="error">{{error}}</text>
+<view wx:if="{{stage === 'review'}}"><text class="note">核对识别文字，特别是金额和时间</text><textarea value="{{text}}" maxlength="600" bindinput="text" auto-height/><button disabled="{{disabled || !text}}" bindtap="use">确认文字，填入需求</button></view></view>

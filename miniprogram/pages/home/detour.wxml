@@ -1,0 +1,27 @@
+<view class="siting-panel detour-panel">
+  <button class="disclosure" bindtap="detourToggle">{{detourOpen?'收起绕行诊断':'看起来很近，为什么要走更远？'}}</button>
+  <view wx:if="{{detourOpen}}">
+    <text wx:if="{{detourError}}" class="error">{{detourError}}</text>
+    <view wx:if="{{detourView}}">
+      <text class="eyebrow">{{detourView.sourceLabel}}</text><text class="heading">{{detourView.headline}}</text>
+      <text>直线附近的{{detourView.knownPoints}}个有效已测点中，有{{detourView.timeExceeded}}个按现有记录超出{{minutes}}分钟。</text>
+      <text class="muted">用{{detourView.speedMps}}米/秒、不计等灯的直线{{detourView.directRadius}}米作为对照。只核对已有点，点数不代表面积或发生率。{{detourView.timeLabel}}。</text>
+      <view wx:for="{{detourView.rows}}" wx:if="{{index < 3 || detourMore}}" wx:key="id" class="siting-condition-row">
+        <text class="place-name">{{item.number}}. {{item.name}}</text>
+        <text>直线{{item.direct}}米 → 路线{{item.route}}米</text>
+        <text class="siting-conclusion">多走约{{item.extra}}米 · {{item.ratioLabel}}倍 · {{item.time}}分钟{{item.outsideTime?'（超出所选时长）':''}}</text>
+        <text class="muted">{{item.coordinates}}</text>
+      </view>
+      <button wx:if="{{detourView.rows.length > 3}}" class="quiet" bindtap="detourMoreToggle">{{detourMore?'收起其余线索':'展开其余线索（最多8处）'}}</button>
+      <text class="muted">默认列3处，最多展开8处，按额外距离排序。请核对入口、道路连通与过街设施，不能由线索确定障碍原因或捷径。没有线索不表示没有绕行。</text>
+      <button class="quiet" bindtap="detourBasisToggle">{{detourBasis?'收起':'查看'}}未纳入的点与判定口径</button>
+      <view wx:if="{{detourBasis}}">
+        <text class="muted">缺测{{detourView.unknownPoints}}处 · 未能连接{{detourView.unreachablePoints}}处 · 记录分歧{{detourView.conflictPoints}}处 · 距离异常{{detourView.inconsistentPoints}}处。</text>
+        <text class="muted">线索门槛：直线至少80米、路线至少多200米且达到直线1.5倍。是核查优先级，未按真实障碍标注校准。同坐标合并，明显分歧不作绕行判断。</text>
+        <text class="muted">直线圈只作对照，不是等时圈。地图吸附、入口与坐标均可能影响路线，现场原因待核实。基础记录{{detourView.baseGeneratedAt}}。</text>
+      </view>
+      <button class="secondary" bindtap="detourCopy">复制绕行核查清单</button>
+      <text wx:if="{{detourNotice}}" class="notice">{{detourNotice}}</text>
+    </view>
+  </view>
+</view>

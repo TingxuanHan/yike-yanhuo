@@ -1,0 +1,125 @@
+{
+  "protocol": {
+    "meshVersion": "shared-edge-two-pass-v2",
+    "refinementBudget": 96,
+    "radiiMeters": [
+      180,
+      280,
+      380
+    ],
+    "anglesDegrees": [
+      11.25,
+      56.25,
+      101.25,
+      146.25,
+      191.25,
+      236.25,
+      281.25,
+      326.25
+    ],
+    "minimumSeparationMeters": 10,
+    "purpose": "预先固定的新点，仅检验短距离边界；旧24点作为开发案例，不再作为独立验证"
+  },
+  "sourceSha256": "a88229ea7e2bed666db42bb5d8575bfa622ba34e3c12195ae0705e863bc2ac5f",
+  "modelSha256": "ef2e645cdfdfc99ae1db28ec187d21e508c1ea72d52d866a19a55ff1a02d3a74",
+  "plannedAt": "2026-10-05T03:58:33.493Z",
+  "measuredAt": "2026-10-05T04:00:18.984Z",
+  "sourceGeneratedAt": "2026-10-05T02:17:07.891Z",
+  "previous": [
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 133,
+      "minutes": 5,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 6,
+      "falseReachable": 0,
+      "missedReachable": 4,
+      "trueUnreachable": 14,
+      "agreement": 0.8333333333333334
+    },
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 133,
+      "minutes": 10,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 24,
+      "falseReachable": 0,
+      "missedReachable": 0,
+      "trueUnreachable": 0,
+      "agreement": 1
+    },
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 133,
+      "minutes": 15,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 24,
+      "falseReachable": 0,
+      "missedReachable": 0,
+      "trueUnreachable": 0,
+      "agreement": 1
+    }
+  ],
+  "current": [
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 177,
+      "minutes": 5,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 8,
+      "falseReachable": 1,
+      "missedReachable": 2,
+      "trueUnreachable": 13,
+      "agreement": 0.875
+    },
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 177,
+      "minutes": 10,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 24,
+      "falseReachable": 0,
+      "missedReachable": 0,
+      "trueUnreachable": 0,
+      "agreement": 1
+    },
+    {
+      "model": "adaptive",
+      "label": "现有边界加密",
+      "gridSamples": 177,
+      "minutes": 15,
+      "evaluated": 24,
+      "unknown": 0,
+      "trueReachable": 24,
+      "falseReachable": 0,
+      "missedReachable": 0,
+      "trueUnreachable": 0,
+      "agreement": 1
+    }
+  ],
+  "scope": "上海单个候选入口，同一服务的新点对照。仅观察短距离边界，非现场真值、非一般精度承诺。旧设施数据复用。",
+  "usage": {
+    "requests": 68,
+    "routePairs": 68,
+    "searchRequests": 0,
+    "cacheHits": 0,
+    "retries": 0
+  },
+  "rate": {
+    "requests": 68,
+    "minimumStartIntervalMs": 1101,
+    "maximumStartsInOneSecond": 1
+  },
+  "trainingPoints": 44,
+  "validationPoints": 24
+}

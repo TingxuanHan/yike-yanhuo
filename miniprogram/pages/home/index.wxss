@@ -1,0 +1,333 @@
+.mode-switch {
+  min-height: 88rpx;
+  margin-bottom: 24rpx;
+  color: #146c5d;
+  font-size: 30rpx;
+}
+.simple-start .simple-entry {
+  text-align: left;
+  padding: 30rpx;
+  margin: 24rpx 0;
+  min-height: 164rpx;
+  height: auto;
+  white-space: normal;
+}
+.simple-start .simple-entry text {
+  display: block;
+  font-size: 42rpx;
+  line-height: 1.6;
+}
+.simple-start .simple-entry .simple-caption {
+  font-size: 30rpx;
+  font-weight: 400;
+}
+.simple-start button {
+  min-height: 104rpx;
+  height: auto;
+  font-size: 34rpx;
+  line-height: 1.6;
+  white-space: normal;
+  padding: 20rpx;
+}
+.coverage-detail {
+  margin-top: 24rpx;
+}
+.coverage-line {
+  display: block;
+  margin: 16rpx 0;
+  line-height: 1.7;
+}
+.time-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding: 18rpx;
+  font-size: 24rpx;
+}
+.legend-square {
+  display: inline-block;
+  width: 18rpx;
+  height: 18rpx;
+  margin-right: 8rpx;
+  border: 1px solid #7d9088;
+}
+.comparison-detail {
+  margin-top: 24rpx;
+}
+.comparison-score {
+  display: flex;
+  gap: 20rpx;
+  padding: 24rpx 0;
+}
+.comparison-score > view {
+  flex: 1;
+  min-width: 0;
+}
+.comparison-score text {
+  display: block;
+  margin: 8rpx 0;
+}
+.comparison-place {
+  border-top: 1px solid #dbe6e0;
+  padding: 20rpx 0;
+}
+.comparison-place text {
+  display: block;
+}
+.review-reminders {
+  padding: 24rpx 0;
+  border-bottom: 1px solid #dbe6e0;
+  margin-bottom: 24rpx;
+}
+.review-reminders > text {
+  display: block;
+  margin-bottom: 16rpx;
+}
+.review-mode .brand {
+  margin: 0 0 16rpx;
+}
+.review-mode .brand-mark {
+  width: 70rpx;
+  height: 70rpx;
+}
+.review-mode .title {
+  font-size: 36rpx;
+}
+.review-mode .mode-switch {
+  min-height: 88rpx;
+  margin: 0 0 16rpx;
+  padding: 12rpx;
+  font-size: 28rpx;
+}
+.review-mode .review-guide {
+  padding: 20rpx 24rpx;
+  margin-bottom: 16rpx;
+}
+.review-mode .review-guide .heading {
+  font-size: 32rpx;
+  margin-bottom: 0;
+}
+.review-mode .review-tools-toggle {
+  text-align: left;
+  padding: 12rpx 0;
+  margin: 0;
+  min-height: 88rpx;
+}
+.review-mode .review-steps {
+  display: flex;
+  gap: 10rpx;
+}
+.review-mode .review-steps button {
+  flex: 1;
+  padding: 16rpx 4rpx;
+  margin: 0;
+  min-height: 88rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+.review-mode .journey-time-section {
+  padding: 12rpx 20rpx;
+  margin-bottom: 16rpx;
+}
+.review-panel-switch {
+  display: flex;
+  gap: 8rpx;
+  border-bottom: 1px solid #dce6e2;
+  margin: 24rpx 0;
+}
+.review-panel-switch button {
+  flex: 1;
+  min-height: 88rpx;
+  padding: 14rpx 0;
+  margin: 0;
+  font-size: 32rpx;
+  background: transparent;
+  border-radius: 12rpx 12rpx 0 0;
+}
+.review-panel-switch .active {
+  color: #146c5d;
+  background: #e5efea;
+  box-shadow: inset 0 -6rpx #146c5d;
+}
+.review-panel-switch button::after {
+  border: none;
+}
+.review-mode .comparison-detail,
+.review-mode .coverage-detail {
+  margin-top: 0;
+}
+.review-mode.care-mode .review-steps button {
+  font-size: 32rpx;
+  padding: 18rpx 0;
+}
+.coverage-area-panel {
+  margin: 22rpx 0;
+  padding: 24rpx;
+  background: #f1f6f3;
+  border: 1px solid #cbded4;
+  border-radius: 20rpx;
+}
+.coverage-area-sketch {
+  display: block;
+  width: 100%;
+  height: 480rpx;
+  margin: 18rpx 0;
+}
+.coverage-area-bar {
+  display: flex;
+  overflow: hidden;
+  height: 24rpx;
+  margin: 22rpx 0 8rpx;
+  border-radius: 12rpx;
+}
+.coverage-area-bar > view {
+  height: 100%;
+}
+.coverage-area-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10rpx 20rpx;
+  padding: 18rpx 0;
+  border-bottom: 1px solid #d9e4df;
+}
+.care-mode .coverage-area-row {
+  display: block;
+}
+.care-mode .coverage-area-row text {
+  display: block;
+}
+.siting-panel {
+  border-top: 1px solid #cbded4;
+  border-bottom: 1px solid #cbded4;
+  margin: 16px 0;
+  padding: 6px 0;
+}
+.siting-panel label {
+  display: block;
+  margin: 14px 0;
+}
+.siting-candidate {
+  margin: 12px 0;
+}
+.siting-candidate > text {
+  display: block;
+}
+.siting-group {
+  margin: 18px 0;
+}
+.siting-plan {
+  text-align: left;
+  background: #fff;
+  border: 1px solid #cbded4;
+  margin: 8px 0;
+  padding: 12px;
+  line-height: 1.6;
+  color: #243f48;
+}
+.siting-plan > text {
+  display: block;
+}
+.siting-plan.selected {
+  border-color: #146c5d;
+  background: #eaf3ee;
+  border-left-width: 4px;
+}
+.siting-switch {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+.siting-switch button {
+  flex: 1;
+  min-width: 0;
+}
+.siting-area-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #dde6e1;
+}
+.siting-area-row > text {
+  display: block;
+}
+.siting-result {
+  margin-top: 20px;
+}
+.verification-panel {
+  margin: 24rpx 0;
+  border-top: 1px solid #cbded4;
+  border-bottom: 1px solid #cbded4;
+}
+.verification-task {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #cbded4;
+  padding: 20rpx;
+  margin: 12rpx 0;
+}
+.verification-task.selected {
+  border-color: #146c5d;
+  background: #eaf3ee;
+}
+.verification-plan,
+.siting-conclusion {
+  padding: 18rpx 20rpx;
+  background: #eaf3ee;
+  border-left: 6rpx solid #146c5d;
+  margin: 20rpx 0;
+}
+.siting-headline {
+  color: #146c5d;
+}
+.siting-conclusion {
+  display: block;
+  line-height: 1.65;
+}
+.siting-group > .place-name {
+  display: block;
+  width: 100%;
+  margin-bottom: 8rpx;
+}
+.siting-group .siting-plan {
+  display: inline-block;
+  width: auto;
+  margin-right: 12rpx;
+  min-height: 88rpx;
+}
+.siting-conditions {
+  border-top: 1px solid #cbded4;
+  margin: 20px 0;
+}
+.siting-conditions-result {
+  margin-top: 20px;
+}
+.siting-conditions text {
+  overflow-wrap: anywhere;
+}
+.siting-conditions-result > text,
+.siting-condition-row > text {
+  display: block;
+}
+.siting-condition-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #dde6e1;
+}
+.detour-panel text {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.contour-audit-panel {
+  margin: 24rpx 0;
+  padding: 16rpx 0;
+  border-top: 1rpx solid #d7e4df;
+  border-bottom: 1rpx solid #d7e4df;
+}
+.audit-observation {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #d7e4df;
+}
+.contour-audit-panel text {
+  display: block;
+  overflow-wrap: anywhere;
+}

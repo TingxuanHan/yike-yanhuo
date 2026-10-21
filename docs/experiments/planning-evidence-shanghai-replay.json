@@ -1,0 +1,42 @@
+{
+  "evidence": "historical-api-replay",
+  "sourceSha256": "ac40bb720148b62c430c86510df4300a0d3b03a172528a23cf992293195f4ebd",
+  "sourceId": "8148533c-112b-460d-a470-7ce36d83b474",
+  "baseGeneratedAt": "2026-10-05T04:00:19.002Z",
+  "counts": {
+    "nearPoints": 144,
+    "knownPoints": 144,
+    "unknownPoints": 0,
+    "unreachablePoints": 0,
+    "conflictPoints": 0,
+    "inconsistentPoints": 0,
+    "excludedNearOrigin": 1,
+    "timeExceeded": 37
+  },
+  "detourHotspots": 26,
+  "conditionDomainSquareMeters": [
+    1888934.3695225,
+    1040017.0101475,
+    972257.5295435
+  ],
+  "maxGapGainSquareMeters": 0,
+  "checks": [
+    {
+      "schema": "yike-detour-audit-v1",
+      "evidence": "api-report-diagnostic",
+      "verifiedPoints": 144,
+      "hotspots": 26,
+      "externalApiCalls": 0
+    },
+    {
+      "schema": "yike-siting-conditions-v1",
+      "evidence": "api-report-scenarios",
+      "verifiedConditions": 3,
+      "verifiedPlans": 7,
+      "maxErrorSquareMeters": 0,
+      "externalApiCalls": 0
+    }
+  ],
+  "externalApiCalls": 0,
+  "fieldValidated": false
+}

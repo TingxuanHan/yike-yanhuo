@@ -1,0 +1,900 @@
+<import src="/components/privacy.wxml" />
+<view class="page {{careMode || simpleMode?'care-mode':''}} {{reviewMode?'review-mode':''}}">
+  <view class="brand"
+    ><image src="/assets/place.png" class="brand-mark" /><view
+      ><text class="title">一刻烟火</text
+      ><text wx:if="{{!reviewMode}}" class="muted">从家门口，走进好生活</text></view
+    ><button wx:if="{{!simpleMode}}" class="care-toggle" bindtap="care">
+      {{careMode?'标准字号':'大字模式'}}
+    </button></view
+  >
+  <view wx:if="{{error}}" class="error" role="alert">{{error}}</view
+  ><view wx:if="{{status}}" class="notice" role="status">{{status}}</view>
+  <view wx:if="{{busy}}" class="notice"
+    >正在处理，请稍候。<button wx:if="{{analyzing}}" bindtap="cancelAnalysis">
+      取消计算
+    </button></view
+  >
+  <button wx:if="{{!reviewMode}}" class="mode-switch" bindtap="simple">
+    {{simpleMode ? '简易模式 · 切换完整版' : '切换简易模式'}}
+  </button>
+  <button wx:else class="mode-switch" bindtap="closeReview" disabled="{{busy}}">
+    结束体检演示 · 返回日常
+  </button>
+  <view wx:if="{{simpleMode && tab==='nearby'}}" class="simple-start">
+    <text class="heading">今天想去哪里？</text>
+    <button class="simple-entry primary" bindtap="openTrip">
+      <text>我要出门</text
+      ><text class="simple-caption">选几件事，算好时间再出发</text>
+    </button>
+    <button class="simple-entry" data-tab="places" bindtap="switchTab">
+      <text>常用地点</text
+      ><text class="simple-caption">找小店、看入口、大字指引</text>
+    </button>
+    <view class="section"
+      ><text class="heading">家人就在身边</text
+      ><button wx:if="{{familyPhone}}" class="primary" bindtap="familyCall">
+        一键拨打家人电话</button
+      ><button bindtap="family">联系家人 · 告诉家人我在哪</button
+      ><text class="muted">没有开始行程，也能联系家人。</text></view
+    >
+    <button bindtap="openReview" disabled="{{busy}}">
+      社区体检演示 · 看范围与设施缺口
+    </button>
+  </view>
+  <view wx:if="{{tab==='nearby' && !simpleMode}}">
+    <view wx:if="{{reviewMode}}" class="section review-guide">
+      <text class="heading">社区体检演示</text
+      ><button class="disclosure review-tools-toggle" data-key="showReviewTools" bindtap="toggle">案例与实验说明 {{showReviewTools?'−':'＋'}}</button>
+      <view wx:if="{{showReviewTools}}">
+      <view class="actions"
+        ><button class="primary" bindtap="reviewExample">体验模拟社区</button
+        ><button bindtap="reviewOriginal">打开原报告</button></view
+      >
+      <button class="disclosure" data-key="showStudy" bindtap="toggle">
+        上海真实接口对照 · {{showStudy?'收起':'查看'}}实验结果
+      </button>
+      <view wx:if="{{showStudy}}"
+        ><text>{{reviewStudy.title}} · {{reviewStudy.date}}</text
+        ><text class="muted"
+          >与24个API对照点一致的数量：直线圆 / 规则网格 / 边界加密</text
+        ><text
+          class="coverage-line"
+          wx:for="{{reviewStudy.rows}}"
+          wx:key="minutes"
+          >{{item.minutes}}分钟：{{item.cells[0]}} / {{item.cells[1]}} /
+          {{item.cells[2]}}</text
+        ><text class="muted">{{reviewStudy.note}}</text
+        ><text class="muted"
+          >本节为实验摘要，和当前地图展示的案例分开。</text
+        ></view
+      >
+      </view>
+      <view class="review-steps"><button data-step="range" bindtap="reviewStep">1. 范围</button><button data-step="coverage" bindtap="reviewStep">2. 核查</button><button data-step="report" bindtap="reviewStep">3. 报告</button></view>
+    </view>
+    <view wx:if="{{!reviewMode}}">
+      <button bindtap="openReview" disabled="{{busy}}">社区体检演示</button>
+      <button class="outing-entry" bindtap="family">联系家人 · 位置说明</button>
+      <button
+        class="outing-entry primary"
+        bindtap="openOutings"
+        disabled="{{busy}}"
+      >
+        出门办事 · 熟路与歇脚
+      </button>
+      <button
+        class="outing-entry primary"
+        bindtap="openTrip"
+        disabled="{{busy}}"
+      >
+        一趟出门 · 边办事边走走
+      </button>
+      <button
+        class="outing-entry"
+        id="open-planning"
+        bindtap="openPlanning"
+        disabled="{{busy}}"
+      >
+        一句话安排 · AI辅助
+      </button>
+    </view>
+    <view class="section journey-time-section"
+      ><text wx:if="{{!reviewMode}}" class="eyebrow">这次想走多远</text
+      ><view class="time-row"
+        ><button
+          wx:for="{{timePresets}}"
+          wx:key="*this"
+          class="time-chip {{minutes===item?'selected':''}}"
+          data-minutes="{{item}}"
+          bindtap="quickTime"
+          disabled="{{busy}}"
+        >
+          {{item}}分钟</button
+        ><button
+          wx:if="{{!reviewMode}}"
+          class="quiet"
+          data-tab="mine"
+          bindtap="switchTab"
+        >
+          自定义
+        </button></view
+      ><text class="muted" wx:if="{{!reviewMode}}"
+        >按 {{book.preferences.speedMps}} 米/秒 · {{book.preferences.departure}}
+        出发试算</text
+      ></view
+    >
+    <view wx:if="{{result}}" class="map-section">
+      <view class="map-caption"
+        ><text class="badge {{result.mode==='demo'?'demo-badge':''}}"
+          >{{result.mode==='demo'?'离线示例 · 非真实社区':'已保存的路线数据'}}</text
+        ><text>{{result.center.label}}</text></view
+      >
+      <map
+        wx:if="{{mapNative}}"
+        id="neighborhood-map"
+        class="native-map"
+        longitude="{{mapCenter.longitude}}"
+        latitude="{{mapCenter.latitude}}"
+        scale="15"
+        markers="{{mapMarkers}}"
+        polyline="{{mapPolylines}}"
+        polygons="{{mapPolygons}}"
+        include-points="{{mapPoints}}"
+        show-location="{{false}}"
+        show-scale="{{true}}"
+        enable-rotate="{{false}}"
+        bindmarkertap="marker"
+      />
+      <view wx:else class="sketch-wrap"
+        ><canvas
+          id="neighborhood-sketch"
+          canvas-id="neighborhood-sketch"
+          class="sketch"
+          disable-scroll="{{true}}"
+        /><text class="sketch-label"
+          >色线：各时段估算边界 · 圆点：清单地点</text
+        ></view
+      >
+      <view class="time-legend"><text wx:for="{{timeLegend}}" wx:key="to"><text class="legend-square" style="background-color:{{item.color}};"></text>{{item.label}}</text></view>
+      <view class="map-summary"
+        ><text>{{minutes}}分钟内 · {{nearby.length}}处清单地点</text
+        ><text class="muted">约 {{rangeArea}} km²</text></view
+      >
+      <text wx:if="{{rangeClipped}}" class="warning map-note"
+        >已到采样边界，更远的范围尚未核验。</text
+      ><text wx:if="{{mapHasHoles}}" class="muted map-note"
+        >带空洞的时段区域仅画色线；空白可能未采样或缺测，不能直接认定不可达。</text
+      >
+    </view>
+    <view wx:if="{{reviewMode && result}}" class="review-panel-switch">
+      <button data-panel="places" bindtap="reviewDetail" class="{{reviewPanel==='places'?'active':''}}">地点</button>
+      <button data-panel="coverage" bindtap="reviewDetail" class="{{reviewPanel==='coverage'?'active':''}}">核查</button>
+      <button data-panel="compare" bindtap="reviewDetail" class="{{reviewPanel==='compare'?'active':''}}">对比</button>
+    </view>
+    <view wx:if="{{result && (!reviewMode || reviewPanel==='coverage')}}" class="section coverage-section">
+      <button wx:if="{{!reviewMode}}" bindtap="coverageToggle">
+        {{showCoverage?'收起':'查看'}}设施覆盖核查
+      </button>
+      <view wx:if="{{showCoverage}}" class="coverage-detail">
+        <button wx:if="{{reminders}}" class="disclosure" data-key="showReminders" bindtap="toggle">复核提醒 · {{reminders.due}}处到期 {{showReminders?'−':'＋'}}</button>
+        <view wx:if="{{reminders && showReminders}}" class="review-reminders">
+          <text class="heading">资料该再确认了吗</text>
+          <text>{{reminders.due}}处已到复核日期 · {{reminders.soon}}处7天内需复核</text>
+          <text class="muted">按本机时间 {{reminders.asOf}} 检查。到期不代表停业，也不证明现在仍可用；历史结论保持不变。</text>
+          <view wx:for="{{reminders.items}}" wx:key="facilityId" class="comparison-place"><text>{{item.name}} · {{item.label}}</text><text class="muted">{{item.reviewLabel}} · 复核日期 {{item.dueLabel}}</text><text class="muted">{{item.entry.source}} / {{item.entry.recordId}} · 上次核查 {{item.checkedLabel}}</text></view>
+          <text class="muted">{{reminders.unscheduled}}处有记录但未设日期，{{reminders.unreviewed}}处尚未核查。可在Web报告更新依据，再打开更新后的报告。</text>
+          <button class="quiet" bindtap="refreshReminders">刷新提醒</button>
+        </view>
+        <text class="muted"
+          >{{minutes}}分钟范围 ·
+          周边{{result.parameters.gapDistanceMeters}}米直线距离</text
+        >
+        <picker
+          range="{{coverageCategories}}"
+          range-key="label"
+          value="{{coverageCategoryIndex}}"
+          bindchange="coverageCategoryChange"
+          ><view class="picker"
+            >核查类别：{{coverageCategories[coverageCategoryIndex].label}}
+            ▾</view
+          ></picker
+        >
+        <view wx:if="{{coverageArea}}" class="coverage-area-panel">
+          <text class="heading">这一片，哪里还需要核查？</text>
+          <text class="muted">{{coverageArea.categoryLabel}} · 连续分区 · 约{{coverageArea.totalArea}} km²</text>
+          <text wx:if="{{coverageArea.empty}}">当前时长没有已生成的范围，暂不计算面积。</text>
+          <view wx:else>
+            <canvas canvas-id="coverage-sketch" id="coverage-sketch" class="coverage-area-sketch" />
+            <text class="muted">设施距离分区示意，不作导航。{{coverageArea.hasHoles?'含空洞分区只画边线，避免填满空洞。':''}}</text>
+            <view class="coverage-area-bar"><view wx:for="{{coverageArea.rows}}" wx:key="state" style="width:{{item.percent}}%;background:{{item.color}}" /></view>
+            <view wx:for="{{coverageArea.rows}}" wx:key="state" class="coverage-area-row"><text>{{item.label}}</text><text>约{{item.area}} km² · {{item.percent}}%</text></view>
+          </view>
+          <text class="muted">面积不是人口覆盖率或到店步行距离，候选缺口仍需现场核查。</text>
+          <text wx:if="{{coverageArea.clipped}}" class="notice">步行范围可能被采样边界截断，面积只统计已生成部分。</text>
+          <button class="quiet" bindtap="coverageBasisToggle">{{showCoverageBasis?'收起':'查看'}}待核查原因</button>
+          <view wx:if="{{showCoverageBasis}}">
+            <text wx:for="{{coverageArea.reasons}}" wx:key="label" class="coverage-line">{{item.label}}：约{{item.area}} km²</text>
+            <text class="muted">距离圆内外边界间最宽约{{coverageArea.boundaryBand}}米归入待核查；不含地图坐标与路网插值误差。没有完整覆盖该点核查范围的检索依据时，不判为缺口。</text>
+            <text wx:for="{{coverageArea.localSearches}}" wx:key="label" class="muted">{{item.label}}。仅用于完整覆盖的局部范围，原类别完整性未提升。</text>
+          </view>
+          <button class="quiet" bindtap="copyCoverageArea">复制分区摘要</button>
+        </view>
+        <text wx:if="{{coverageAreaError}}" class="error">{{coverageAreaError}}</text>
+        <view class="verification-panel">
+          <button class="disclosure" bindtap="verificationToggle">{{showVerification?'收起补查任务':'补齐缺失数据'}}</button>
+          <view wx:if="{{showVerification}}">
+            <text class="heading">这次先核实哪里？</text>
+            <text>选择最多3项，只补取缺失测时或局部设施，原报告保留。</text>
+            <button wx:if="{{result.mode==='demo'}}" class="secondary" disabled="{{busy}}" bindtap="verificationDrill">体验模拟缺测</button>
+            <button class="quiet" disabled="{{busy}}" bindtap="verificationReopen">打开最近补查记录</button>
+            <button wx:if="{{verificationCanRestore}}" class="quiet" disabled="{{busy}}" bindtap="verificationRestore">恢复上一份报告</button>
+            <text wx:if="{{verificationError}}" class="error">{{verificationError}}</text>
+            <text wx:if="{{!verificationTasks.length}}" class="notice">当前范围没有可执行的接口补查任务，仍可核实入口和营业情况。</text>
+            <block wx:for="{{verificationTasks}}" wx:key="id">
+              <button wx:if="{{index<3||verificationMore}}" class="verification-task {{item.checked?'selected':''}}" data-id="{{item.id}}" bindtap="verificationChoose" disabled="{{busy}}" aria-label="{{item.title}}，{{item.checked?'已选':'未选'}}">
+                <text class="place-name">{{item.checked?'已选 · ':''}}{{item.title}}</text><text class="muted">{{item.reason}}</text><text class="muted">{{item.influence}}</text>
+              </button>
+            </block>
+            <button wx:if="{{verificationTasks.length>3}}" class="quiet" bindtap="verificationMore">{{verificationMore?'收起其他任务':'查看全部任务'}}</button>
+            <button wx:if="{{verificationTasks.length&&!verificationPlan}}" class="primary" disabled="{{!verificationSelected||busy}}" bindtap="verificationPreview">查看补查用量</button>
+            <view wx:if="{{verificationPlan}}" class="verification-plan">
+              <text class="heading">{{result.mode==='demo'?'模拟演练，不消耗百度额度':'本次调用上限'}}</text>
+              <text wx:if="{{result.mode!=='demo'}}">测时{{verificationPlan.maxRouteUnits}}条 · 检索{{verificationPlan.maxSearchUnits}}次，已含一次重试余量。实际用量可能更低，全站日额度和串行队列继续生效。</text>
+              <text wx:else>使用人工构造道路与设施，仅演示补查流程。</text>
+              <button class="primary" disabled="{{busy}}" bindtap="verificationRun">确认执行所选任务</button>
+            </view>
+            <button wx:if="{{verificationBusy}}" class="secondary" bindtap="verificationStop">停止本次补查</button>
+            <text wx:if="{{verificationStatus}}" class="notice">{{verificationStatus}}</text>
+            <view wx:if="{{verificationDiff}}" class="verification-diff">
+              <text class="eyebrow">{{result.mode==='demo'?'模拟缺测演练 · 非真实社区':'历史报告与本次补查 · 未现场验证'}}</text>
+              <text class="heading">补查前后有什么变化？</text>
+              <view class="siting-area-row"><text>有效测时点</text><text>{{verificationDiff.knownSamplesBefore}} → {{verificationDiff.knownSamplesAfter}}</text></view>
+              <view class="siting-area-row"><text>新增地图设施</text><text>{{verificationDiff.newFacilities}}处</text></view>
+              <view class="siting-area-row"><text>待核查面积</text><text>{{verificationDiff.unknownBefore}} → {{verificationDiff.unknownAfter}} km²</text></view>
+              <view class="siting-area-row"><text>本次步行范围</text><text>{{verificationDiff.domainBefore}} → {{verificationDiff.domainAfter}} km²</text></view>
+              <text class="muted">{{verificationDiff.note}}</text>
+              <text wx:for="{{verificationReceipts}}" wx:key="taskId" class="muted">{{item.message}}</text>
+              <button class="secondary" bindtap="verificationCopy">复制补查前后摘要</button>
+              <button wx:if="{{verificationReady}}" class="primary" disabled="{{busy}}" bindtap="verificationAdopt">采用补查结果</button>
+            </view>
+            <view wx:if="{{verificationFields.length}}"><text class="place-name">现场核查清单</text><view wx:for="{{verificationFields}}" wx:key="id"><text>{{item.title}}</text><text class="muted">{{item.reason}}</text></view></view>
+            <text class="muted">按关联缺测片区粗排，范围可能重叠，不是收益承诺。局部返回不完整时仍保留待核查；入口和营业需现场确认。采用后保存最近一组前后备份，演练不写入私人记录。</text>
+          </view>
+        </view>
+        <include src="./detour.wxml" />
+        <include src="./contour-audit.wxml" />
+        <view class="siting-panel">
+          <button class="disclosure" bindtap="sitingToggle">{{showSiting?'收起':'比较'}}设施补点方案</button>
+          <view wx:if="{{showSiting}}">
+            <text class="heading">多一处服务，放在哪里更有帮助？</text>
+            <text>从已有核查点选1至3处位置，比较补足的原缺口面积。</text>
+            <text class="muted">位置是规划假设，入口和用地需另行核实。本地比较不消耗地图接口额度。</text>
+            <view wx:if="{{sitingOptions.length > 1}}">
+              <label wx:for="{{sitingSelections}}" wx:key="index">候选位置{{index + 1}}{{index > 0?'（选填）':''}}
+                <picker range="{{sitingOptions}}" range-key="label" value="{{item}}" data-slot="{{index}}" bindchange="sitingSelect"><view class="picker">{{sitingOptions[item].label}} ▾</view></picker>
+              </label>
+              <button class="primary" bindtap="compareSites" disabled="{{!sitingSelections[0] && !sitingSelections[1] && !sitingSelections[2]}}">比较所选方案</button>
+            </view>
+            <text wx:else class="notice">当前时长没有可选测时点。请增加时长，或先完成社区体检。</text>
+            <text wx:if="{{sitingError}}" class="error">{{sitingError}}</text>
+            <view wx:if="{{sitingView}}" class="siting-result">
+              <text class="eyebrow">{{sitingView.minutes}}分钟范围 · {{sitingView.categoryLabel}} · 规划假设</text>
+              <text class="heading siting-headline">{{sitingView.headline}}</text>
+              <text class="muted">原候选缺口约{{sitingView.baselineGap}} km²。{{sitingView.supporting}}</text>
+              <text wx:if="{{sitingView.noProvenGap}}" class="notice">当前资料没有可证实的候选缺口。待核查区假设覆盖不计入改善，也不证明现实没有缺口。</text>
+              <text wx:if="{{!sitingView.before}}" class="siting-conclusion">{{sitingView.additional}}</text>
+              <view wx:for="{{sitingView.groups}}" wx:for-item="group" wx:key="count" class="siting-group">
+                <text class="place-name">{{group.label}}</text>
+                <button wx:for="{{group.plans}}" wx:key="id" data-id="{{item.id}}" bindtap="sitingPlan" class="siting-plan {{sitingView.currentId===item.id?'selected':''}}">
+                  <text>方案 {{item.label}}{{sitingView.currentId===item.id?' · 已选':''}}</text>
+                </button>
+              </view>
+              <view class="siting-switch"><button class="{{sitingView.before?'primary':'secondary'}}" data-before="true" bindtap="sitingBefore">补点前</button><button class="{{sitingView.before?'secondary':'primary'}}" data-before="false" bindtap="sitingBefore">假设补点后</button></view>
+              <text class="place-name">{{sitingView.title}}</text>
+              <canvas canvas-id="siting-sketch" id="siting-sketch" class="coverage-area-sketch" />
+              <text class="muted">设施直线覆盖示意，不作导航。字母对应候选位置。{{sitingView.hasHoles?'含空洞分区只画边线。':''}}</text>
+              <view wx:for="{{sitingView.mainRows}}" wx:key="state" class="siting-area-row"><text><text style="color:{{item.color}}">■ </text>{{item.label}}</text><text>约{{item.area}} km²</text></view>
+              <text wx:if="{{!sitingView.before}}" class="muted">组合计算已扣除重复计入的原缺口约{{sitingView.duplicateGap}} km²。待核查区假设覆盖单列，不计入已证实的缺口改善。</text>
+              <text wx:if="{{sitingView.clipped}}" class="notice">步行范围可能截断，只比较当前已生成的部分。</text>
+              <include src="./siting-conditions.wxml" />
+              <button class="quiet" bindtap="sitingBasisToggle">{{showSitingBasis?'收起':'查看'}}比较依据与限制</button>
+              <view wx:if="{{showSitingBasis}}"><view wx:for="{{sitingView.candidates}}" wx:key="id" class="siting-candidate"><text>{{item.letter}} · {{item.name}}</text><text class="muted">{{item.coordinates}}</text></view>
+                <view wx:for="{{sitingView.rows}}" wx:key="state" class="siting-area-row"><text>{{item.label}}</text><text>约{{item.area}} km²</text></view>
+                <text class="muted">按周边{{sitingView.distanceMeters}}米直线距离计算，距离边界保守保留。“未计入补足”不等于证明新增设施无法覆盖；面积不是受益人数或到店步行距离。</text>
+                <text class="muted">{{result.mode==='demo'?'人工构造数据':'百度API及已有核查记录，未现场验证'}} · 基础记录{{baseGeneratedLabel}}。原报告和公共设施未被改动。</text>
+              </view>
+              <button class="secondary" bindtap="copySiting">复制补点比较摘要</button>
+              <text wx:if="{{sitingNotice}}" class="notice">{{sitingNotice}}</text>
+            </view>
+          </view>
+        </view>
+        <picker
+          wx:if="{{coveragePoints.length}}"
+          range="{{coverageOptions}}"
+          value="{{coverageIndex}}"
+          bindchange="coveragePointChange"
+          ><view class="picker"
+            >{{coverageOptions[coverageIndex]}} ▾</view
+          ></picker
+        >
+        <view wx:if="{{coverageSelected}}">
+          <text class="heading">{{coverageSelected.label}}</text>
+          <text
+            wx:for="{{coverageSelected.reasons}}"
+            wx:key="*this"
+            class="coverage-line"
+            >{{item}}</text
+          >
+          <text class="coverage-line"
+            >最近的已检索设施：{{coverageSelected.nearestLabel}}</text
+          >
+          <text class="coverage-line"
+            >此点检索依据：{{coverageSelected.complete&&coverageSelected.inSearchArea?'已取完并覆盖核查范围':'仍需局部补齐'}}；核查范围：{{coverageSelected.inSearchArea?'全部在检索范围内':'部分超出检索范围'}}</text
+          >
+          <text class="muted"
+            >基础记录：{{baseGeneratedLabel}} ·
+            {{result.mode==='demo'?'模拟街区':'百度检索及已有核查记录'}}</text
+          >
+          <text class="muted"
+            >仅比较未停用或冲突的已检索设施，候选缺口仍需社区台账和现场确认。</text
+          >
+        </view>
+        <text wx:else class="muted"
+          >当前没有有效核查点，可增加时长或查看报告。</text
+        >
+      </view>
+    </view>
+    <view wx:if="{{result && (!reviewMode || reviewPanel==='compare')}}" class="section comparison-section">
+      <button wx:if="{{!reviewMode}}" bindtap="comparisonToggle">{{showComparison?'收起':'打开'}}个人条件对比</button>
+      <view wx:if="{{showComparison}}" class="comparison-detail">
+        <text class="heading">换个步速，看看范围变化</text>
+        <text class="muted">两种条件均按{{minutes}}分钟、同一批路线距离试算，不改原报告与个人偏好。</text>
+        <label>对比步速（米/秒）<input type="digit" value="{{comparisonInput.speedMps}}" data-key="speedMps" bindinput="comparisonField" /></label>
+        <label class="check-line"><switch checked="{{comparisonInput.waiting==='fixed'}}" bindchange="comparisonWaiting" />手动设定等灯时间</label>
+        <text wx:if="{{comparisonInput.waiting==='same'}}" class="muted">等灯沿用原条件；未设置时不计入。</text>
+        <view wx:else>
+          <label>每公里假设路口数<input type="digit" value="{{comparisonInput.crossingsPerKm}}" data-key="crossingsPerKm" bindinput="comparisonField" /></label>
+          <label>每次等待（秒）<input type="number" value="{{comparisonInput.waitSeconds}}" data-key="waitSeconds" bindinput="comparisonField" /></label>
+          <text class="muted">手动假设，并非附近真实路口或实时信号灯。</text>
+        </view>
+        <button class="primary" bindtap="compareJourney">比较这两种条件</button>
+        <text wx:if="{{comparisonError}}" class="error" role="alert">{{comparisonError}}</text>
+        <view wx:if="{{comparison}}" class="comparison-result">
+          <text class="muted">{{result.mode==='demo'?'模拟社区':'已有路线条件试算'}} · {{result.center.label}} · {{minutes}}分钟 · 基础记录 {{baseGeneratedLabel}}</text>
+          <view class="comparison-score"><view><text>原条件 · {{comparison.baselineSpeed}}米/秒</text><text class="heading">{{comparison.baselineCount}}处设施</text><text>约{{comparison.baselineArea}} km²</text></view><view><text>对比 · {{comparison.candidateSpeed}}米/秒</text><text class="heading">{{comparison.candidateCount}}处设施</text><text>约{{comparison.candidateArea}} km²</text></view></view>
+          <canvas id="comparison-sketch" canvas-id="comparison-sketch" class="sketch" disable-scroll="{{true}}" />
+          <text class="muted">范围差异示意，不含道路底图；带空洞的区域仅画边线。</text>
+          <view class="time-legend"><text wx:for="{{comparison.legend}}" wx:key="label"><text class="legend-square" style="background-color:{{item.color}};"></text>{{item.label}}</text></view>
+          <text class="coverage-line">{{comparison.counts.kept}}处仍可达，{{comparison.counts.lost}}处超出时长，{{comparison.counts.gained}}处新增可达。</text>
+          <text wx:if="{{comparison.clipped}}" class="warning">范围触及采样边界，更远区域未参与比较。</text>
+          <text class="muted">{{comparison.counts.unknown}}处设施缺少可用路线，{{comparison.counts.excluded}}处停用／待核查／冲突记录未参与，{{comparison.unknownSamples}}个采样点缺少有效路线。数量仅为已发现设施。</text>
+          <text wx:if="{{comparison.incompleteSearch}}" class="warning">部分分类检索不完整，不能据此断言设施缺失。</text>
+          <view wx:for="{{comparison.changes}}" wx:key="id" class="comparison-place"><text>{{item.name}} · {{item.label}}</text><text class="muted">{{item.before}} → {{item.after}}</text></view>
+          <text wx:if="{{!comparison.changes.length}}" class="muted">本次已知设施的可达名单没有变化。</text>
+        </view>
+        <text class="muted">使用已有路线距离重新估算，两种条件均非原接口耗时；不是重新导航或保证到达，不额外调用地图。</text>
+      </view>
+    </view>
+    <view wx:if="{{!reviewMode}}" class="start-actions"
+      ><button class="primary" bindtap="chooseStart" disabled="{{busy}}">
+        选择真实起点</button
+      ><button class="secondary" bindtap="demo" disabled="{{busy}}">
+        体验示例
+      </button></view
+    >
+    <block wx:if="{{!reviewMode || reviewPanel==='places'}}">
+    <scroll-view scroll-x class="category-scroll"
+      ><view class="category-row"
+        ><button
+          wx:for="{{categories}}"
+          wx:key="id"
+          class="filter-chip {{category===item.id?'selected':''}}"
+          data-id="{{item.id}}"
+          bindtap="filter"
+          disabled="{{busy}}"
+        >
+          {{item.label}}
+        </button></view
+      ></scroll-view
+    >
+    <view wx:if="{{selectedFacility}}" class="section selected-place"
+      ><text class="eyebrow">选中的目的地</text
+      ><text class="heading">{{selectedFacility.name}}</text
+      ><text>{{selectedFacility.address || '地址待核验'}}</text
+      ><text class="muted"
+        >估算约 {{selectedFacility.minutes}} 分钟 ·
+        {{selectedFacility.categoryLabel}}</text
+      ><view wx:if="{{!reviewMode}}" class="actions"
+        ><button class="primary" bindtap="rememberFacility" disabled="{{busy}}">
+          记住这个地方</button
+        ><button class="secondary" bindtap="directions" disabled="{{busy}}">
+          打开地图
+        </button></view
+      ><neighborhood-notices context="{{noticeContext}}" large="{{careMode}}"/></view
+    >
+    <view class="section"
+      ><view class="section-top"
+        ><text class="heading">身边好去处</text
+        ><text class="muted">按步行用时排序</text></view
+      ><text wx:if="{{!nearby.length}}" class="empty"
+        >这份结果里还没有符合条件的地点。可以换个类别或增加步行时间。</text
+      >
+      <button
+        wx:for="{{nearby}}"
+        wx:key="id"
+        class="nearby-item {{selectedFacility && selectedFacility.id===item.id?'nearby-selected':''}}"
+        data-id="{{item.id}}"
+        bindtap="selectFacility"
+      >
+        <text class="item-number">{{index+1}}</text
+        ><view class="item-body"
+          ><text class="place-name">{{item.name}}</text
+          ><text class="muted"
+            >{{item.categoryLabel}} · {{item.address || '地址待核验'}}</text
+          ></view
+        ><text class="time-label">约{{item.minutes}}分</text></button
+      ><text class="muted"
+        >营业与入口信息请在出发前确认；估算不含未记录的停歇和障碍。</text
+      >
+    </view>
+    </block>
+    <view class="section report-section"
+      ><button class="disclosure" data-key="showReportDetails" bindtap="toggle">
+        {{showReportDetails?'收起':'查看'}}范围与数据说明</button
+      ><view wx:if="{{showReportDetails}}"
+        ><text class="muted"
+          >报告生成日期：{{generatedLabel}}；基础资料：{{baseGeneratedLabel}}。范围来自已有步行路线，调整时间和步速使用本机试算。</text
+        ><text wx:if="{{mapNative}}" class="muted"
+          >底图为微信原生地图。百度坐标仅作本地近似转换用于展示，原始坐标与来源保留。</text
+        ><view wx:for="{{areas}}" wx:key="minutes" class="range"
+          ><text>{{item.minutes}}分钟</text><text>{{item.area}} km²</text
+          ><text wx:if="{{item.clipped}}">触及边界</text></view
+        ><text wx:for="{{result.warnings}}" wx:key="*this" class="warning"
+          >{{item}}</text
+        ><button
+          wx:if="{{!reviewMode}}"
+          bindtap="shareReport"
+          disabled="{{busy || !connected}}"
+        >
+          保存为家庭共享报告
+        </button></view
+      ></view
+    >
+  </view>
+  <view wx:if="{{tab==='places'}}">
+    <view class="section-top"
+      ><view
+        ><text class="heading">我的地点簿</text
+        ><text class="muted">熟悉的小店，下次还找得到</text></view
+      ><button class="primary compact" bindtap="openEditor">
+        {{hasDraft?'继续草稿':'记一个地点'}}
+      </button></view
+    >
+    <view wx:if="{{hasDraft && !showEditor}}" class="notice"
+      >有一份尚未完成的地点草稿。<button bindtap="openEditor">
+        继续填写
+      </button></view
+    >
+    <view wx:if="{{showEditor}}" class="section editor"
+      ><view class="section-top"
+        ><text class="heading">{{editing?'修改地点':'记住这个地方'}}</text
+        ><button class="quiet" bindtap="closeEditor">稍后再填</button></view
+      >
+      <label
+        >地点名称<input
+          value="{{form.name}}"
+          maxlength="80"
+          data-key="form.name"
+          bindinput="field"
+          placeholder="例如：巷口修鞋铺"
+      /></label>
+      <button class="secondary" bindtap="choose" disabled="{{busy}}">
+        {{position?'重新选择入口位置':'在地图上选择入口'}}</button
+      ><text class="muted"
+        >{{position?'位置已选好，填写名称即可保存。':'也可以先写地址留作草稿，稍后补位置。'}}</text
+      >
+      <label
+        >地址（可选）<input
+          value="{{form.address}}"
+          maxlength="240"
+          data-key="form.address"
+          bindinput="field"
+          placeholder="街道、门牌或附近建筑"
+      /></label>
+      <button class="disclosure" data-key="editorMore" bindtap="toggle">
+        {{editorMore?'收起':'补充'}}入口照片、地标与营业时间
+      </button>
+      <view wx:if="{{editorMore}}"
+        ><image
+          wx:if="{{form.photo}}"
+          src="{{form.photo}}"
+          mode="aspectFit"
+          class="entrance-photo"
+        /><view class="actions"
+          ><button bindtap="photo" disabled="{{busy}}">
+            {{form.photo?'更换入口照片':'拍下或选择入口照片'}}</button
+          ><button wx:if="{{form.photo}}" class="quiet" bindtap="removePhoto">
+            移除照片
+          </button></view
+        ><text class="muted"
+          >照片随私人地点簿保存，分享地点卡时也会包含照片。</text
+        >
+        <label
+          >认准这个地标<input
+            value="{{form.landmark}}"
+            maxlength="300"
+            data-key="form.landmark"
+            bindinput="field"
+            placeholder="例如：蓝色雨棚下，楼梯左侧" /></label
+        ><label
+          >记下营业时间<input
+            value="{{form.openingHours}}"
+            maxlength="120"
+            data-key="form.openingHours"
+            bindinput="field"
+            placeholder="例如：周一至周六 9:00—17:00" /></label
+        ><label
+          >出门提醒<textarea
+            value="{{form.note}}"
+            maxlength="300"
+            data-key="form.note"
+            bindinput="field"
+            auto-height
+            placeholder="台阶、休息点或临时变化"
+          /></label
+        ><label
+          >最近到访<picker
+            mode="date"
+            value="{{form.visitedOn}}"
+            data-key="form.visitedOn"
+            bindchange="field"
+            ><view class="picker"
+              >{{form.visitedOn || '选择亲身到访日期'}}</view
+            ></picker
+          ></label
+        > </view
+      ><button class="primary" bindtap="remember" disabled="{{busy}}">
+        {{position?'保存到地点簿':'保存地址草稿'}}</button
+      ><button class="quiet" bindtap="discardDraft" disabled="{{busy}}">
+        清除这份草稿
+      </button>
+    </view>
+    <view class="search-row"
+      ><input
+        aria-label="搜索地点簿"
+        value="{{searchQuery}}"
+        bindinput="search"
+        placeholder="搜索名称、地址或入口地标"
+      /><button
+        class="filter-chip {{favoritesOnly?'selected':''}}"
+        bindtap="favorites"
+      >
+        只看收藏
+      </button></view
+    >
+    <view wx:if="{{!placeItems.length}}" class="section empty"
+      >{{book.places.length?'没有匹配的记录，换个关键词试试。':'先记住一处常去的地方。地图没有收录，也可以自己标记入口。'}}</view
+    >
+    <view wx:for="{{placeItems}}" wx:key="id" class="section saved-place"
+      ><view class="section-top"
+        ><text class="heading">{{item.name}}</text
+        ><button
+          class="quiet"
+          data-id="{{item.id}}"
+          bindtap="favorite"
+          disabled="{{busy}}"
+        >
+          {{item.favorite?'★ 已收藏':'☆ 收藏'}}
+        </button></view
+      ><image
+        wx:if="{{item.photo}}"
+        src="{{item.photo}}"
+        mode="aspectFill"
+        class="place-photo"
+      /><text>{{item.address || '地址待补充'}}</text
+      ><text wx:if="{{item.landmark}}" class="muted"
+        >认准：{{item.landmark}}</text
+      ><text wx:if="{{item.openingHours}}" class="muted"
+        >记录的营业时间：{{item.openingHours}}</text
+      ><text class="muted"
+        >{{item.position.system==='demo'?'模拟地点':'个人记录'}} ·
+        {{item.visitedOn?'最近到访 '+item.visitedOn:'到访时间未记录'}}</text
+      ><view class="actions"
+        ><button class="primary" data-id="{{item.id}}" bindtap="card">
+          给家人看</button
+        ><button class="secondary" data-id="{{item.id}}" bindtap="edit">
+          修改</button
+        ><button
+          class="quiet"
+          data-id="{{item.id}}"
+          bindtap="remove"
+          disabled="{{busy}}"
+        >
+          移除
+        </button></view
+      ><button
+        class="disclosure"
+        data-id="{{item.id}}"
+        bindtap="analyzePlace"
+        disabled="{{busy}}"
+      >
+        {{item.position.system==='demo'?'查看示例生活圈':'从这里计算步行范围'}}
+      </button></view
+    >
+    <button wx:if="{{undo}}" bindtap="undo" disabled="{{busy}}">
+      撤销上次移除 / 合并
+    </button>
+  </view>
+  <view wx:if="{{tab==='mine'}}">
+    <navigator url="/pages/calibration/index"><button>实走记录与步速校准</button></navigator>
+    <view class="section"
+      ><text class="heading">按自己的节奏出门</text
+      ><label
+        >步行时长（5—30分钟）<input
+          type="number"
+          value="{{book.preferences.minutes}}"
+          data-key="minutes"
+          bindinput="pref" /></label
+      ><label
+        >步速（米/秒）<input
+          type="digit"
+          value="{{book.preferences.speedMps}}"
+          data-key="speedMps"
+          bindinput="pref" /></label
+      ><label
+        >当地出发时间<picker
+          mode="time"
+          value="{{book.preferences.departure}}"
+          data-key="departure"
+          bindchange="pref"
+          ><view class="picker">{{book.preferences.departure}}</view></picker
+        ></label
+      ><button class="primary" bindtap="scenario" disabled="{{busy}}">
+        按这个节奏看看附近
+      </button>
+      <view class="calibration"
+        ><text class="heading small-heading">不清楚自己的步速？</text
+        ><text class="muted"
+          >在安全平地走100米，记录实际行走秒数，不含等灯与休息。</text
+        ><label
+          >走100米用了几秒<input
+            type="number"
+            value="{{calibrationSeconds}}"
+            data-key="calibrationSeconds"
+            bindinput="field"
+            placeholder="例如：125" /></label
+        ><button bindtap="calibrate" disabled="{{busy}}">
+          用实走时间设置步速
+        </button></view
+      >
+      <button class="disclosure" data-key="showAdvanced" bindtap="toggle">
+        {{showAdvanced?'收起':'展开'}}等灯时间假设</button
+      ><view wx:if="{{showAdvanced}}"
+        ><label class="switch"
+          >将等灯计入试算<switch
+            checked="{{book.preferences.signals.enabled}}"
+            data-key="enabled"
+            bindchange="signal"
+            color="#146c5d" /></label
+        ><text class="notice"
+          >这是自己填写的估计，不是附近路口实时信号灯。缺少实测时可关闭。</text
+        ><view wx:if="{{book.preferences.signals.enabled}}"
+          ><label
+            >每公里大约几个路口<input
+              type="digit"
+              value="{{book.preferences.signals.crossingsPerKm}}"
+              data-key="crossingsPerKm"
+              bindinput="signal" /></label
+          ><label
+            >平峰平均等灯（秒）<input
+              type="number"
+              value="{{book.preferences.signals.offPeakSeconds}}"
+              data-key="offPeakSeconds"
+              bindinput="signal" /></label
+          ><label
+            >高峰平均等灯（秒）<input
+              type="number"
+              value="{{book.preferences.signals.peakSeconds}}"
+              data-key="peakSeconds"
+              bindinput="signal" /></label
+          ><label
+            >早高峰开始<picker
+              mode="time"
+              value="{{book.preferences.signals.morningStart}}"
+              data-key="morningStart"
+              bindchange="signal"
+              ><view class="picker"
+                >{{book.preferences.signals.morningStart}}</view
+              ></picker
+            ></label
+          ><label
+            >早高峰结束<picker
+              mode="time"
+              value="{{book.preferences.signals.morningEnd}}"
+              data-key="morningEnd"
+              bindchange="signal"
+              ><view class="picker"
+                >{{book.preferences.signals.morningEnd}}</view
+              ></picker
+            ></label
+          ><label
+            >晚高峰开始<picker
+              mode="time"
+              value="{{book.preferences.signals.eveningStart}}"
+              data-key="eveningStart"
+              bindchange="signal"
+              ><view class="picker"
+                >{{book.preferences.signals.eveningStart}}</view
+              ></picker
+            ></label
+          ><label
+            >晚高峰结束<picker
+              mode="time"
+              value="{{book.preferences.signals.eveningEnd}}"
+              data-key="eveningEnd"
+              bindchange="signal"
+              ><view class="picker"
+                >{{book.preferences.signals.eveningEnd}}</view
+              ></picker
+            ></label
+          ></view
+        ><button bindtap="savePrefs" disabled="{{busy}}">
+          保存出行偏好
+        </button></view
+      >
+    </view>
+    <view class="section"
+      ><text class="heading">家人的地点簿</text
+      ><text class="muted"
+        >{{connected?'已连接 · 修改后记得同步':'本机内容可直接使用，连接后可以与Web和家人同步。'}}</text
+      ><view wx:if="{{!connected}}"
+        ><label
+          >家人提供的配对码<input
+            value="{{code}}"
+            maxlength="12"
+            data-key="code"
+            bindinput="field" /></label
+        ><button class="primary" bindtap="connect" disabled="{{busy || !code}}">
+          连接家人的地点簿</button
+        ><label
+          >创建邀请码<input
+            password
+            value="{{invite}}"
+            data-key="invite"
+            bindinput="field" /></label
+        ><button bindtap="create" disabled="{{busy}}">
+          创建自己的地点簿
+        </button></view
+      ><view wx:else
+        ><view class="actions"
+          ><button
+            class="primary"
+            bindtap="push"
+            disabled="{{busy || revision===null || incoming}}"
+          >
+            同步本机修改</button
+          ><button bindtap="pull" disabled="{{busy}}">
+            读取最新内容
+          </button></view
+        ><button bindtap="pair" disabled="{{busy}}">邀请可信家人一起管理</button
+        ><text class="muted"
+          >配对设备可以修改整个地点簿。只给家人看一个地点，请使用地点卡分享。</text
+        ><view wx:if="{{pairCode}}" class="notice"
+          ><text selectable>配对码：{{pairCode}}</text
+          ><button bindtap="copyPair">复制配对码</button></view
+        ></view
+      ><view wx:if="{{incoming}}" class="notice"
+        ><text
+          >最新内容有{{incoming.book.places.length}}个地点、{{incoming.book.familiarRoutes ? incoming.book.familiarRoutes.length : 0}}条熟路、{{incoming.book.restPoints ? incoming.book.restPoints.length : 0}}个休息点、{{incoming.book.entrances ? incoming.book.entrances.length : 0}}张入口卡、{{incoming.book.shopping ? incoming.book.shopping.prices.length : 0}}条价格记录、{{incoming.book.trips ? incoming.book.trips.length : 0}}条行后记录、{{incoming.book.walks ? incoming.book.walks.length : 0}}条实走校准记录、{{incoming.book.routines ? incoming.book.routines.length : 0}}份常用方案，本机草稿仍保留。</text
+        ><button
+          bindtap="applyIncoming"
+          data-merge="{{true}}"
+          disabled="{{busy}}"
+        >
+          合并到本机</button
+        ><button
+          bindtap="applyIncoming"
+          data-merge="{{false}}"
+          disabled="{{busy}}"
+        >
+          使用服务器版本
+        </button></view
+      ><button wx:if="{{undo}}" bindtap="undo" disabled="{{busy}}">
+        撤销本机移除 / 合并</button
+      ><button class="disclosure" data-key="showConnection" bindtap="toggle">
+        {{showConnection?'收起':'展开'}}连接设置</button
+      ><view wx:if="{{showConnection}}"
+        ><label
+          >服务地址<input
+            value="{{server}}"
+            data-key="server"
+            bindinput="field"
+            disabled="{{connected || busy}}"
+            placeholder="https://已部署的服务地址" /></label
+        ><text class="muted">由部署者配置。手机不能用127.0.0.1访问电脑。</text
+        ><button wx:if="{{connected}}" bindtap="disconnect" disabled="{{busy}}">
+          断开此设备
+        </button></view
+      ></view
+    >
+    <view wx:if="{{connected}}" class="section"
+      ><text class="heading">已分享的地点卡</text
+      ><text class="muted"
+        >链接7天后失效，也可以提前撤销。已保存的文字和截图无法收回。</text
+      ><button bindtap="loadCards" disabled="{{busy}}">查看有效分享卡</button
+      ><view wx:for="{{sharedCards}}" wx:key="id" class="range"
+        ><text>{{item.name}}</text
+        ><button data-id="{{item.id}}" bindtap="revokeCard" disabled="{{busy}}">
+          撤销分享
+        </button></view
+      ></view
+    >
+    <view wx:if="{{connected}}" class="section"
+      ><text class="heading">家庭共享报告</text
+      ><button bindtap="loadReports" disabled="{{busy}}">查看共享报告</button
+      ><button
+        wx:for="{{reports}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="openReport"
+        disabled="{{busy}}"
+      >
+        {{item.label}} · {{item.mode==='demo'?'模拟':'地图'}}报告
+      </button></view
+    >
+  </view>
+  <view wx:if="{{!reviewMode}}" class="bottom-nav"
+    ><button
+      class="{{tab==='nearby'?'active':''}}"
+      data-tab="nearby"
+      bindtap="switchTab"
+    >
+      附近</button
+    ><button
+      class="{{tab==='places'?'active':''}}"
+      data-tab="places"
+      bindtap="switchTab"
+    >
+      地点簿</button
+    ><button
+      class="{{tab==='mine'?'active':''}}"
+      data-tab="mine"
+      bindtap="switchTab"
+    >
+      我的
+    </button></view
+  >
+  <view wx:if="{{card}}" class="card-overlay"
+    ><scroll-view scroll-y class="card"
+      ><view wx:if="{{error}}" class="error">{{error}}</view
+      ><view wx:if="{{status}}" class="notice">{{status}}</view
+      ><text class="eyebrow">一刻烟火 · 出门带上这张卡</text
+      ><text class="card-title">我要去：{{card.name}}</text
+      ><text wx:if="{{card.position.system==='demo'}}" class="notice"
+        >模拟地点，仅用于演示</text
+      ><image
+        wx:if="{{card.photo}}"
+        src="{{card.photo}}"
+        mode="aspectFit"
+        class="entrance-photo"
+      /><text class="muted">地址</text
+      ><text selectable>{{card.address || '请协助者补充地址'}}</text
+      ><text class="muted">认准这里</text
+      ><text selectable>{{card.landmark || '请协助者补充入口地标'}}</text
+      ><text wx:if="{{card.openingHours}}" class="muted">记录的营业时间</text
+      ><text wx:if="{{card.openingHours}}">{{card.openingHours}}</text
+      ><text class="muted">出门提醒</text
+      ><text>{{card.note || '出发前请确认营业情况'}}</text
+      ><text class="muted"
+        >{{card.visitedOn?'最近到访：'+card.visitedOn+'。':''}}由本人或家人记录，非逐路口导航。</text
+      ><button class="primary" bindtap="directions">打开目的地地图</button
+      ><button bindtap="copyCard">复制文字，发给家人</button
+      ><button bindtap="prepareShare" disabled="{{busy || !connected}}">
+        生成只读分享卡</button
+      ><text wx:if="{{!connected}}" class="muted"
+        >连接云端后可生成分享卡；现在可以复制文字，或在Web打印。</text
+      ><button bindtap="closeCard">收起地点卡</button></scroll-view
+    ></view
+  >
+</view>
+<template is="privacy-dialog" data="{{showPrivacy,privacyError}}" />

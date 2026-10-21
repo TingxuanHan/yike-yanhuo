@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "neighborhood-notices": "/components/neighborhood/index"
+  }
+}

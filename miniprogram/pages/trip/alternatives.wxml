@@ -1,0 +1,11 @@
+<view id="trip-alternatives" class="alternative-box">
+  <button wx:if="{{!alternative}}" bindtap="alternatives" disabled="{{busy || active.phase !== 'at' || active.remaining.length < 2}}">下一站不好走？看看备选</button>
+  <block wx:else><text class="h3">换个地点，先算清楚</text><text class="note">当前下一站：{{next}}</text>
+    <view class="actions"><button data-kind="place" bindtap="alternatives" disabled="{{busy}}" class="{{alternative.kind === 'place' ? 'primary' : ''}}">换同类地点</button><button data-kind="entrance" bindtap="alternatives" disabled="{{busy}}" class="{{alternative.kind === 'entrance' ? 'primary' : ''}}">用我记录的另一入口</button></view>
+    <text class="note">{{alternative.note}}</text><text wx:if="{{!alternative.candidates.length}}" class="note">没有符合条件的备选。可到地点簿记录入口、取消下一站或联系家人；保留已用地点后，一趟最多容纳5个地点。</text>
+    <block wx:else><text class="note">备选地点</text><picker range="{{alternativeLabels}}" value="{{alternativeIndex}}" bindchange="alternativeChoose" disabled="{{busy}}"><view class="guide-picker">{{alternativeLabels[alternativeIndex]}} ▾</view></picker></block>
+    <button bindtap="alternativePreview" disabled="{{busy || !alternative.selected}}">{{busy ? '正在核算…' : '比较时间和费用'}}</button>
+    <view wx:if="{{alternative.changes.length}}" class="alternative-preview"><text class="h3">核对后再换</text><text wx:for="{{alternative.changes}}" wx:key="index" wx:if="{{index < 4 || showAlternativeDetails}}" class="note">{{item}}</text><button bindtap="alternativeDetails">估计口径与待确认项 · {{showAlternativeDetails ? '收起' : '展开'}}</button><text wx:if="{{mobility.needRest}}" class="note">需要途中歇脚：新增休息时间尚未计入，请留出余量。</text><button class="primary" bindtap="alternativeApply" disabled="{{busy}}">确认替换下一站</button></view>
+    <button bindtap="alternativeClose" disabled="{{busy}}">保留原安排并收起</button>
+  </block>
+</view>

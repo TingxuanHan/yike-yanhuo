@@ -1,0 +1,237 @@
+.family-panel,
+.family-viewer,
+.simple-places {
+  background: #fff;
+  border: 1px solid #d4e3df;
+  border-radius: 16px;
+  padding: 24px;
+  min-width: 0;
+}
+.family-viewer {
+  max-width: 600px;
+  margin: 24px auto;
+  color: #243f48;
+}
+.family-panel h2,
+.family-viewer h1 {
+  margin: 0 0 16px;
+}
+.family-panel label {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.family-panel input,
+.family-panel select {
+  width: 100%;
+  min-height: 48px;
+  font: inherit;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.family-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+.family-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+}
+.family-panel button,
+.family-panel summary,
+.family-actions a {
+  min-height: 48px;
+  font: inherit;
+  box-sizing: border-box;
+}
+.family-panel summary {
+  padding: 12px 0;
+  cursor: pointer;
+}
+.family-panel p,
+.family-viewer p {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.family-panel pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+}
+.family-error {
+  color: #9a431c;
+  background: #fff3e5;
+  padding: 10px;
+  border-radius: 8px;
+}
+.family-location,
+.family-share {
+  margin-top: 20px;
+  border-top: 1px solid #d4e3df;
+  padding-top: 18px;
+}
+.family-link {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+.position-evidence {
+  margin: 20px 0;
+}
+.position-evidence h3 {
+  font-size: 1.15em;
+}
+.position-range {
+  font-weight: 700;
+}
+.position-evidence svg {
+  max-width: 360px;
+  width: 100%;
+  display: block;
+  margin: auto;
+}
+.position-evidence svg text {
+  fill: #405c55;
+  font-size: 12px;
+}
+.position-evidence pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+}
+.simple-home {
+  max-width: 900px;
+  margin: auto;
+  padding: 24px;
+  color: #243f48;
+  font-size: 18px;
+}
+.simple-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.simple-header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+.simple-header p {
+  margin: 6px 0;
+  color: #64777c;
+}
+.simple-header button {
+  min-height: 48px;
+  flex-shrink: 0;
+}
+.simple-shortcuts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.simple-shortcuts button {
+  text-align: left;
+  padding: 24px;
+  min-height: 112px;
+  font: inherit;
+  border: 1px solid #d4e3df;
+  border-radius: 16px;
+  background: #fff;
+  color: #243f48;
+}
+.simple-shortcuts strong,
+.simple-shortcuts span {
+  display: block;
+}
+.simple-shortcuts strong {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.simple-shortcuts button:first-child {
+  background: #146c5d;
+  color: white;
+}
+.simple-places label {
+  display: grid;
+  gap: 10px;
+}
+.simple-places input {
+  font: inherit;
+  min-height: 48px;
+  max-width: 100%;
+}
+.simple-place {
+  display: block;
+  text-align: left;
+  width: 100%;
+  padding: 18px;
+  margin: 12px 0;
+  font: inherit;
+  min-height: 56px;
+  background: #f4f8f7;
+  border: 1px solid #d4e3df;
+  border-radius: 10px;
+}
+.simple-place span {
+  display: block;
+  margin-top: 6px;
+}
+.simple-place-card {
+  white-space: pre-wrap;
+  line-height: 1.8;
+}
+.trip-simple {
+  font-size: 18px;
+}
+.trip-simple .planning-grid {
+  grid-template-columns: 1fr;
+}
+.trip-simple button {
+  min-height: 52px;
+}
+@media (max-width: 600px) {
+  .simple-home {
+    padding: 16px;
+  }
+  .simple-header {
+    align-items: flex-start;
+  }
+  .simple-header h1 {
+    font-size: 25px;
+  }
+  .simple-shortcuts {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .simple-shortcuts button {
+    min-height: 88px;
+    padding: 18px;
+  }
+  .family-panel,
+  .family-viewer,
+  .simple-places {
+    padding: 18px;
+  }
+  .family-actions {
+    flex-direction: column;
+  }
+  .family-actions > * {
+    width: 100%;
+  }
+  .family-viewer {
+    margin: 12px;
+  }
+  .family-panel select {
+    min-width: 0;
+  }
+  .family-panel button {
+    white-space: normal;
+  }
+}

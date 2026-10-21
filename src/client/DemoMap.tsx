@@ -1,0 +1,384 @@
+import { coverageOverlay } from "../core/coverage-area.js";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { coveragePoints, type GapCategory } from "../core/coverage.js";
+import { demoRoads } from "../core/demo.js";
+import { walkingTimeBands } from "../core/time-bands.js";
+import {
+  CATEGORIES,
+  type AnalysisResult,
+  type Facility,
+  type XY,
+} from "../shared/types.js";
+
+const roads = demoRoads();
+const contourPath = (polygons: XY[][][]) =>
+  polygons
+    .map((polygon) =>
+      polygon
+        .map(
+          (ring) =>
+            ring.map((p, i) => `${i ? "L" : "M"}${p[0]},${-p[1]}`).join(" ") +
+            "Z",
+        )
+        .join(" "),
+    )
+    .join(" ");
+interface Props {
+  background?: "demo" | "plain";
+  center: XY;
+  result: AnalysisResult | null;
+  facilities: Facility[];
+  minutes: number;
+  showGaps: boolean;
+  gapCategory: GapCategory;
+  disabled: boolean;
+  onCenter: (point: XY) => void;
+  onFacility: (facility: Facility) => void;
+  onCoverage: (id: string) => void;
+}
+export function DemoMap({
+  background = "demo",
+  center,
+  result,
+  facilities,
+  minutes,
+  showGaps,
+  gapCategory,
+  disabled,
+  onCenter,
+  onFacility,
+  onCoverage,
+}: Props) {
+  const [extent, setExtent] = useState(1600);
+  const container = useRef<HTMLDivElement>(null);
+  const [pixels, setPixels] = useState(520);
+  const cells = useMemo(
+    () =>
+      result && showGaps ? coverageOverlay(result, gapCategory, minutes) : null,
+    [result, showGaps, gapCategory, minutes],
+  );
+  useEffect(() => {
+    if (!container.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const rect = entries[0].contentRect;
+      if (rect.width <= 0 || rect.height <= 0) return;
+      setPixels(Math.max(250, Math.min(rect.width, rect.height)));
+    });
+    observer.observe(container.current);
+    return () => observer.disconnect();
+  }, []);
+  const view = {
+    x: center[0] - extent,
+    y: -center[1] - extent,
+    size: extent * 2,
+  };
+  const unit = view.size / pixels;
+  return (
+    <div className="map-stage" ref={container}>
+      <svg
+        className="neighborhood-map"
+        viewBox={`${view.x} ${view.y} ${view.size} ${view.size}`}
+        role="group"
+        aria-label={
+          background === "demo"
+            ? "模拟街区步行分析地图，可用左侧地点菜单选择中心"
+            : "历史结果坐标示意图，不含道路底图"
+        }
+        data-testid="demo-map"
+        onClick={(event) => {
+          if (disabled) return;
+          const svg = event.currentTarget;
+          const transform = svg.getScreenCTM()?.inverse();
+          if (!transform) return;
+          const point = new DOMPoint(
+            event.clientX,
+            event.clientY,
+          ).matrixTransform(transform);
+          if (Math.abs(point.x) <= 1000 && Math.abs(point.y) <= 1000)
+            onCenter([
+              Math.round(point.x / 200) * 200,
+              -Math.round(point.y / 200) * 200,
+            ]);
+        }}
+      >
+        <defs>
+          <pattern
+            id="unknown-grid"
+            width="30"
+            height="30"
+            patternUnits="userSpaceOnUse"
+          >
+            <path d="M0,30L30,0" stroke="#64777c" strokeWidth="5" />
+          </pattern>
+          <pattern
+            id="blocks"
+            width="200"
+            height="200"
+            patternUnits="userSpaceOnUse"
+          >
+            <rect
+              x="26"
+              y="27"
+              width="148"
+              height="146"
+              rx="15"
+              fill="#dde6e1"
+            />
+            <rect x="36" y="38" width="61" height="124" rx="5" fill="#e9eeea" />
+            <rect x="109" y="38" width="55" height="54" rx="5" fill="#e9eeea" />
+            <rect
+              x="109"
+              y="106"
+              width="55"
+              height="56"
+              rx="5"
+              fill="#e9eeea"
+            />
+          </pattern>
+        </defs>
+        <rect x="-3200" y="-3200" width="6400" height="6400" fill="#edf1ec" />
+        {background === "demo" && (
+          <>
+            <rect
+              x="-4000"
+              y="-4000"
+              width="8000"
+              height="8000"
+              fill="url(#blocks)"
+            />
+            <rect x="441" y="-3200" width="118" height="6400" fill="#aecfd5" />
+            <path
+              d="M477,-3200V3200 M527,-3200V3200"
+              stroke="#c7e1e4"
+              fill="none"
+              strokeWidth="3"
+            />
+            <rect
+              x="-770"
+              y="-570"
+              width="135"
+              height="145"
+              rx="28"
+              fill="#c4d9ba"
+            />
+            <rect
+              x="29"
+              y="-770"
+              width="144"
+              height="133"
+              rx="35"
+              fill="#c4d9ba"
+            />
+            {roads.map((r, i) => (
+              <line
+                key={i}
+                x1={r.a[0]}
+                y1={-r.a[1]}
+                x2={r.b[0]}
+                y2={-r.b[1]}
+                stroke="#fff"
+                strokeWidth={r.a[1] === -600 || r.a[1] === 800 ? 22 : 13}
+              />
+            ))}
+            <g
+              className="map-place-labels"
+              fontSize="47"
+              fill="#829087"
+              textAnchor="middle"
+              pointerEvents="none"
+            >
+              <text x="-970" y="-1050">
+                西街住区
+              </text>
+              <text x="-270" y="1120">
+                站前街区
+              </text>
+              <text x="1140" y="-960">
+                河畔住区
+              </text>
+              <text x="730" y="690" fontSize="30">
+                南桥
+              </text>
+              <text x="670" y="-830" fontSize="30">
+                北桥
+              </text>
+            </g>
+          </>
+        )}
+        {(result ? walkingTimeBands(result, minutes) : []).map((c) => (
+          <path
+            key={c.to}
+            data-testid="time-band"
+            aria-label={c.label}
+            d={contourPath(c.polygons)}
+            fill={c.color}
+            fillOpacity={0.38}
+            fillRule="evenodd"
+            stroke="#146c5d"
+            strokeWidth={c.to === minutes ? 2.5 : 1}
+            strokeDasharray={c.to === minutes ? "8 5" : undefined}
+            vectorEffect="non-scaling-stroke"
+            pointerEvents="none"
+          >
+            <title>{c.label}近似步行范围</title>
+          </path>
+        ))}
+        {cells &&
+          (["missing", "unknown"] as const).map((status) => (
+            <g key={status} pointerEvents="none">
+              <path
+                d={contourPath(cells[status])}
+                fill={status === "missing" ? "#59666c" : "url(#unknown-grid)"}
+                fillOpacity={0.4}
+                stroke="#53646b"
+                strokeWidth="1"
+                vectorEffect="non-scaling-stroke"
+                fillRule="evenodd"
+              >
+                <title>
+                  {status === "missing"
+                    ? "候选设施缺口分区"
+                    : "检索或距离边界待核查分区"}
+                </title>
+              </path>
+            </g>
+          ))}
+        {showGaps &&
+          result &&
+          coveragePoints(result, gapCategory, minutes)
+            .filter((g) => g.status !== "covered")
+            .map((g, i) => (
+              <g
+                key={i}
+                transform={`translate(${g.point[0]},${-g.point[1]})`}
+                role="button"
+                tabIndex={0}
+                className="map-poi"
+                aria-label={`核查点${g.number}：${g.label}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCoverage(g.id);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onCoverage(g.id);
+                  }
+                }}
+              >
+                <circle
+                  r="25"
+                  fill="#fff7e9"
+                  stroke="#b87023"
+                  strokeWidth="5"
+                  strokeDasharray={g.status === "unknown" ? "7 5" : undefined}
+                />
+                <path
+                  d="M-8,-8L8,8M-8,8L8,-8"
+                  stroke="#b87023"
+                  strokeWidth="4"
+                />
+                <title>
+                  {g.status === "unknown" ? "待核查" : "1公里内未检索到"}
+                  {CATEGORIES.find((c) => c.id === gapCategory)?.label}
+                </title>
+              </g>
+            ))}
+        {facilities
+          .filter(
+            (p) =>
+              Math.abs(p.point[0] - center[0]) < extent - 80 &&
+              Math.abs(p.point[1] - center[1]) < extent - 80,
+          )
+          .map((p) => {
+            const category = CATEGORIES.find((c) => c.id === p.category)!;
+            return (
+              <g
+                key={p.id}
+                transform={`translate(${p.point[0]},${-p.point[1]})`}
+                className="map-poi"
+                role="button"
+                tabIndex={0}
+                aria-label={`查看${p.name}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFacility(p);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onFacility(p);
+                  }
+                }}
+              >
+                <circle r={22 * unit} fill="transparent" />
+                <circle
+                  r={13 * unit}
+                  fill="white"
+                  stroke={category.color}
+                  strokeWidth={1.5 * unit}
+                />
+                <text
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize={12 * unit}
+                  fill={category.color}
+                  fontWeight="600"
+                >
+                  {category.short}
+                </text>
+                <title>{p.name}</title>
+              </g>
+            );
+          })}
+        <g
+          transform={`translate(${center[0]},${-center[1]})`}
+          pointerEvents="none"
+        >
+          <circle r="100" fill="#c46136" fillOpacity=".10" />
+          <circle r="46" fill="#c46136" stroke="white" strokeWidth="12" />
+          <circle r="11" fill="white" />
+        </g>
+      </svg>
+      <div className="map-source-label">
+        {background === "demo" ? "模拟街区" : "结果示意图"}
+        <span>
+          {background === "demo"
+            ? "人工构造路网与设施"
+            : "原坐标与轮廓 · 无道路底图"}
+        </span>
+      </div>
+      <div className="north" aria-label="上方为北">
+        N<span>↑</span>
+      </div>
+      <div className="map-zoom">
+        <button
+          type="button"
+          aria-label="放大地图"
+          disabled={extent <= 800}
+          onClick={() => setExtent((v) => Math.max(800, v - 300))}
+        >
+          ＋
+        </button>
+        <button
+          type="button"
+          aria-label="缩小地图"
+          disabled={extent >= 2500}
+          onClick={() => setExtent((v) => Math.min(2500, v + 300))}
+        >
+          −
+        </button>
+      </div>
+      <div className="map-scale">
+        <span style={{ width: `${(250 / (2 * extent)) * 100}%` }} />
+        <small>
+          {background === "demo" ? "图中相邻路口约 200 米" : "局部坐标比例示意"}
+        </small>
+      </div>
+      {!result && (
+        <div className="map-instruction">选好起点，看看一刻钟能走到哪里</div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,41 @@
+<view class="page planning-page {{careMode ? 'care' : ''}}" wx:if="{{ready}}">
+  <view class="heading"><view><text class="eyebrow">先说想法，再核对条件</text><text class="title">一句话安排</text></view><button bindtap="care">{{careMode ? '标准字号' : '大字模式'}}</button></view>
+  <view class="panel">
+    <text class="label">这次想做什么</text>
+    <textarea id="planning-text" data-key="text" value="{{text}}" bindinput="field" maxlength="600" disabled="{{busy}}" placeholder="带50元买菜，45分钟内回来，想顺便走20分钟，买完慢慢回家。" />
+    <voice-input disabled="{{busy}}" bind:transcript="transcript"/>
+    <view class="modes"><button id="planning-free" data-mode="free" bindtap="mode" class="{{mode === 'free' ? 'primary' : ''}}" disabled="{{busy}}">基础免费AI</button><button data-mode="own" bindtap="mode" class="{{mode === 'own' ? 'primary' : ''}}" disabled="{{busy}}">我的API</button><button id="planning-manual" data-mode="manual" bindtap="mode" class="{{mode === 'manual' ? 'primary' : ''}}" disabled="{{busy}}">手工填写</button></view>
+    <block wx:if="{{mode !== 'manual'}}">
+      <text class="muted">点击整理，仅发送上面这段文字到所选模型；请避免填写家庭住址等私人信息。</text>
+      <text wx:if="{{!service}}" class="notice">请先在首页“我的”连接私人空间。暂时可以手工填写。</text>
+      <block wx:elif="{{mode === 'free'}}"><text wx:if="{{service.free.configured}}" class="notice"><block wx:if="{{service.free.remaining === null}}">本地不设每日次数限制</block><block wx:else>本空间今天还可用{{service.free.remaining}}/{{service.free.limit}}次</block> · {{service.free.model}}</text><text wx:else class="notice">基础AI尚未开通，可手工填写或配置自己的API。</text></block>
+      <block wx:else><text wx:if="{{service.own.configured}}" class="notice">本设备今天还可用{{service.own.remaining}}/{{service.own.limit}}次 · {{service.own.model}}</text><text wx:else class="notice">本设备尚未配置API。</text><text class="muted">自用接口按服务商规则计费。</text></block>
+      <button id="planning-parse" class="primary" bindtap="parse" disabled="{{busy || !text || !service || (mode === 'free' ? !service.free.configured || service.free.remaining === 0 : !service.own.configured || !service.own.remaining)}}">{{busy ? '正在整理…' : '整理成出行条件'}}</button>
+    </block>
+    <button id="planning-settings" bindtap="settings" disabled="{{busy}}">API设置与额度</button>
+  </view>
+  <view wx:if="{{error}}" class="error" role="alert">{{error}}</view><view wx:if="{{status}}" class="status">{{status}}</view>
+  <view class="panel" wx:if="{{settings}}">
+    <text class="subtitle">当前设备的API</text><text>密钥在后端加密保存，不随地点簿分享；换设备需单独配置。</text>
+    <view class="actions"><button wx:for="{{presets}}" wx:key="name" data-index="{{index}}" bindtap="preset" disabled="{{busy}}">{{item.name}}</button></view>
+    <label>接口地址<input data-key="baseUrl" value="{{baseUrl}}" bindinput="field" disabled="{{busy}}" maxlength="200" placeholder="https://服务商/v1" /></label>
+    <label>模型名称<input data-key="model" value="{{model}}" bindinput="field" disabled="{{busy}}" maxlength="120" /></label>
+    <label>API密钥<input id="planning-key" data-key="key" value="{{key}}" password="{{true}}" bindinput="field" disabled="{{busy}}" maxlength="512" placeholder="每次保存需填完整密钥" /></label>
+    <text class="muted">新服务商域名需由管理员允许。测试使用固定示例，占一次自用额度，也可能产生服务商费用。</text>
+    <button class="primary" bindtap="saveSettings" disabled="{{busy || !key}}">保存接口</button><button bindtap="testSettings" disabled="{{busy || !service.own.configured}}">测试已保存接口</button><button bindtap="removeSettings" disabled="{{busy || !service.own.configured}}">删除接口</button>
+    <text class="muted" wx:if="{{service.free.limit === null}}">基础AI不设本地日限额，调用前核对免费标价；服务商限流仍有效。</text>
+    <text class="muted" wx:else>基础AI次数由同一私人空间共用，失败也计数，每日北京时间零点重置。</text>
+    <text class="muted">自用API仍按页面次数和服务商规则计费。不自动重试或切换接口。</text>
+  </view>
+  <view class="panel review" wx:if="{{reviewed || mode === 'manual'}}">
+    <text class="eyebrow">确认之后才会应用</text><text class="subtitle">核对这次出门的条件</text><text>{{mode === 'manual' ? '手工填写 · 不调用模型' : source}}</text><text class="muted">留空保留原设置；这里不计算路线，也不读取地图。</text>
+    <label wx:for="{{fields}}" wx:key="key">{{item.label}}<input id="planning-{{item.key}}" data-key="{{item.key}}" value="{{item.value}}" type="{{item.type === 'number' ? 'digit' : 'text'}}" bindinput="field" placeholder="{{item.hint}}" disabled="{{busy}}" /></label>
+    <text class="label">这趟要办什么（最多三件）</text><view class="actions"><button wx:for="{{taskRows}}" wx:key="id" data-id="{{item.id}}" bindtap="task" class="{{item.checked ? 'primary' : ''}}" disabled="{{busy}}">{{item.label}}</button></view>
+    <label>想买的商品（顿号分隔，最多五项）<input data-key="items" value="{{items}}" bindinput="field" maxlength="150" disabled="{{busy}}" placeholder="鸡蛋、牛奶" /></label>
+    <label>返程轻松走<picker range="{{returnChoices}}" value="{{returnIndex}}" bindchange="returnChange" disabled="{{busy}}"><view class="picker-value">{{returnChoices[returnIndex]}}</view></picker></label>
+    <text class="muted">确认后保存明确填写的步速、出发时刻和步行目标。带入购物时，商品名称替换购物草稿，请在下一步补全规格和数量。</text>
+    <text class="muted" wx:for="{{notes}}" wx:key="*this">{{item}}</text>
+    <button class="primary" bindtap="apply" data-target="trip" disabled="{{busy}}">确认，合成一趟出门</button>
+    <button id="planning-apply-errands" class="primary" bindtap="apply" data-target="errands" disabled="{{busy}}">确认，带入办事</button><button id="planning-apply-shopping" bindtap="apply" data-target="shopping" disabled="{{busy}}">确认，带入购物</button>
+  </view>
+</view>

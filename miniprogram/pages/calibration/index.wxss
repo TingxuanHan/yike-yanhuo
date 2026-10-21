@@ -1,0 +1,97 @@
+.walk-page {
+  padding: 28rpx;
+  color: #243f48;
+  font-size: 30rpx;
+}
+.walk-page text {
+  display: block;
+  margin: 16rpx 0;
+  line-height: 1.65;
+  word-break: break-all;
+}
+.heading {
+  font-size: 36rpx;
+  font-weight: 650;
+}
+.note {
+  color: #64777c;
+  font-size: 26rpx;
+}
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+.top button {
+  flex-shrink: 0;
+  font-size: 28rpx;
+  margin: 0;
+}
+.summary {
+  padding: 28rpx;
+  background: #eaf3ef;
+  border-left: 8rpx solid #146c5d;
+  margin: 24rpx 0;
+}
+.section {
+  padding: 24rpx 0;
+  border-top: 2rpx solid #cfdfd8;
+}
+label {
+  display: block;
+  margin: 24rpx 0;
+}
+input,
+.picker {
+  background: white;
+  border: 2rpx solid #cfdfd8;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-top: 12rpx;
+  min-height: 48rpx;
+}
+button {
+  margin: 20rpx 0;
+  min-height: 88rpx;
+  white-space: normal;
+}
+button.primary {
+  background: #146c5d;
+  color: white;
+}
+button[disabled] {
+  opacity: 0.5;
+}
+.check {
+  display: flex;
+  gap: 16rpx;
+  align-items: flex-start;
+  padding: 16rpx 0;
+}
+.check text {
+  margin: 0;
+}
+.error {
+  color: #8c291d;
+  background: #fff1e9;
+  padding: 24rpx;
+}
+.status {
+  background: #eaf3ef;
+  padding: 24rpx;
+}
+.record {
+  border-top: 2rpx solid #dce6e2;
+  padding: 20rpx 0;
+}
+.care-mode {
+  font-size: 38rpx;
+}
+.care-mode .heading {
+  font-size: 42rpx;
+}
+.care-mode .note,
+.care-mode button {
+  font-size: 34rpx;
+}

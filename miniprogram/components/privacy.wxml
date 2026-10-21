@@ -1,0 +1,29 @@
+<template name="privacy-dialog">
+  <view wx:if="{{showPrivacy}}" class="privacy-overlay">
+    <view
+      class="section privacy-dialog"
+      role="dialog"
+      aria-label="隐私保护说明"
+    >
+      <text class="heading">使用前，请了解这些信息</text>
+      <text
+        >选地点时使用位置信息；添加入口照片时访问你主动选择的图片或相机。记录先保存在本机，主动同步、分享或计算真实步行范围时，会将所需信息传到服务端。</text
+      >
+      <button class="disclosure" bindtap="privacyContract"
+        >阅读《用户隐私保护指引》</button
+      >
+      <text wx:if="{{privacyError}}" class="error">{{privacyError}}</text>
+      <button
+        id="privacy-agree"
+        class="primary"
+        open-type="agreePrivacyAuthorization"
+        bindagreeprivacyauthorization="privacyAgree"
+        >同意并继续</button
+      >
+      <button bindtap="privacyDecline">暂不使用此功能</button>
+      <text class="muted"
+        >拒绝后仍可查看离线示例、已有地点和保存地址草稿。</text
+      >
+    </view>
+  </view>
+</template>

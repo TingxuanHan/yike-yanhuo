@@ -1,0 +1,36 @@
+<import src="/components/privacy.wxml"/>
+<view class="family-page">
+  <text class="family-title">{{viewer ? '一起确认他在哪' : '家人就在身边'}}</text>
+  <block wx:if="{{!viewer}}">
+    <button wx:if="{{phone}}" class="primary" bindtap="call">一键拨打家人电话</button>
+    <button data-key="showLocation" bindtap="toggle">告诉家人我在哪</button>
+    <button wx:if="{{hasTrip}}" bindtap="trip">请家人帮我看行程</button>
+    <button class="quiet" data-key="showPhone" bindtap="toggle">{{phone ? '修改家人电话' : '先记下家人电话'}}</button>
+    <view wx:if="{{showPhone || !phone}}" class="family-box"><label><text>家人电话（只存本机）</text><input type="text" value="{{draftPhone}}" maxlength="20" bindinput="phone"/></label><button bindtap="savePhone">保存家人电话</button><text class="family-note">保存后可直接拨打，不需要定位或连接服务。</text></view>
+  </block>
+  <text wx:if="{{error}}" class="family-error">{{error}}</text><text wx:if="{{status}}" class="family-status">{{status}}</text>
+  <button wx:if="{{viewer}}" bindtap="refreshViewer" disabled="{{replyBusy}}">刷新位置卡</button>
+  <view wx:if="{{viewer && ready}}" class="family-box"><text class="family-heading">给对方一个回应</text><text>{{receiptText}}</text><label><text>你的称呼（对方会看到）</text><input value="{{replyName}}" maxlength="20" bindinput="replyName" disabled="{{replyBusy}}"/></label><button wx:for="{{replyRows}}" wx:key="kind" data-kind="{{item.kind}}" bindtap="reply" disabled="{{replyBusy || !replyName}}">{{item.label}}</button><text class="family-note">点击才发送回应。持有链接的人都可填写称呼，身份未核验；不会替你拨打电话或持续定位。</text></view>
+  <view wx:if="{{showLocation || share || viewer}}">
+    <block wx:if="{{!viewer}}"><button class="primary" bindtap="locate" disabled="{{locating}}">{{locating ? '正在获取位置…' : '授权并获取一次位置'}}</button><text class="family-note">仅主动点击时获取，不持续追踪。拒绝后仍可打电话。</text><button wx:if="{{locationFailed}}" bindtap="settings">去设置允许定位</button></block>
+    <view wx:if="{{ready && summary}}" class="family-box">
+      <text class="family-heading">{{summary.title}}</text><text wx:if="{{summary.time}}">{{summary.time}} · {{summary.age}}</text><text class="family-range">{{summary.range}}</text>
+      <view wx:if="{{summary.radiusM !== null}}" class="range-sketch"><view class="range-circle"><text>最后记录点</text><view class="range-dot"/></view><text>范围示意 · 不代表道路可达</text></view>
+      <text class="family-note">{{summary.detail}}</text>
+      <button wx:if="{{mapAvailable}}" data-key="showMap" bindtap="toggle">{{showMap ? '收起地图' : '在地图上查看参考范围'}}</button>
+      <map wx:if="{{showMap && mapAvailable}}" class="family-map" longitude="{{center.longitude}}" latitude="{{center.latitude}}" scale="{{mapScale}}" markers="{{markers}}" circles="{{circles}}" show-location="{{false}}" show-scale="{{true}}"/>
+      <text wx:if="{{showMap}}" class="family-note">标记是最后记录点。百度坐标仅作本地近似转换；圆形范围不是实际路线。</text>
+      <button wx:if="{{snapshot}}" data-key="showText" bindtap="toggle">{{showText ? '收起完整说明' : '查看坐标与完整说明'}}</button><text wx:if="{{showText}}" selectable class="family-note">{{summary.text}}</text>
+    </view>
+    <block wx:if="{{!viewer}}">
+      <button data-key="showManual" bindtap="toggle">没有定位？确认我现在所在的地点</button>
+      <view wx:if="{{showManual}}" class="family-box"><block wx:if="{{places.length}}"><picker range="{{places}}" range-key="name" value="{{selectedPlace}}" bindchange="choosePlace"><view class="family-picker">我现在就在：{{places[selectedPlace].name}} ▼</view></picker><button bindtap="confirmPlace">确认我现在在这里</button></block><text wx:else>地点簿里还没有真实地点，可在电话中告诉家人附近招牌或路口。</text></view>
+      <button bindtap="copy" disabled="{{!snapshot}}">复制位置说明给家人</button>
+      <button bindtap="share" disabled="{{!snapshot || busy}}">{{share ? '重新分享这次记录' : '生成家人位置卡'}}</button>
+      <text class="family-note">文字可直接转发；位置卡需要先连接服务，跨设备使用需可访问的HTTPS服务。</text>
+      <view wx:if="{{share}}" class="family-box"><text class="family-heading">家人的回应</text><text>{{receiptText}}</text><text wx:if="{{receiptStatus}}" class="family-error">{{receiptStatus}}</text><text class="family-note">称呼由回应者填写，身份未核验。此页打开时核对新回应；需要马上联系请打电话。</text><button bindtap="refreshReceipt" disabled="{{busy}}">刷新家人回应</button><text>链接到{{expires}}失效，只包含分享时的记录。</text><text wx:if="{{shareOutdated}}" class="family-error">本机已有新记录，旧链接尚未更新；可重新分享并发送新卡。</text><button wx:if="{{invite}}" class="primary" open-type="share">把位置卡发给家人</button><button wx:if="{{invite}}" bindtap="copyLink">复制网页链接</button><button bindtap="end">停止位置分享</button></view>
+    </block>
+    <text wx:if="{{viewer && ready}}" class="family-note">这是对方主动分享的一次记录，不会持续定位。请电话核对招牌、路口和是否乘车。位置卡到{{expires}}失效，对方可提前停止分享。</text>
+  </view>
+</view>
+<template is="privacy-dialog" data="{{showPrivacy,privacyError}}"/>

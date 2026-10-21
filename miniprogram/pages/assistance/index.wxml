@@ -1,0 +1,20 @@
+<view class="trip-page {{careMode ? 'care' : ''}}">
+  <text class="eyebrow">一刻烟火 · 家人帮我一下</text><text class="title">陪家人走好这一趟</text>
+  <text class="note">只查看这次行程，建议由本人确认。称呼由协助者填写，请通过熟悉的联系方式确认彼此。</text>
+  <text wx:if="{{error}}" class="error">{{error}}</text><button bindtap="refresh" disabled="{{busy}}">刷新协助</button>
+  <block wx:if="{{view}}">
+    <view class="card"><text class="eyebrow">{{view.snapshot.mode === 'demo' ? '模拟行程 · 不可据此出行' : '本次行程'}}</text><text class="h3">{{view.snapshot.request || '想请你帮忙看看'}}</text><text>最后确认地点：{{here}}</text><text class="note">{{confirmed}}确认 · {{view.snapshot.phase === 'walking' ? '正在前往下一站' : view.snapshot.phase === 'resting' ? '正在歇脚' : view.snapshot.phase === 'finished' ? '已结束' : '在确认地点'}}</text><text class="note">剩余：{{remainingText}}</text><text>预计返程：{{view.snapshot.finish}}</text><text class="note">手动确认记录，不是实时定位。对方打开行程页时更新。协助到{{expires}}结束。</text></view>
+    <view wx:if="{{view.snapshot.guide}}" class="card"><text class="h3">{{view.snapshot.guide.name}} · 入口照片</text><view id="help-photo" class="entrance-mark" bindtap="mark"><image src="{{view.snapshot.guide.photo}}" mode="widthFix"/><text class="entrance-pin" style="left:{{markerX}}%;top:{{markerY}}%;">入口</text></view><text>{{view.snapshot.guide.instruction}}</text><text class="note">照片观察日期：{{view.snapshot.guide.observedOn}}；现场开放情况仍需确认。</text></view>
+    <view class="card"><text class="h3">给家人一个清楚的建议</text><text class="status">{{status}}</text>
+      <text wx:if="{{view.proposal}}">“{{view.proposal.note}}”已送达，等待本人核对。</text>
+      <block wx:else>
+        <view wx:if="{{stale}}" class="error"><text>行程或照片已变化，原草稿已保留。</text><button bindtap="reset">按新进度重新编辑</button></view>
+        <label><text>你的称呼</text><input value="{{helper}}" maxlength="30" data-key="helper" bindinput="field"/></label>
+        <view class="actions"><button class="{{kind === 'message' ? 'primary' : ''}}" data-kind="message" bindtap="kind">提醒一句</button><button class="{{kind === 'plan' ? 'primary' : ''}}" data-kind="plan" bindtap="kind" disabled="{{view.snapshot.phase !== 'at'}}">调整行程</button><button class="{{kind === 'entrance' ? 'primary' : ''}}" data-kind="entrance" bindtap="kind" disabled="{{!view.snapshot.guide}}">圈出入口</button></view>
+        <block wx:if="{{kind === 'plan'}}"><text class="note">取消不去的地点或提前一站，返程自动保留。</text><view wx:for="{{candidates}}" wx:key="id" class="check" data-id="{{item.id}}" bindtap="stop"><checkbox checked="{{item.checked}}"/><text>{{item.name}}</text></view><view wx:for="{{ordered}}" wx:key="id"><text>{{index + 1}}. {{item.name}}</text><button disabled="{{item.first}}" data-id="{{item.id}}" bindtap="move">提前一站</button></view><label><text>建议舒适步速（米/秒）</text><input value="{{speed}}" type="digit" data-key="speed" bindinput="field"/></label><text class="note">本人采纳前会按已知道路核算，缺少路线时保留原安排。</text></block>
+        <text wx:if="{{kind === 'entrance'}}" class="note">点击上方照片圈出入口，在下方说明怎么认。</text>
+        <label><text>给家人的说明</text><textarea value="{{note}}" maxlength="240" data-key="note" bindinput="field" auto-height/></label><button class="primary" disabled="{{busy || stale || !note}}" bindtap="send">发送建议，等待本人确认</button>
+      </block>
+    </view>
+  </block>
+</view>
